@@ -11,6 +11,8 @@ export default function userInfo(state = {
                 ...action.payload
             };
         case "UPLOAD_DATA":
+            console.log(action.payload.role);
+            
             return {
                 email: action.payload.email,
                 name: action.payload.name,

@@ -195,7 +195,7 @@ export default function Calculator() {
         isSmall = useMediaQuery("(max-width: 599px)"),
         isMedium = useMediaQuery("(max-width: 960px)"),
         changeFuncs = () => {
-            focus();
+            //focus();
             setState(oldState => ({
                 ...state,
                 invFuncs: !oldState.invFuncs
@@ -207,7 +207,7 @@ export default function Calculator() {
                 radians: !state.radians
             });
             config.angles = state.radians ? "rad" : "deg";
-            focus();
+            //focus();
         },
         preventBlur = e => {
             e.preventDefault();
@@ -216,7 +216,7 @@ export default function Calculator() {
             ma && ma.focus();
         },
         update = value => {
-            focus();
+            //focus();
             if (value === "×") {
                 value = "*";
             }
@@ -233,7 +233,7 @@ export default function Calculator() {
         },
         handleSubmit = f => e => {
             e.preventDefault();
-            f.focus();
+            //f.focus();
             let expression = f.text()
                 .replace(/\bsin\(/g, "(sin(")
                 .replace(/\bcos\(/g, "(cos(")
@@ -400,7 +400,7 @@ export default function Calculator() {
                     //})
                     //let { current } = history;
                     //promise.then(() => (current as any).scrollTop = 100000);
-                    f.focus();
+                    //f.focus();
                 } catch (error) {
                     console.error(error);
                     
@@ -412,8 +412,8 @@ export default function Calculator() {
             }
         },
         clear = () => {
-            focus();
-            ma.latex("");
+            //focus();
+            field.latex("");
         },
         toggleHistory = () => {
             if (historyList.length > 0) {
@@ -424,9 +424,9 @@ export default function Calculator() {
                 });
             }
         },
-        replaceExpression = (expression, index) => {
-            ma.latex(expression);
-            focus();
+        replaceExpression = (expression, index, m) => {
+            m.latex(expression);
+            //focus();
             historyArrow = index, currentShown = false;
             setState({
                 ...state,
@@ -442,7 +442,7 @@ export default function Calculator() {
                     if (historyArrow > 0) {
                         if (currentShown !== false) {
                             ma.latex(Object.keys(h[h.length - 1])[0]);
-                            ma.focus();
+                            //ma.focus();
                             historyArrow = h.length - 1;
                             setState({
                                 ...state,
@@ -450,7 +450,7 @@ export default function Calculator() {
                             });
                             currentShown = false;
                         } else {
-                            replaceExpression(Object.keys(h[historyArrow - 1])[0], historyArrow - 1);
+                            replaceExpression(Object.keys(h[historyArrow - 1])[0], historyArrow - 1, ma);
                         }
                     }
                     break;
@@ -458,10 +458,10 @@ export default function Calculator() {
                 case "ArrowDown": {
                     e.preventDefault();
                     if (historyArrow < h.length - 1) {
-                        replaceExpression(keys(h[historyArrow + 1])[0], historyArrow + 1);
+                        replaceExpression(keys(h[historyArrow + 1])[0], historyArrow + 1, ma);
                     } else {
                         ma.latex(oldLatex);
-                        focus();
+                        //focus();
                         historyArrow = historyArrow + 1;
                         setState({
                             ...state,
@@ -579,7 +579,7 @@ export default function Calculator() {
                 {historyList.map((key, index) => (
                     <ListItem
                         button
-                        onClick={() => replaceExpression(keys(key)[0], index)}
+                        onClick={() => replaceExpression(keys(key)[0], index, field)}
                         key={index}
                     >
                         <ListItemText

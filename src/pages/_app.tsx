@@ -240,6 +240,8 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     done: (data: any) => {
                         setDataLoaded(true);
                         setTheme(data.theme);
+                        console.log(data.role);
+                        
                         dispatch({
                             type: "UPLOAD_DATA",
                             payload: data,

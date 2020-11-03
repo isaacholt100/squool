@@ -65,8 +65,7 @@ export default memo(() => {
         logout = () => {
             del("/login", {
                 setLoading: true,
-                done: () => {
-
+                done() {
                     Cookies.remove("refreshToken");
                     Cookies.remove("accessToken");
                     Cookies.remove("user_id");

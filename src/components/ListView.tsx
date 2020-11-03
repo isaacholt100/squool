@@ -102,7 +102,7 @@ const CreateBtn = memo((props: { createFn?: () => void, name: string }) => {
     const classes = useStyles();
     return (
         <CardActionArea
-            className={"flex p_0 flex_col justify_content_center align_items_center " + classes.actionArea}
+            className={classes.actionArea + " flex p_0 flex_col justify_content_center align_items_center full_height"}
             onClick={props.createFn}
         >
             <Typography variant="h6" color="inherit" align="center">
@@ -117,8 +117,12 @@ const CreateBtn = memo((props: { createFn?: () => void, name: string }) => {
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
+                color="primary.main"
+                margin="auto"
             >
-                <Icon path={mdiPlus} />
+                <Box clone color="primary.main">
+                    <Icon path={mdiPlus} />
+                </Box>
             </Box>
         </CardActionArea>
     );
@@ -162,7 +166,7 @@ interface IAction {
 }
 
 interface IListProps<T> {
-    noCreate: boolean;
+    noCreate?: boolean;
     height: number;
     animate: boolean;
     createFn?: () => void;
