@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import useRequest, { usePut } from "../../hooks/useRequest";
 import { useSelector } from "react-redux";
 //import { dispatchEmit } from "../../api/socketDispatch";
@@ -9,6 +9,7 @@ import profileIcons from "../../json/profileIcons";
 import LoadBtn from "../LoadBtn";
 import Icon from "../Icon";
 import clsx from "clsx";
+import { dispatch } from "../../redux/store";
 
 const useStyles = makeStyles(theme => ({
     avatar: {
@@ -24,6 +25,7 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.secondary.main,
         margin: 2,
         border: 2,
+        borderStyle: "solid",
     },
     iconOptionSelected: {
         backgroundColor: theme.palette.secondary.main,
@@ -35,17 +37,23 @@ export default memo(() => {
     const
         classes = useStyles(),
         [put, loading] = usePut(),
-        icon = "infinity",//useSelector(s => s.userInfo.icon),
-        [enlarged, setEnlarged] = useState(icon),
+        icon = useSelector((s: any) => s.userInfo.icon),
+        [enlarged, setEnlarged] = useState(""),
         [open, setOpen] = useState(false),
         change = (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
-            !loading && put("/user/icon", {
+            !loading && put("/user/settings/icon", {
                 setLoading: true,
-                failedMsg: "updating your profile pic",
+                failedMsg: "updating your profile icon",
                 body: { icon: enlarged },
                 done: () => {
                     setOpen(false);
+                    dispatch({
+                        type: "/user/info/update",
+                        payload: {
+                            icon: enlarged,
+                        }
+                    });
                     /*dispatchEmit("/user/info/update", {
                         icon: enlarged,
                     });*/
@@ -63,7 +71,10 @@ export default memo(() => {
                 </Avatar>
                 <Button
                     color="secondary"
-                    onClick={() => setOpen(true)}
+                    onClick={() => {
+                        setEnlarged(icon);
+                        setOpen(true);
+                    }}
                 >
                     Change
                 </Button>
@@ -72,11 +83,11 @@ export default memo(() => {
             <Dialog
                 open={open}
                 onClose={() => setOpen(false)}
-                aria-labelledby="pic-dialog-title"
+                aria-labelledby="change-icon"
                 maxWidth="md"
             >
                 <form onSubmit={change}>
-                    <DialogTitle>Profile Icon</DialogTitle>
+                    <DialogTitle id="change-icon">Profile Icon</DialogTitle>
                     <DialogContent>
                         <div className={"flex flex_wrap"}>
                             {Object.keys(profileIcons).map(p => (

@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TextField, Button, Paper, Typography } from '@material-ui/core';
+import { TextField, Typography, Card } from "@material-ui/core";
+import Decimal from "decimal.js";
+import LoadBtn from "../../components/LoadBtn";
+
+const _0 = new Decimal(0);
 
 const useStyles = makeStyles(theme => ({
     result: {
@@ -15,40 +19,24 @@ export default function PrimeTest() {
     const
         [number, setNumber] = useState(""),
         [message, setMessage] = useState(""),
+        [loading, setLoading] = useState(false),
         classes = useStyles(),
         handleChange = event => {
             setNumber(event.target.value);
         },
         handleSubmit = () => {
-            let prime = true;
-            const num = +number;
-            if (num % 1 !== 0) {
-                setMessage("Number is not whole");
-            } else {
-                if (num >= 1e16) {
-                    setMessage("Too big. Get a supercomputer.");
+            setLoading(true);
+            const worker = new Worker("../../workers/prime.worker", { type: "module" });
+            worker.postMessage(number);
+            worker.addEventListener("message", ({ data }) => {
+                if (typeof(data) === "boolean") {
+                    setMessage("Number " + (data ? "is" : "is not") + " prime");
                 } else {
-                    if (num % 2 === 0 || num % 3 === 0) {
-                        prime = false;
-                    }
-                    for (let i = 5; i * i <= num; i = i + 6) {
-                        if (num % i === 0 || num % (i + 2) === 0) {
-                            prime = false;
-                        }
-                    }
-                    if (num <= 3) {
-                        prime = true;
-                    }
-                    if (num <= 1) {
-                        prime = false;
-                    }
-                    if (!prime) {
-                        setMessage("Number is not prime");
-                    } else {
-                        setMessage("Number is prime");
-                    }
+                    setMessage(data);
                 }
-            }
+                worker.terminate();
+                setLoading(false);
+            });
         },
         prevent = e => {
             e.preventDefault();
@@ -57,9 +45,9 @@ export default function PrimeTest() {
             }
         };
     return (
-        <div style={{ flex: 1, width: "100%" }} className="fadeup">
-            <Paper elevation={0} style={{ borderRadius: 16, margin: 8 }}>
-                <form onSubmit={prevent} style={{ padding: 16 }}>
+        <div>
+            <Card>
+                <form onSubmit={prevent}>
                     <Typography variant="h5">Prime number test</Typography>
                     <TextField
                         id="number"
@@ -67,25 +55,20 @@ export default function PrimeTest() {
                         value={number}
                         onChange={handleChange}
                         margin="normal"
-                        type="number"
-                        //maxLength="16"
                         variant="outlined"
                         fullWidth
                         autoComplete="off"
                     />
                     <div className={"flex align_items_center"}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleSubmit}
-                            disabled={number.length === 0}
-                        >
-                            test
-                        </Button>
+                        <LoadBtn
+                            label="Test"
+                            disabled={number.length === 0 || Number.isNaN(+number)}
+                            loading={loading}
+                        />
                         {message !== "" && <div className={classes.result}>{message}</div>}
                     </div>
                 </form>
-            </Paper>
+            </Card>
         </div>
     );
 };

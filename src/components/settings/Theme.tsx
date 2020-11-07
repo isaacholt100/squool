@@ -28,7 +28,7 @@ export default memo(() => {
             ...huesAndShades(theme.secondary, "secondary")
         })),
         dispatch = useDispatch(),
-        //carouselView = useSelector(s => s.carouselView),
+        carouselView = useSelector((s: any) => s.carouselView),
         handleChangeHue = (name: Intent) => e => {
             setThemeState({
                 ...themeState,
@@ -51,7 +51,7 @@ export default memo(() => {
                 [`${name}Shade`]: shades[shade],
             });
         },
-        endChangeShade = (name: Intent) => (e: React.ChangeEvent<{}>, shade: number) => {
+        endChangeShade = (name: Intent) => (e, shade: number) => {
             const payload = colors[themeState[name + "Hue"]][shades[shade]];
             setTheme({ [name]: payload });
             put("/user/settings/theme", {
@@ -88,7 +88,7 @@ export default memo(() => {
                 type: "/user/carouselView",
                 payload: checked,
             });
-            put("/user/carouselView", {
+            put("/user/settings/carouselView", {
                 failedMsg: "updating the theme",
                 body: {
                     carouselView: checked,
@@ -145,7 +145,7 @@ export default memo(() => {
             <FormControlLabel
                 control={
                     <Switch
-                        checked={false}//carouselView}
+                        checked={carouselView}
                         onChange={changeCarouselView}
                         value="checked"
                     />

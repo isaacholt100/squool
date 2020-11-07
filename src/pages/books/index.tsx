@@ -322,9 +322,11 @@ export default () => {
                 Item={book => (
                     <Link href={`/book/${book._id}/edit`}>
                         <CardActionArea className={"p_8 full_height"}>
+                            <div className="full_height">
                             <Typography variant="h6">
                                 {book.name}
                             </Typography>
+                            </div>
                         </CardActionArea>
                     </Link>
                 )}

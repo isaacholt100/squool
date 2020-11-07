@@ -23,6 +23,8 @@ import Link from "next/link";
 import Head from "next/head";
 import jwtCookies from "../lib/jwtCookies";
 import styles from "../css/signup.module.css";
+import useAuthRedirect from "../hooks/useAuthRedirect";
+import { useRouter } from "next/router";
 interface IFields {
     firstName: string;
     surname: string;
@@ -67,6 +69,7 @@ export default function Login() {
         [post, loading] = usePost(),
         //socket = useSocket(),
         //title = useTitle(),
+        router = useRouter(),
         [values, setValues] = useState(initialValues),
         [helpers, setHelpers] = useState(initialValues),
         [role, setRole] = useState("student"),
@@ -97,6 +100,7 @@ export default function Login() {
                         staySignedIn,
                         user_id: data.user_id,
                     });
+                    router.replace("/");
                     /*sessionStorage.setItem("visited", "1");
                     localStorage.setItem("role", role);
                     setCookie("refresh", data.refreshToken, staySignedIn);
@@ -219,8 +223,9 @@ export default function Login() {
             values.repeatPassword === "" ||
             values.firstName === "" ||
             values.surname === "" ||
-            (role === "admin" && values.schoolID === "");
-    return (
+            (role === "admin" && values.schoolID === ""),
+            isLoggedIn = useAuthRedirect();
+    return isLoggedIn ? null : (
         <>
             <Head>
                 <title>Signup</title>

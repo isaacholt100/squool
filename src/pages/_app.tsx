@@ -238,14 +238,14 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     },
                     failed: () => setDataLoaded(undefined),
                     done: (data: any) => {
-                        setDataLoaded(true);
-                        setTheme(data.theme);
-                        console.log(data.role);
-                        
-                        dispatch({
-                            type: "UPLOAD_DATA",
-                            payload: data,
-                        });
+                        setTimeout(() => {
+                            setDataLoaded(true);
+                            setTheme(data.theme);
+                            dispatch({
+                                type: "UPLOAD_DATA",
+                                payload: data,
+                            });
+                        }, 500);
                     }
                 });
             } else {
@@ -357,7 +357,7 @@ export default function App({ Component, pageProps }) {
                 value={{
                     onError: (err, key, config) => {
                         console.error(err);
-                        snack.current.enqueueSnackbar("There was an error loading", {
+                        snack.current.enqueueSnackbar("There was an error loading a request", {
                             variant: "error",
                         });
                     }
@@ -367,38 +367,38 @@ export default function App({ Component, pageProps }) {
                     <title>Squool</title>
                     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5" />
                 </Head>
-                    <Theme>
-                        <Pickers utils={DateUtils}>
-                            <Snackbar
-                                ref={snack as any}
-                                action={key => (
-                                    <IconButton size="small" onClick={() => snack.current.closeSnackbar(key)}>
-                                        <Icon path={mdiClose} />
-                                    </IconButton>
-                                )}
-                                anchorOrigin={{
-                                    vertical: "bottom",
-                                    horizontal: "right",
-                                }}
-                                preventDuplicate
-                                autoHideDuration={8192}
-                                TransitionComponent={Grow as any}
-                                classes={{
-                                    variantError: classes.error,
-                                    variantSuccess: classes.success,
-                                    variantInfo: classes.info,
-                                    variantWarning: classes.warning,
-                                    root: classes.snackbar,
-                                    containerAnchorOriginBottomRight: classes.bottom,
-                                }}
-                                maxSnack={4}
-                            >
-                                <ThemeWrapper>
-                                    <Component {...pageProps} />
-                                </ThemeWrapper>
-                            </Snackbar>
-                        </Pickers>
-                    </Theme>
+                <Theme>
+                    <Pickers utils={DateUtils}>
+                        <Snackbar
+                            ref={snack as any}
+                            action={key => (
+                                <IconButton size="small" onClick={() => snack.current.closeSnackbar(key)}>
+                                    <Icon path={mdiClose} />
+                                </IconButton>
+                            )}
+                            anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "right",
+                            }}
+                            preventDuplicate
+                            autoHideDuration={8192}
+                            TransitionComponent={Grow as any}
+                            classes={{
+                                variantError: classes.error,
+                                variantSuccess: classes.success,
+                                variantInfo: classes.info,
+                                variantWarning: classes.warning,
+                                root: classes.snackbar,
+                                containerAnchorOriginBottomRight: classes.bottom,
+                            }}
+                            maxSnack={4}
+                        >
+                            <ThemeWrapper>
+                                <Component {...pageProps} />
+                            </ThemeWrapper>
+                        </Snackbar>
+                    </Pickers>
+                </Theme>
             </SWRConfig>
         </Redux>
     );

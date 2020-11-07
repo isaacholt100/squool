@@ -19,7 +19,7 @@ export default function LoadBtn({ label, disabled, loading, ...other }: IProps) 
                 {label}
             </Button>
             {loading && (
-                <CircularProgress size={24} className={styles.progress} />
+                <CircularProgress disableShrink size={24} className={styles.progress} />
             )}
         </div>
     );

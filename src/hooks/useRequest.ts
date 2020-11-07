@@ -4,6 +4,7 @@ import useSnackbar from "./useSnackbar";
 import { IFetchOptions, IRes } from "../types/fetch";
 import { useState } from "react";
 import Cookies from "js-cookie";
+
 type Handler = (data: object | string) => void;
 interface IOptions extends IFetchOptions {
     setLoading?: boolean;

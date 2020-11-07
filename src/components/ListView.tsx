@@ -19,6 +19,7 @@ import {
     DialogTitle,
     CircularProgress,
     IconButtonProps,
+    Paper,
 } from "@material-ui/core";
 import { Box } from "@material-ui/core";
 import isEqual from "react-fast-compare";
@@ -37,7 +38,7 @@ const useStyles = makeStyles(theme => ({
     },
     animate: {
         opacity: 0,
-        animation: "fadein 0.5s forwards",
+        animation: "fadein 0.5s forwards 0.25s",
     },
     createBtn: {
         "& *": {
@@ -105,25 +106,27 @@ const CreateBtn = memo((props: { createFn?: () => void, name: string }) => {
             className={classes.actionArea + " flex p_0 flex_col justify_content_center align_items_center full_height"}
             onClick={props.createFn}
         >
-            <Typography variant="h6" color="inherit" align="center">
-                New {props.name}
-            </Typography>
-            <Box
-                bgcolor="primary.contrastText"
-                borderRadius="50%"
-                //size="small"
-                height={36}
-                width={36}
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                color="primary.main"
-                margin="auto"
-            >
-                <Box clone color="primary.main">
-                    <Icon path={mdiPlus} />
+            <div>
+                <Typography variant="h6" color="inherit" align="center" style={{marginTop: -4}}>
+                    New {props.name}
+                </Typography>
+                <Box
+                    bgcolor="primary.contrastText"
+                    borderRadius="50%"
+                    //size="small"
+                    height={36}
+                    width={36}
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    color="primary.main"
+                    margin="auto"
+                >
+                    <Box clone color="primary.main">
+                        <Icon path={mdiPlus} />
+                    </Box>
                 </Box>
-            </Box>
+            </div>
         </CardActionArea>
     );
 }, (prev, next) => true);
@@ -142,6 +145,7 @@ const Stepper = memo((props: { length: number, activeStep: number, setActiveStep
                     disabled={props.activeStep === props.length - 1}
                 >
                     <Icon path={mdiChevronRight} />
+                {console.log(props.activeStep)}
                 </IconButton>
             </Tooltip>
         }
@@ -157,7 +161,7 @@ const Stepper = memo((props: { length: number, activeStep: number, setActiveStep
             </Tooltip>
         }
     />
-), (prev, next) => !(prev.activeStep !== next.activeStep || prev.length !== next.length));
+), (prev, next) => !(prev.length !== next.length || prev.activeStep !== next.activeStep));
 
 interface IAction {
     label: string;
@@ -175,11 +179,12 @@ interface IListProps<T> {
     Item: (item: T) => JSX.Element;
     color?: IconButtonProps["color"];
     Actions?: (item: T) => IAction[];
+    activeStep: number;
+    setActiveStep: (x: number) => void;
 }
 
 const List = memo(function<T>(props: IListProps<T>) {
     const
-        [activeStep, setActiveStep] = useState(0),
         contextMenu = useContextMenu(),
         classes = useStyles(),
         carouselView = useSelector(s => (s as any).carouselView),
@@ -191,8 +196,8 @@ const List = memo(function<T>(props: IListProps<T>) {
             container: true,
             spacing: isSmall ? 1 : 2,
         } : {
-            index: activeStep,
-            onChangeIndex: (step: number) => setActiveStep(step),
+            index: props.activeStep,
+            onChangeIndex: (step: number) => props.setActiveStep(step),
             enableMouseEvents: true,
             className: classes.swiper
         };
@@ -200,11 +205,11 @@ const List = memo(function<T>(props: IListProps<T>) {
         <>
             {swipeable && !props.noCreate && (
                 <Box height={props.height} mb={1}>
-                    <Card
-                        className={(props.animate ? classes.animate : classes.animated) + "p_0 full_height"}
+                    <Paper
+                        className={(props.animate ? classes.animate : classes.animated) + " full_height"}
                     >
                         <CreateBtn createFn={props.createFn} name={props.name} />
-                    </Card>
+                    </Paper>
                 </Box>
             )}
             <div className={(swipeable && props.animate) ? classes.bounceUp : null}>
@@ -222,12 +227,12 @@ const List = memo(function<T>(props: IListProps<T>) {
                                 height: props.height,
                             }}
                         >
-                            <Card
+                            <Paper
                                 classes={{
                                     root: clsx(swipeable ? classes.cardSwipe : null, styles.card)
                                 }}
                                 style={{
-                                    animation: (!swipeable && props.animate) ? `fadein 0.5s forwards ${i / (props.filtered.length + 1)}s` : "none",
+                                    animation: (!swipeable && props.animate) ? `fadein 0.5s forwards ${(i + 1) / (props.filtered.length + 1) / 2}s` : "none",
                                     opacity: (!swipeable && props.animate) ? 0 : 1,
                                 }}
                                 onContextMenu={item !== "create" && props.Actions ? contextMenu(props.Actions(item)) : undefined}
@@ -253,14 +258,14 @@ const List = memo(function<T>(props: IListProps<T>) {
                                         </Box>
                                     </>
                                 )}
-                            </Card>
+                            </Paper>
                         </Grid>
                     ))}
                 </Container>
             </div>
         </>
     );
-}, (prev, next) => !(!isEqual(prev.filtered, next.filtered) || prev.animate !== next.animate));
+}, (prev, next) => !(!isEqual(prev.filtered, next.filtered) || prev.animate !== next.animate || prev.activeStep !== next.activeStep));
 
 interface IFormProps {
     createOpen: boolean;
@@ -279,7 +284,7 @@ const Form = (props: IFormProps) => (
         {props.createForm}
     </Dialog>
 );
-export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "animate" | "setAnimate"> & Partial<IFormProps>) {
+export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "animate" | "setAnimate" | "activeStep" | "setActiveStep"> & Partial<IFormProps>) {
     const
         [activeStep, setActiveStep] = useState(0),
         carouselView = useSelector(s => (s as any).carouselView),
@@ -287,11 +292,12 @@ export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "anim
         isLarge = useMediaQuery("(min-width: 600px)"),
         swipeable = !isLarge && carouselView;
     useEffect(() => {
-        props.filtered && setTimeout(() => setAnimate(false), 1500);
+        props.filtered && setTimeout(() => setAnimate(false), 1000);
     }, [props.filtered]);
     useEffect(() => {
         const keyDown = e => {
             if (isHotkey("shift+n", e)) {
+                e.preventDefault();
                 props.createFn();
             }
         }
@@ -314,9 +320,11 @@ export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "anim
                     Actions={props.Actions}
                     name={props.name}
                     height={props.height}
+                    activeStep={activeStep}
+                    setActiveStep={setActiveStep}
                 />
                 {swipeable && props.filtered.length > 0 && <Stepper activeStep={activeStep} setActiveStep={setActiveStep} length={props.filtered.length} />}
             </Box>
-        ) : <CircularProgress />
+        ) : <CircularProgress disableShrink />
     );
 }

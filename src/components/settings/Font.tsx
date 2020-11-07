@@ -40,6 +40,7 @@ export default memo(() => {
                     limit: 16,
                     trim: true,
                 })}
+                selectOnFocus={false}
                 renderInput={params => (
                     <TextField
                         {...params}

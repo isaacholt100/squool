@@ -183,7 +183,7 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
             const db = await getDB();
             const users = db.collection("users");
             const valid = await bcrypt.compare(req.body.password, (await users.findOne({
-                _i: user._id
+                _id: user._id
             }, {
                 projection: {
                     password: 1,

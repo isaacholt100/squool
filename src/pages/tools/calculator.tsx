@@ -23,6 +23,8 @@ import {
 import clsx from "clsx";
 import Icon from "../../components/Icon";
 import { mdiBackspace, mdiHistory } from "@mdi/js";
+import MathField from "../../components/MathField";
+import { MQ } from "@edtr-io/mathquill";
 
 const EditableMathField: any = dynamic(
     () => import("react-mathquill").then(mod => mod.EditableMathField) as any,
@@ -167,7 +169,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 export default function Calculator() {
-    let ma = null;
+    let ma: MQ = null;
     let historyArrow = 0, oldLatex = "", currentShown = true;
     const
         [state, setState] = useState({
@@ -186,7 +188,7 @@ export default function Calculator() {
             height: 0,
             historyHeight: 299,
         }),
-        [field, setField] = useState(null),
+        [field, setField] = useState<MQ>(null),
         [historyList, setHistoryList] = useState([]),
         historyRef = useRef(historyList),
         classes = useStyles(),
@@ -260,7 +262,7 @@ export default function Calculator() {
                 .replace(/operatorname{Im}\(/g, "(im(");
             
             if (expression !== "") {
-                let absolute;
+                let absolute: string;
                 do {
                     // eslint-disable-next-line no-useless-escape
                     if (expression.match(/\|([^\|]+)\|/) !== null) {
@@ -424,7 +426,7 @@ export default function Calculator() {
                 });
             }
         },
-        replaceExpression = (expression, index, m) => {
+        replaceExpression = (expression: string, index: number, m: MQ) => {
             m.latex(expression);
             //focus();
             historyArrow = index, currentShown = false;
@@ -647,7 +649,7 @@ export default function Calculator() {
         historyRef.current = historyList;
     }, [historyList]);
     return (
-        <div className={`${classes.container} fadeup`}>
+        <div className={classes.container}>
             <Card>
                 <form
                     onSubmit={handleSubmit(field)}
@@ -665,13 +667,16 @@ export default function Calculator() {
                         }} ref={calcContainer}>
                             <FormControl fullWidth error={state.error}>
                                 {useMemo(() => (
-                                    <EditableMathField
-                                        className={classes.mathField}
+                                    <MathField
+                                        config={{
+                                            autoCommands: "pi sqrt",
+                                            autoOperatorNames: "sin cos tan arcsin arccos arctan sinh cosh tanh arcsinh arccosh arctanh log ln dim Re Im floor ceil round csc sec cot acsc",
+                                        }}
                                         latex={state.latex}
                                         onChange={mathField => {
                                             const
                                                 latex = mathField.latex();
-                                              //  oldLatex = latex;
+                                            oldLatex = latex;
                                             setState({
                                                 ...state,
                                                 latex,
@@ -680,10 +685,6 @@ export default function Calculator() {
                                         mathquillDidMount={m => {
                                             ma = m;
                                             setField(m);
-                                        }}
-                                        config={{
-                                            autoCommands: "pi sqrt",
-                                            autoOperatorNames: "sin cos tan arcsin arccos arctan sinh cosh tanh arcsinh arccosh arctanh log ln dim Re Im floor ceil round csc sec cot acsc",
                                         }}
                                     />
                                 ), [])}
