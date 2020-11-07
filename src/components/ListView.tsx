@@ -65,6 +65,9 @@ const useStyles = makeStyles(theme => ({
     actionArea: {
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,
+    },
+    errorColor: {
+        color: theme.palette.error.main,
     }
 }));
 
@@ -249,7 +252,7 @@ const List = memo(function<T>(props: IListProps<T>) {
                                                         onClick={fn}
                                                         color={props.color || (label === "Delete" ? undefined : "secondary")}
                                                         {...a}
-                                                        className={label === "Delete" ? "color-error ml_8" : "ml_8"}
+                                                        className={label === "Delete" ? clsx(classes.errorColor, "ml_8") : "ml_8"}
                                                     >
                                                         {icon}
                                                     </IconButton>
