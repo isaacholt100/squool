@@ -15,8 +15,13 @@ export default function TimetableView() {
         dispatch = useDispatch(),
         router = useRouter(),
         //classes = useStyles(),
-        timetable = useSelector((s: any) => s.timetable),
-        sat = useRef(timetable.lessons.length === 6),
+        timetable = useSelector((s: any) => s.timetable);
+    if (timetable?.periods?.length === 0) {
+        router.replace("/timetable/search");
+    }
+    const
+        length = useRef(timetable?.periods?.length),
+        sat = useRef(timetable?.lessons?.length === 6),
         handleChange = (day, period, key) => e => {
             const { value } = e.target;
             const obj = {
@@ -43,9 +48,6 @@ export default function TimetableView() {
             }
         };
     useEffect(() => {
-        if (timetable.periods.length === 0) {
-            router.replace("/timetable/search");
-        }
         dispatch({
             type: "/moreActions",
             payload: [{
@@ -55,7 +57,7 @@ export default function TimetableView() {
                         failedMsg: "updating your timetable",
                         body: {
                             sat: !sat.current,
-                            length: timetable.periods.length,
+                            length: length.current,
                         },
                         done() {
                             dispatch({
@@ -73,8 +75,11 @@ export default function TimetableView() {
         });
     }, []);
     useEffect(() => {
-        sat.current = timetable.lessons.length === 6;
-    }, [timetable.lessons.length]);
+        sat.current = timetable?.lessons?.length === 6;
+    }, [timetable?.lessons?.length]);
+    useEffect(() => {
+        length.current = timetable?.periods?.length;
+    }, []);
     return (
         timetable && timetable.periods.length > 0 ?
             <Timetable

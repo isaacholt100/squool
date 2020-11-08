@@ -31,7 +31,6 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
         defaultBg = theme.type === "light" ? "#fff" : "#121212",
         level1Bg = theme.type === "light" ? "#ddd" : "#333",
         fontFamily = `https://fonts.googleapis.com/css?family=${theme.fontFamily.toLowerCase().split(" ").map((s: string) => s.charAt(0).toUpperCase() + s.substring(1)).join("+")}:300,400,500&display=swap`,
-        classes = useContainerStyles(isLoggedIn),
         muiTheme = createMuiTheme({
             palette: {
                 primary: {
@@ -262,18 +261,25 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 {!dataLoaded && (
                     <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} />
                 )}
-                <div className={"flex flex_col full_screen"}>
-                    <Navigation />
-                    <CssBaseline />
-                    <div className={classes.appContainer}>
-                        {children}
-                    </div>
-                </div>
+                <Frame>{children}</Frame>
             </MuiTheme>
         </>
     );
 }
-const useContainerStyles = makeStyles(({ breakpoints }) => ({
+function Frame({ children }) {
+    const isLoggedIn = useIsLoggedIn();
+    const classes = useContainerStyles(isLoggedIn);
+    return (
+        <div className={"flex flex_col full_screen"}>
+            <Navigation />
+            <CssBaseline />
+            <div className={classes.appContainer}>
+                {children}
+            </div>
+        </div>
+    );
+}
+const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
     appContainer: {
         width: "100vw",
         //marginTop: props => (props as any) ? 60 : 0,
@@ -299,6 +305,19 @@ const useContainerStyles = makeStyles(({ breakpoints }) => ({
         },
         flex: 1,
         minHeight: 0,
+        "& ::selection": {
+            WebkitTextFillColor: palette.secondary.contrastText,
+            color: palette.secondary.contrastText,
+            backgroundColor: palette.secondary.main,
+        },
+        "& ::moz-selection": {
+            WebkitTextFillColor: palette.secondary.contrastText,
+            color: palette.secondary.contrastText,
+            backgroundColor: palette.secondary.main,
+        },
+        "& *": {
+            caretColor: palette.primary.main,
+        },
     },
 }));
 const useStyles = makeStyles(({ palette }) => ({

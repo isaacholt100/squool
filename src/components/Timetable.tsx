@@ -5,6 +5,7 @@ import { startCase } from "lodash";
 import { Paper, Typography, TextField, IconButton, Tooltip, Box } from "@material-ui/core";
 import Icon from "./Icon";
 import { mdiBook, mdiClockTimeFour, mdiDelete, mdiFace, mdiMapMarker, mdiPencil } from "@mdi/js";
+import Color from "color";
 const Slot = memo((props: any) => {
     const classes = useStyles();
     return (
@@ -18,8 +19,6 @@ const Slot = memo((props: any) => {
             }}
             className={`${classes.paper} ${classes.lesson} ${props.create ? classes.noAnimate : null}`}
         >
-            {console.log("pls")
-            }
             <div className={classes.container}>
                 {[
                     {
@@ -89,6 +88,10 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,
         border: `1px solid ${theme.palette.primary.contrastText}`,
+        "& ::selection": {
+            color: theme.palette.primary.contrastText,
+            backgroundColor: Color(theme.palette.primary.contrastText).alpha(0.32).toString(),
+        }
     },
     period: {
         backgroundColor: theme.palette.primary.main,
@@ -100,6 +103,10 @@ const useStyles = makeStyles(theme => ({
             textAlign: "center",
         },
         border: `1px solid ${theme.palette.primary.contrastText}`,
+        "& ::selection": {
+            color: theme.palette.primary.contrastText,
+            backgroundColor: Color(theme.palette.primary.contrastText).alpha(0.32).toString(),
+        }
     },
     subject: {
         color: theme.palette.secondary.main,
@@ -128,10 +135,7 @@ const useStyles = makeStyles(theme => ({
         }
     },
     actionDiv: {
-        margin: -16,
-        [theme.breakpoints.down("md")]: {
-            margin: -8
-        },
+        margin: -4,
         marginBottom: 0,
         display: "flex",
     },
@@ -200,7 +204,7 @@ export default memo((props: any) => {
             height={create ? "auto" : edit ? "100%" : "calc(100% - 72px)"}
             minHeight={create ? "auto" : edit ? "100%" : "calc(100% - 72px)"}
             flex={edit ? 1 : "initial"}
-            p={{ lg: "8px !important" }}
+            p={props.noPadding ? undefined : { lg: "8px !important" }}
         >
             <div className={classes.periodContainer}>
                 <Paper className={`${classes.day} ${classes.paper} ${create ? classes.noAnimate : null}`}>

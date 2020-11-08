@@ -13,10 +13,6 @@ const styles = (theme: Theme) => {
     const borderColor = theme.palette.type === "light" ? "rgba(0, 0, 0, 0.23)" : "rgba(255, 255, 255, 0.23)";
     return {
         "@global": {
-            ".mq-focused": {
-                boxShadow: "none !important",
-                borderColor: theme.palette.primary.main + " !important",
-            },
             ".mq-math-mode": {
                 borderRadius: "8px !important",
                 padding: "8.5px 14px !important",
@@ -32,8 +28,15 @@ const styles = (theme: Theme) => {
                 outline: "none !important",
                 fontSize: "18px !important"
             },
+            ".mq-focused": {
+                boxShadow: "none !important",
+                borderColor: theme.palette.primary.main + " !important",
+                "&:hover": {
+                    borderColor: theme.palette.primary.main + " !important",
+                },
+            },
             ".mq-cursor": {
-                borderColor: theme.palette.text.primary + " !important",
+                borderColor: theme.palette.primary.main + " !important",
             }
         }
     }

@@ -6,10 +6,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import Timetable from "../../components/Timetable";
 import defaultTimetable from "../../json/defaultTimetable.json";
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Switch, FormControlLabel } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Switch, FormControlLabel, Box } from '@material-ui/core';
 import useTitle from "../../hooks/useTitle";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import LoadBtn from "../../components/LoadBtn";
 
 const
     useStyles = makeStyles(theme => ({
@@ -50,7 +51,8 @@ export default function TimetableCreate() {
             setPeriodEdited(null)
         },
         timeValid = date => date.search(/^\d{2}:\d{2}$/) !== -1,
-        createTimetable = () => {
+        createTimetable = e => {
+            e.preventDefault();
             if (timetableName !== "" && timetable.periods.length !== 0 && timetableName.length < 45) {
                 post("/timetables", {
                     setLoading: true,
@@ -88,8 +90,6 @@ export default function TimetableCreate() {
             setPeriodEdited(index);
         },
         addPeriod = () => {
-            console.log(periodStartTime, periodEndTime);
-            
             const 
                 startTime = ("0" + periodStartTime.getHours()).slice(-2) + ":" + ("0" + periodStartTime.getMinutes()).slice(-2),
                 endTime = ("0" + periodEndTime.getHours()).slice(-2) + ":" + ("0" + periodEndTime.getMinutes()).slice(-2);
@@ -112,11 +112,11 @@ export default function TimetableCreate() {
             }
         };
     return (
-        <>
+        <div>
             <Head>
                 <title>Create Timetable</title>
             </Head>
-            <form className="flex align_items_center">
+            <form className="flex align_items_center" onSubmit={createTimetable}>
                 <TextField
                     id="school"
                     label="Timetable name"
@@ -126,7 +126,7 @@ export default function TimetableCreate() {
                     margin="dense"
                     variant="outlined"
                 />
-                <Button variant="contained" color="secondary" disabled={timetableName === "" || timetable.periods.length === 0 || timetableName.length >= 45} style={{margin: "8px 0 4px 8px",}} onClick={createTimetable}>create</Button>
+                <LoadBtn label="Create" color="secondary" disabled={timetableName === "" || timetable.periods.length === 0 || timetableName.length >= 45} style={{margin: "8px 0 4px 8px",}} loading={loading} />
             </form>
             <FormControlLabel
                 control={
@@ -152,6 +152,7 @@ export default function TimetableCreate() {
                 editPeriod={editPeriod}
                 deletePeriod={deletePeriod}
                 timetable={timetable}
+                noPadding
             />
             <Button
                 onClick={() => setDialogOpen(true)}
@@ -182,7 +183,7 @@ export default function TimetableCreate() {
                                 ampm={false}
                                 label="Start time"
                                 value={periodStartTime}
-                                onChange={date => setPeriodStartTime(date)}
+                                onChange={setPeriodStartTime}
                                 KeyboardButtonProps={{
                                     "aria-label": "change start time",
                                 }}
@@ -199,8 +200,9 @@ export default function TimetableCreate() {
                                 margin="normal"
                                 ampm={false}
                                 label="End time"
+                                mask="__:__"
                                 value={periodEndTime}
-                                onChange={date => setPeriodEndTime(date)}
+                                onChange={setPeriodEndTime}
                                 KeyboardButtonProps={{
                                     "aria-label": "change end time",
                                 }}
@@ -217,6 +219,6 @@ export default function TimetableCreate() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </>
+        </div>
     );
 }
