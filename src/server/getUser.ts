@@ -40,9 +40,7 @@ export default async (user_id: ObjectId, users: Collection<any>) => await users.
     { $match: { _id: user_id } },
     ...returnQuery(user_id, "chat"),
     ...returnQuery(user_id, "class"),
-    { $project: {"users": { $setUnion: [{ $ifNull: ["$class_members.member_ids", []] }, { $ifNull: ["$chat_members.member_ids", []] }] }, email: 1, icon: 1, timetable: 1, theme: 1, "name": {
-        "$concat": ["$firstName", " ", "$lastName"]
-    }, carouselView: 1, role: 1, /*name: {$concat: ["$firstName", " ", "$lastName"]}*/ } },
+    { $project: {"users": { $setUnion: [{ $ifNull: ["$class_members.member_ids", []] }, { $ifNull: ["$chat_members.member_ids", []] }] }, email: 1, school_id: 1, icon: 1, timetable: 1, theme: 1, firstName: 1, lastName: 1, carouselView: 1, role: 1, /*name: {$concat: ["$firstName", " ", "$lastName"]}*/ } },
     {
         $project: {
             "users": {
@@ -53,7 +51,7 @@ export default async (user_id: ObjectId, users: Collection<any>) => await users.
                         $ne: [user_id, "$$id"]
                     },
                 }
-            }, email: 1, icon: 1, timetable: 1, theme: 1, name: 1, carouselView: 1, role: 1
+            }, email: 1, icon: 1, timetable: 1, theme: 1, firstName: 1, lastName: 1, carouselView: 1, role: 1, school_id: 1,
         }
     },
     {
@@ -105,9 +103,9 @@ export default async (user_id: ObjectId, users: Collection<any>) => await users.
                 "email": 1,
                 "icon": 1,
                 "role": 1,
-                "name": {
+                "name": 1/*{
                     "$concat": ["$firstName", " ", "$lastName"]
-                }
+                }*/
             } }
             ],
             as: "users",

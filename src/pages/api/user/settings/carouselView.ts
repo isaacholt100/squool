@@ -3,19 +3,14 @@ import auth from "../../../../server/auth";
 import getDB from "../../../../server/getDB";
 import { done, notAllowed } from "../../../../server/helpers";
 import tryCatch from "../../../../server/tryCatch";
+import updateSettings from "../../../../server/updateSettings";
 
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
         case "PUT": {
-            const { _id } = await auth(req, res);
-            const db = await getDB();
-            const users = db.collection("users");
-            await users.updateOne({ _id }, {
-                $set: {
-                    carouselView: Boolean(req.body.carouselView),
-                },
+            await updateSettings(req, res, {
+                carouselView: req.body.carouselView,
             });
-            done(res);
             break;
         }
         default: {

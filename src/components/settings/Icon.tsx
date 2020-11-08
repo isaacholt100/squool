@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.primary.contrastText + " !important",
         height: 64,
         width: 64,
-        marginRight: 8,
+        marginRight: 16,
     },
     iconOption: {
         borderColor: theme.palette.secondary.main,
@@ -105,8 +105,8 @@ export default memo(() => {
                     <DialogActions>
                         <Button onClick={() => setOpen(false)} disabled={loading}>Cancel</Button>
                         <LoadBtn
-                            label="Update"
-                            disabled={false}
+                            label="Change"
+                            disabled={icon === enlarged}
                             loading={loading}
                         />
                     </DialogActions>

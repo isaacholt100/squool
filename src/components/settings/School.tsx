@@ -1,16 +1,20 @@
 import React, { memo, useState } from "react";
-import useRequest, { usePut } from "../../hooks/useRequest";
+import useRequest, { useDelete, usePut } from "../../hooks/useRequest";
 import useSnackbar from "../../hooks/useSnackbar";
 import useConfirm from "../../hooks/useConfirm";
 import { Typography, TextField, Button } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
 import Cookies from "js-cookie";
+import useLogout from "../../hooks/useLogout";
+import { useSelector } from "react-redux";
 
 export default memo(() => {
     const
         [put, loading] = usePut(),
-        snackbar = useSnackbar(),
-        [ConfirmDialog, confirm, close] = useConfirm(loading),
+        [del, delLoading] = useDelete(),
+        logout = useLogout(),
+        school_id = useSelector((s: any) => s.userInfo.school_id),
+        [ConfirmDialog, confirm, close] = useConfirm(loading || delLoading),
         [state, setState] = useState({
             _id: "",
             helper: "",
@@ -19,32 +23,39 @@ export default memo(() => {
             put("/user/school", {
                 failedMsg: "updating your school",
                 body: { school_id: state._id },
+                setLoading: true,
                 done(data) {
+                    logout();
+                },
+                errors(data) {
                     close();
                     setState({
-                        helper: "",
-                        _id: "",
+                        ...state,
+                        helper: data.errors as string,
                     });
-                    snackbar.success("School updated");
-                },
-                errors: data => setState({
-                    ...state,
-                    helper: data.errors as string,
-                })
+                }
+            });
+        },
+        leave = () => {
+            del("/user/school", {
+                failedMsg: "leaving your school",
+                body: { school_id: state._id },
+                setLoading: true,
+                done(data) {
+                    logout();
+                }
             });
         },
         submit = e => {
             e.preventDefault();
             if (state._id !== "") {
-                if (Cookies.get("school_id")) {
-                    confirm("change your school? You'll leave all your classes.", change);
-                } else if (state._id === Cookies.get("school_id")) {
+                if (state._id === school_id) {
                     setState({
                         ...state,
                         _id: "",
                     });
                 } else {
-                    change();
+                    confirm("change your school? You'll need to login again.", change);
                 }
             }
         };
@@ -62,12 +73,18 @@ export default memo(() => {
                 helperText={state.helper + " "}
                 fullWidth
             />
-            <Button
-                color="secondary"
-                type="submit"
-            >
-                Change
-            </Button>
+            <div className="flex mt_8">
+                <Button
+                    color="secondary"
+                    type="submit"
+                    disabled={state._id === "" || state.helper !== ""}
+                >
+                    Change
+                </Button>
+                <Button className="ml_auto" onClick={() => confirm("leave your school? You'll need to login again.", leave)} disabled={!Boolean(school_id)}>
+                    Leave School
+                </Button>
+            </div>
             <MarginDivider />
             {ConfirmDialog}
         </form>

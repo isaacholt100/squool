@@ -7,6 +7,8 @@ import School from "../components/settings/School";
 import DeleteAccount from "../components/settings/DeleteAccount";
 import Theme from "../components/settings/Theme";
 import useRedirect from "../hooks/useRedirect";
+import Name from "../components/settings/Name";
+import Email from "../components/settings/Email";
 
 export default function Settings() {
     const isLoggedIn = useRedirect();
@@ -24,7 +26,7 @@ export default function Settings() {
                         scrollButtons="auto"
                         aria-label="scrollable tabs"
                     >
-                        {["account", "theme"].map((tab, i) => (
+                        {["account", "profile", "theme"].map((tab, i) => (
                             <Tab
                                 key={i}
                                 id={`scrollable-auto-tab-${i}`}
@@ -35,17 +37,23 @@ export default function Settings() {
                     </Tabs>
                 </AppBar>
             </Box>
-            <Box component={Card} mb={{ xs: 1, lg: 2, }} className="fadeup">
+            <Box component={Card} mb={{ xs: 1, lg: 2, }}>
                 {page === 0 && (
                     <>
-                        <Icon />
+                        <Email />
                         <Password />
-                        <Timetable />
+                        {/*<Timetable />*/}
                         <School />
                         <DeleteAccount />
                     </>
                 )}
-                {page === 1 && <Theme />}
+                {page === 1 && (
+                    <>
+                        <Icon />
+                        <Name />
+                    </>
+                )}
+                {page === 2 && <Theme />}
             </Box>
         </div>
     );

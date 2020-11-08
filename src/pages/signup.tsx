@@ -25,9 +25,10 @@ import jwtCookies from "../lib/jwtCookies";
 import styles from "../css/signup.module.css";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import { useRouter } from "next/router";
+import isEmailValid from "../lib/isEmailValid";
 interface IFields {
     firstName: string;
-    surname: string;
+    lastName: string;
     email: string;
     schoolID: string;
     password: string;
@@ -36,7 +37,7 @@ interface IFields {
 const
     initialValues: IFields = {
         firstName: "",
-        surname: "",
+        lastName: "",
         email: "",
         schoolID: "",
         password: "",
@@ -51,7 +52,7 @@ const
             width: "calc(50% - 4px)",
             textTransform: "capitalize"
         },
-        surname: {
+        lastName: {
             width: "calc(50% - 4px)",
             marginLeft: 8,
             textTransform: "capitalize"
@@ -86,7 +87,7 @@ export default function Login() {
                 body: {
                     email,
                     firstName: values.firstName.trim(),
-                    surname: values.surname.trim(),
+                    lastName: values.lastName.trim(),
                     schoolID: values.schoolID.trim(),
                     password: values.password,
                     repeatPassword: values.repeatPassword,
@@ -100,7 +101,7 @@ export default function Login() {
                         staySignedIn,
                         user_id: data.user_id,
                     });
-                    router.replace("/");
+                    router.replace("/home");
                     /*sessionStorage.setItem("visited", "1");
                     localStorage.setItem("role", role);
                     setCookie("refresh", data.refreshToken, staySignedIn);
@@ -109,7 +110,7 @@ export default function Login() {
                         type: "/user/info/update",
                         payload: {
                             email,
-                            name: values.firstName + " " + values.surname,
+                            name: values.firstName + " " + values.lastName,
                             role,
                             user_id: data.user_id,
                         },
@@ -181,13 +182,12 @@ export default function Login() {
                     };
                 }
             } else if (field === "email") {
-                const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                if (!re.test(String(value).toLowerCase())) {
+                if (!isEmailValid(value)) {
                     newState = {
                         email: "Email address invalid",
                     };
                 }
-            } else if (field === "firstName" || field === "surname") {
+            } else if (field === "firstName" || field === "lastName") {
                 setValues({
                     ...values,
                     [field]: value
@@ -216,15 +216,24 @@ export default function Login() {
             helpers.password !== "" ||
             helpers.repeatPassword !== "" ||
             helpers.firstName !== "" ||
-            helpers.surname !== "" ||
+            helpers.lastName !== "" ||
             (role === "admin" && helpers.schoolID !== "") ||
             values.email === "" ||
             values.password === "" ||
             values.repeatPassword === "" ||
             values.firstName === "" ||
-            values.surname === "" ||
+            values.lastName === "" ||
             (role === "admin" && values.schoolID === ""),
-            isLoggedIn = useAuthRedirect();
+        isLoggedIn = useAuthRedirect();
+    useEffect(() => {
+        const id = window.location.search.split("id=")[1]?.split("&")[0];
+        if (id) {
+            setValues({
+                ...values,
+                schoolID: id,
+            });
+        }
+    }, []);
     return isLoggedIn ? null : (
         <>
             <Head>

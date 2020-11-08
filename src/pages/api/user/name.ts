@@ -1,15 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import auth from "../../../../server/auth";
-import getDB from "../../../../server/getDB";
-import { done, notAllowed } from "../../../../server/helpers";
-import tryCatch from "../../../../server/tryCatch";
-import updateSettings from "../../../../server/updateSettings";
+import { notAllowed } from "../../../server/helpers";
+import tryCatch from "../../../server/tryCatch";
+import updateSettings from "../../../server/updateSettings";
 
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
         case "PUT": {
             await updateSettings(req, res, {
-                icon: req.body.icon,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
             });
             break;
         }

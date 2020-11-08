@@ -14,16 +14,13 @@ export default function chats(state = [], action: IAction) {
         case "/classes/member/join":
             return state.map(c => c._id === action.payload._id ? {
                 ...c,
-                member_ids: [...state[c._id].member_ids, {
-                    ...pick(action.payload, ["email", "icon", "name"]),
-                    _id: action.payload.user_id
-                }]
+                member_ids: [...state[c._id].member_ids, action.payload.user_id]
             } : c);
         default:
             if (action.type === "/classes/member/leave" || action.type === "/classes/member/remove") {
                 return state.map(c => c._id === action.payload._id ? {
                     ...c,
-                    member_ids: [...state[c._id].member_ids, action.payload.user_id]
+                    member_ids: state[c._id].member_ids.filter(i => i !== action.payload.user_id)
                 } : c);
             }
             return state;

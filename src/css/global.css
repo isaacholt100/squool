@@ -17,7 +17,7 @@
     margin-left: 16px;
 }
 .ml_auto {
-    margin-left: auto;
+    margin-left: auto !important;
 }
 .mx_auto {
     margin-left: auto;
@@ -80,6 +80,16 @@
     top: 8px !important;
     right: 8px !important;
     min-width: 128px !important;
+}
+.bg_error {
+    background-color: #f44336 !important;
+    color: #ffffff !important;
+}
+.bg_error:hover {
+    background-color: #d32f2f !important;
+}
+.color_error {
+    color: #f44336;
 }
 @keyframes bounce {
     0% {

@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import { useTheme } from "../../context/Theme";
 import { mutate } from "swr";
 import { useRouter } from "next/router";
+import useLogout from "../../hooks/useLogout";
 
 const useStyles = makeStyles(({ palette, breakpoints }) => ({
     highlighted: {
@@ -49,7 +50,7 @@ export default memo(() => {
     const
         request = useRequest(),
         [del, loading] = useDelete(),
-        router = useRouter(),
+        logoutDone = useLogout(),
         [ConfirmDialog, confirm] = useConfirm(loading),
         [passwordState, setPasswordState] = useState({
             confirmPassword: "",
@@ -61,17 +62,11 @@ export default memo(() => {
         }),
         classes = useStyles(),
         timer = useRef<NodeJS.Timeout>(),
-        [, setTheme] = useTheme(),
         logout = () => {
             del("/login", {
                 setLoading: true,
                 done() {
-                    mutate("/api/login", "", false);
-                    Cookies.remove("refreshToken");
-                    Cookies.remove("accessToken");
-                    Cookies.remove("user_id");
-                    localStorage.clear();
-                    setTheme(null);
+                    logoutDone();
                 }
             });
         },
@@ -92,7 +87,7 @@ export default memo(() => {
                     deleteDisabled: false,
                     deleteDialogOpen: true,
                 });
-            }, 1);
+            }, 10000);
         },
         closeDeleteDialog = () => {
             setState({
@@ -136,7 +131,7 @@ export default memo(() => {
                 </Button>
                 <Button
                     variant="contained"
-                    className={classes.deleteAccount}
+                    className={"ml_auto bg_error"}
                     onClick={openDeleteDialog}
                 >
                     Delete Account

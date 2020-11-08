@@ -11,19 +11,20 @@ import cookie from "cookie";
 import getUser from "../../../server/getUser";
 import { setRefreshToken } from "../../../server/cookies";
 import getSession from "../../../server/getSession";
+import isEmailValid from "../../../lib/isEmailValid";
 
 const saltRounds = 12;
 export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
         case "POST": {
-            type Errors = Partial<Record<"schoolID" | "repeatPassword" | "password" | "firstName" | "surname" | "email", string>>;
+            type Errors = Partial<Record<"schoolID" | "repeatPassword" | "password" | "firstName" | "lastName" | "email", string>>;
             const
                 db = await getDB(),
                 users = db.collection("users"),
                 schools = db.collection("schools"), {
                     password,
                     firstName,
-                    surname: lastName,
+                    lastName,
                     role,
                     repeatPassword,
                     staySignedIn,
@@ -53,34 +54,37 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
                 errors.firstName = "Field required";
             }
             if (lastName === "") {
-                errors.surname = "Field required";
+                errors.lastName = "Field required";
             }
-            if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email)) {
+            if (!isEmailValid(email)) {
                 errors.email = "Email address invalid";
             } else if (emailCount > 0) {
                 errors.email = "Email address is already taken";
             }
             if (Object.keys(errors).length === 0) {
                 const session = await getSession();
-                let success = false;
                 try {
                     await session.withTransaction(async () => {
                         const hash = await bcrypt.hash(password, saltRounds);
+                        const user_id = new ObjectId();
                         const r1 = admin
-                        ? await schools.insertOne({ admin: email, name: schoolID }, { session })
+                        ? await schools.insertOne({ admin_id: user_id, name: schoolID }, { session })
                         : {
-                            insertedCount: 1
+                            insertedCount: 1,
+                            insertedId: new ObjectId(schoolID)
                         },
                         r = await users.insertOne({
-                            school_id: new ObjectId(schoolID),
+                            _id: user_id,
+                            school_id: r1.insertedId,
                             email,
                             icon: "",
                             role,
                             firstName,
                             lastName,
                             password: hash,
-                            theme: {}
-                        });
+                            theme: {},
+                            carouselView: false,
+                        }, { session });
                         if (r.insertedCount === 1 && r1.insertedCount === 1) {
                             const
                                 transporter = nodemailer.createTransport({
