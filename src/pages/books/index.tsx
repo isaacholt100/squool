@@ -29,7 +29,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { ObjectId } from "mongodb";
 
-export default () => {
+export default function Books() {
     const
         [post, postLoading] = usePost(),
         [del, deleteLoading] = useDelete(),
@@ -40,24 +40,22 @@ export default () => {
         role = useSelector((s: any) => s.userInfo.role),
         userClasses = useSelector((s: any) => s.userClasses),
         [state, setState] = useState({
-            open: false,
             nameError: "",
             name: "",
+            classNameError: "",
             className: "",
-            loaded: false,
             linkOpen: false,
             unlinkOpen: false,
             deleteOpen: false,
             currentBook: "",
-            snackbarOpen: false,
             classLink: "",
-            classNameError: "",
-            activePeriod: 0,
-            nameValid: false,
         }),
+        [activePeriod, setActivePeriod] = useState(0),
+        [createOpen, setCreateOpen] = useState(false),
+        dispatch = useDispatch(),
         books = useSelector(s => (s as any).books),
         periods = unique(books.map(b => b.period)).sort().reverse(),
-        filtered = books && books.filter(book => book.period === periods[state.activePeriod]),
+        filtered = books && books.filter(book => book.period === periods[activePeriod]),
         openDialog = (dialog, book_id) => {
             setState({
                 ...state,
@@ -73,22 +71,9 @@ export default () => {
                 classNameError: "",
             });
         },
-        closeDialog = () => {
-            setState({
-                ...state,
-                open: false,
-                nameValid: false,
-                nameError: "",
-                name: "",
-                className: "",
-                classNameError: "",
-                classLink: "",
-                linkOpen: false,
-            });
-        },
         createBook = () => {
             if (!books.some(x => x.name === state.name)) {
-                post("/book", {
+                post("/books", {
                     setLoading: true,
                     failedMsg: "creating this book",
                     body: {
@@ -102,7 +87,15 @@ export default () => {
                             class_id: state.className === "" ? state.classLink : state.className,
                             period: data.period,
                         });*/
-                        closeDialog();
+                        dispatch({
+                            type: "/book/create",
+                            payload: {
+                                _id: data.book_id,
+                                name: state.name,
+                                class_id: state.className === "" ? state.classLink : state.className,
+                                period: data.period,
+                            },
+                        });
                         router.push(`/book/${data.book_id}/edit`);
                     },
                     errors(data: any) {
@@ -161,12 +154,16 @@ export default () => {
             }
         },
         deleteBook = book_id => () => {
-            del("/book", {
+            del("/books", {
                 setLoading: true,
                 doneMsg: "Book deleted",
                 body: { book_id },
                 done() {
                     closeConfirm();
+                    dispatch({
+                        type: "/book/delete",
+                        payload: book_id,
+                    });
                     //dispatchEmit("/book/delete", book_id);
                     setState({
                         ...state,
@@ -174,18 +171,6 @@ export default () => {
                     });
                 },
             });
-            /*request("/book", "DELETE", true, () => {
-                dispatchEmit("/book/delete", book_id);
-                setState({
-                    ...state,
-                    deleteOpen: false,
-                });
-                showSnackbar("Book deleted", {
-                    variant: "info",
-                });
-            }, "deleting this book", {
-                book_id,
-            });*/
         },
         changeClass = e => {
             setState({
@@ -199,7 +184,7 @@ export default () => {
                 const
                     _id = state.currentBook,
                     class_id = state.className === "" ? state.classLink : state.className;
-                put("/book/class", {
+                put("/books/class", {
                     setLoading: true,
                     body: {
                         class_id,
@@ -223,7 +208,7 @@ export default () => {
             }
         },
         unlinkBook = _id => () => {
-            del("/book/class", {
+            del("/books/class", {
                 doneMsg: "Book unlinked from class",
                 body: { book_id: _id },
                 failedMsg: "unlinking this book",
@@ -291,11 +276,8 @@ export default () => {
         }
     }, []);
     useEffect(() => {
-        if (state.activePeriod >= periods.length && periods.length > 0) {
-            setState({
-                ...state,
-                activePeriod: Math.max(periods.length - 1, 0),
-            });
+        if (activePeriod >= periods.length && periods.length > 0) {
+            setActivePeriod(Math.max(periods.length - 1, 0));
         }
     }, [periods.length]);
     return (
@@ -305,11 +287,11 @@ export default () => {
                 filtered={filtered}
                 tabs={periods}
                 height={104}
-                filter={state.activePeriod}
-                setFilter={f => setState({ ...state, activePeriod: f })}
-                createOpen={state.open}
-                setCreateOpen={o => setState({ ...state, open: o })}
-                createFn={() => setState({ ...state, open: true })}
+                filter={activePeriod}
+                setFilter={f => setActivePeriod(f)}
+                createOpen={createOpen}
+                setCreateOpen={o => setCreateOpen(o)}
+                createFn={() => setCreateOpen(true)}
                 Actions={(book: IBook) => [{
                     label: "Delete",
                     fn: () => confirm("delete this book?", deleteBook(book._id)),
@@ -350,7 +332,7 @@ export default () => {
                             {classPicker}
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={() => setState({ ...state, open: false })} color="default">
+                            <Button onClick={() => setCreateOpen(false)} color="default">
                                 Cancel
                             </Button>
                             <LoadBtn label="Create" disabled={state.nameError !== "" || state.name === ""} loading={postLoading} />
