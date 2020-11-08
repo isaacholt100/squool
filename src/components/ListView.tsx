@@ -282,10 +282,12 @@ const Form = (props: IFormProps) => (
         open={props.createOpen}
         onClose={() => props.setCreateOpen(false)}
         aria-labelledby={`new-${props.name}-title`}
+        keepMounted
     >
         <DialogTitle id={`new-${props.name}-title`}>New {props.name}</DialogTitle>
         {props.createForm}
     </Dialog>
+    //<div style={{backgroundColor: "green", height: 300, width: 300, display: props.createOpen ? "block" : "none"}} onClick={() => props.setCreateOpen(false)}>Hello</div>
 );
 export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "animate" | "setAnimate" | "activeStep" | "setActiveStep"> & Partial<IFormProps>) {
     const
@@ -312,7 +314,7 @@ export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "anim
     return (
         props.filtered ? (
             <Box display="flex" flexDirection="column" mx="auto">
-                <Form name={props.name} createOpen={props.createOpen} setCreateOpen={props.setCreateOpen} createForm={props.createForm} />
+                {<Form name={props.name} createOpen={props.createOpen} setCreateOpen={props.setCreateOpen} createForm={props.createForm} />}
                 <TabList filter={props.filter} setFilter={props.setFilter} tabs={props.tabs} />
                 <List
                     noCreate={props.noCreate}

@@ -37,7 +37,7 @@ export default function Settings() {
                     </Tabs>
                 </AppBar>
             </Box>
-            <Box component={Card} mb={{ xs: 1, lg: 2, }}>
+            <Box component={Card} mb={{ xs: 0.5, lg: 1, }}>
                 {page === 0 && (
                     <>
                         <Email />

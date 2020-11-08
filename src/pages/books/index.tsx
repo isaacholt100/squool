@@ -28,9 +28,11 @@ import Icon from "../../components/Icon";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { ObjectId } from "mongodb";
+import useRedirect from "../../hooks/useRedirect";
 
 export default function Books() {
     const
+        isLoggedIn = useRedirect(),
         [post, postLoading] = usePost(),
         [del, deleteLoading] = useDelete(),
         [put, putLoading] = usePut(),
@@ -45,8 +47,6 @@ export default function Books() {
             classNameError: "",
             className: "",
             linkOpen: false,
-            unlinkOpen: false,
-            deleteOpen: false,
             currentBook: "",
             classLink: "",
         }),
@@ -165,10 +165,6 @@ export default function Books() {
                         payload: book_id,
                     });
                     //dispatchEmit("/book/delete", book_id);
-                    setState({
-                        ...state,
-                        deleteOpen: false,
-                    });
                 },
             });
         },
@@ -198,7 +194,6 @@ export default function Books() {
                             class_id,
                         });*/
                         close("linkOpen");
-                        snackbar.info("Book linked to class");
                     },
                     errors: (data: any) => setState({
                         ...state,
@@ -214,10 +209,6 @@ export default function Books() {
                 failedMsg: "unlinking this book",
                 done() {
                     closeConfirm();
-                    setState({
-                        ...state,
-                        unlinkOpen: false,
-                    });
                     /*dispatchEmit("/book/update", {
                         _id,
                         class_id: "",
@@ -269,8 +260,6 @@ export default function Books() {
                 fn: getBooks,
             }],
         });*/
-        console.log(role);
-        
         if (role !== "student") {
             //router.replace("/classes");
         }
@@ -280,7 +269,7 @@ export default function Books() {
             setActivePeriod(Math.max(periods.length - 1, 0));
         }
     }, [periods.length]);
-    return (
+    return !isLoggedIn ? null : (
         <>
             <ListView
                 name="Book"
