@@ -19,13 +19,17 @@ import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import LoadPreview from "../components/LoadPreview";
 import { useGet } from "../hooks/useRequest";
 import "../css/global.css";
+import { useRouter } from "next/router";
+
+const STATIC_ROUTES = ["/", "/login", "/signup"];
 
 function ThemeWrapper({ children }: { children: ReactChild }) {
     const
         [get] = useGet(),
         dispatch = useDispatch(),
         isLoggedIn = useIsLoggedIn(),
-        [dataLoaded, setDataLoaded] = useState(false),
+        router = useRouter(),
+        [dataLoaded, setDataLoaded] = useState(!isLoggedIn),
         [theme, setTheme] = useTheme(),
         paperBg = theme.type === "light" ? "#f1f3f4" : "#424242",
         defaultBg = theme.type === "light" ? "#fff" : "#121212",
@@ -258,8 +262,8 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 <link rel="stylesheet" href={fontFamily} />
             </Head>
             <MuiTheme theme={muiTheme}>
-                {!dataLoaded && (
-                    <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} />
+                {true && (
+                    <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} opacity={dataLoaded ? 0 : 1} />
                 )}
                 <Frame>{children}</Frame>
             </MuiTheme>
@@ -362,6 +366,8 @@ const useStyles = makeStyles(({ palette }) => ({
     },
 }));
 export default function App({ Component, pageProps }) {
+    console.log(pageProps);
+    
     const snack: MutableRefObject<ProviderContext> = useRef();
     const classes = useStyles();
     useEffect(() => {

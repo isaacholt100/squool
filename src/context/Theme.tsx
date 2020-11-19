@@ -1,5 +1,6 @@
 import { createContext, ReactChild, useContext, useState } from "react";
 import useSWR from "swr";
+import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import defaultTheme from "../json/defaultTheme.json";
 interface ITheme {
     fontFamily: string;
@@ -10,7 +11,8 @@ interface ITheme {
 export const ThemeContext = createContext({});
 export default function Theme({ children }: { children: ReactChild }) {
     const
-        [theme, setTheme] = useState(typeof(localStorage) !== "undefined" ? {
+        isLoggedIn = useIsLoggedIn(),
+        [theme, setTheme] = useState(typeof(localStorage) !== "undefined" && isLoggedIn ? {
             primary: localStorage.getItem("theme-primary") || defaultTheme.primary,
             secondary: localStorage.getItem("theme-secondary") || defaultTheme.secondary,
             type: localStorage.getItem("theme-type") as "light" | "dark" || defaultTheme.type,

@@ -46,6 +46,7 @@ const Slot = memo((props: any) => {
                             className={classes.field}
                             onKeyDown={props.edit ? e => e.key === "Enter" && (e.target as any).blur() : null}
                             disabled={!props.edit}
+                            variant="standard"
                         />
                     </div>
                 ))}

@@ -34,10 +34,17 @@ export default async function fetchData({ serverUrl, url, method, file, body, ac
             });
         }
     } else {
-        fn({
-            type: "failed",
-            data: "failed",
-            ...extra,
-        });
+        if (res?.status === 401) {
+            fn({
+                type: "noauth",
+                data: "noauth",
+            });
+        } else {
+            fn({
+                type: "failed",
+                data: "failed",
+                ...extra,
+            });
+        }
     }
 }

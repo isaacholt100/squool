@@ -1,9 +1,9 @@
 import React from "react";
 import { Typography, Button, CircularProgress } from "@material-ui/core";
 import styles from "../css/loadPreview.module.css";
-export default function LoadPreview({ status, getData }) {
+export default function LoadPreview({ status, getData, opacity }) {
     return (
-        <div className={styles.root}>
+        <div className={styles.root} style={{opacity}}>
             {status === "loading" ? (
                 <>
                     <Typography variant="h5" gutterBottom color="inherit" className={styles.text}>Loading your data...</Typography>

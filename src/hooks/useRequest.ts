@@ -4,6 +4,7 @@ import useSnackbar from "./useSnackbar";
 import { IFetchOptions, IRes } from "../types/fetch";
 import { useState } from "react";
 import Cookies from "js-cookie";
+import useLogout from "./useLogout";
 
 type Handler = (data: object | string) => void;
 interface IOptions extends IFetchOptions {
@@ -21,20 +22,18 @@ interface IErrors {
 function useFetch(): [({ url, setLoading: load, method, failedMsg, doneMsg, errors, done, failed, file, body, ...other }: IOptions) => void, boolean] {
     const
         snackbar = useSnackbar(),
-        dispatch = useDispatch(),
-        [loading, setLoading] = useState(false);
+        [loading, setLoading] = useState(false),
+        logout = useLogout();
     const fetcher = ({ url, setLoading: load, method, failedMsg, doneMsg, errors, done, failed, file, body, ...other }: IOptions) => {
         const response = (res: IRes) => {
             load && setLoading(false);
             res.accessToken && Cookies.set("accessToken", res.accessToken, {sameSite: "strict", ...(true ? { expires: 100 } : {expires: 100})});
             switch (res.type) {
+                case "noauth":
+                    done(res.data);
+                    logout();
+                    break;
                 case "failed":
-                    if (method === "GET" && load) {
-                        dispatch({
-                            type: "LOAD_ERROR",
-                            payload: failedMsg,
-                        });
-                    }
                     failed && failed(failedMsg);
                     failedMsg && snackbar.error("There was an error " + failedMsg);
                     break;
@@ -42,9 +41,6 @@ function useFetch(): [({ url, setLoading: load, method, failedMsg, doneMsg, erro
                     errors && errors(res.data as IErrors);
                     break;
                 default:
-                    dispatch({
-                        type: "CLOSE_CONFIRM_DIALOG",
-                    });
                     doneMsg && snackbar.info(doneMsg);
                     done && done(res.data);
             }
