@@ -1,6 +1,6 @@
 import IAction from "../../types/action";
 
-export default function carouselView(state = false, action: IAction) {
+export default function carouselView(state = false, action: IAction): boolean {
     switch (action.type) {
         case "/user/carouselView":
             return Boolean(action.payload);

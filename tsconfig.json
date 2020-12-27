@@ -22,7 +22,8 @@
     "jsx": "preserve",
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    //"noUnusedLocals": true,
+    "noUnusedLocals": true,
+    //"noImplicitAny": true
     //"noUnusedParameters": true
   },
   "exclude": [

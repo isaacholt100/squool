@@ -1,5 +1,6 @@
 import IAction from "../../types/action";
-export default function books(state = [], action: IAction) {
+import IBook from "../../types/IBook";
+export default function books(state: IBook[] = [], action: IAction): IBook[] {
     switch (action.type) {
         case "UPLOAD_DATA":
             return action.payload.books;

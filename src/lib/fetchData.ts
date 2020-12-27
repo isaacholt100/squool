@@ -20,6 +20,8 @@ export default async function fetchData({ serverUrl, url, method, file, body, ac
     } : {};
     if (res?.ok) {
         const data = await res.json();
+        console.log({data});
+        
         if (data?.errors) {
             fn({
                 type: "errors",

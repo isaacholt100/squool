@@ -1,9 +1,17 @@
-import Cookies from "js-cookie";
 import IAction from "../../types/action";
+import IUser from "../../types/IUser";
 
-export default function userInfo(state = {
-    _id: Cookies.get("user_id"),
-}, action: IAction) {
+const INITIAL_STATE = {
+    email: "",
+    firstName: "",
+    lastName: "",
+    icon: "",
+    _id: "",
+    role: null,
+    school_id: "",
+};
+
+export default function userInfo(state: IUser & { school_id: string } = INITIAL_STATE, action: IAction): IUser & { school_id: string } {
     switch (action.type) {
         case "/user/info/update":
             return {
@@ -21,15 +29,7 @@ export default function userInfo(state = {
                 school_id: action.payload.school_id,
             };
         case "LOGOUT":
-            return {
-                email: "",
-                firstName: "",
-                lastName: "",
-                icon: "",
-                _id: "",
-                role: "",
-                school_id: "",
-            };
+            return INITIAL_STATE;
         default:
             return state;
     }

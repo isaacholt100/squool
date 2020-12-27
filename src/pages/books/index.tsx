@@ -22,13 +22,13 @@ import ListView from "../../components/ListView";
 //import { dispatchEmit } from "../../api/socketDispatch";
 import { unique } from "../../lib/array";
 import useConfirm from "../../hooks/useConfirm";
-import useSnackbar from "../../hooks/useSnackbar";
 import { mdiDelete, mdiLink, mdiLinkOff } from "@mdi/js";
 import Icon from "../../components/Icon";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { ObjectId } from "mongodb";
 import useRedirect from "../../hooks/useRedirect";
+import IBook from "../../types/IBook";
+import { RootState } from "../../redux/store";
 
 export default function Books() {
     const
@@ -37,10 +37,9 @@ export default function Books() {
         [del, deleteLoading] = useDelete(),
         [put, putLoading] = usePut(),
         [ConfirmDialog, confirm, closeConfirm] = useConfirm(deleteLoading),
-        snackbar = useSnackbar(),
         router = useRouter(),
-        role = useSelector((s: any) => s.userInfo.role),
-        userClasses = useSelector((s: any) => s.userClasses),
+        role = useSelector((s: RootState) => s.userInfo.role),
+        userClasses = useSelector((s: RootState) => s.classes),
         [state, setState] = useState({
             nameError: "",
             name: "",
@@ -53,7 +52,7 @@ export default function Books() {
         [activePeriod, setActivePeriod] = useState(0),
         [createOpen, setCreateOpen] = useState(false),
         dispatch = useDispatch(),
-        books = useSelector(s => (s as any).books),
+        books = useSelector((s: RootState) => s.books),
         periods = unique(books.map(b => b.period)).sort().reverse(),
         filtered = books && books.filter(book => book.period === periods[activePeriod]),
         openDialog = (dialog, book_id) => {
@@ -134,12 +133,12 @@ export default function Books() {
         },
         submit = e => {
             e.preventDefault(); 
-            if (state.classLink === "" && userClasses.some(a => a.classid === state.classLink)) {
+            if (state.classLink === "" && userClasses.some(a => a._id === state.classLink)) {
                 setState({
                     ...state,
                     classNameError: "There is already a book linked with this class",
                 });
-            } else if (userClasses.some(a => a.classid === state.className)) {
+            } else if (userClasses.some(a => a._id === state.className)) {
                 setState({
                     ...state,
                     classNameError: "You're already in this class",
@@ -230,8 +229,8 @@ export default function Books() {
                 >
                     {userClasses.map(item => (
                         <MenuItem
-                            value={item.classid}
-                            key={item.classid}
+                            value={item._id}
+                            key={item._id}
                         >
                             {item.name}
                         </MenuItem>
@@ -294,9 +293,9 @@ export default function Books() {
                     <Link href={`/book/${book._id}/edit`}>
                         <CardActionArea className={"p_8 full_height"}>
                             <div className="full_height">
-                            <Typography variant="h6">
-                                {book.name}
-                            </Typography>
+                                <Typography variant="h6">
+                                    {book.name}
+                                </Typography>
                             </div>
                         </CardActionArea>
                     </Link>
@@ -351,8 +350,3 @@ export default function Books() {
         </>
     );
 };
-interface IBook {
-    _id: ObjectId;
-    name: string;
-    class_id: ObjectId;
-}

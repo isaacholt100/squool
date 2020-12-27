@@ -1,19 +1,18 @@
 import React, { memo, useState } from "react";
-import useRequest, { useDelete, usePut } from "../../hooks/useRequest";
-import useSnackbar from "../../hooks/useSnackbar";
+import { useDelete, usePut } from "../../hooks/useRequest";
 import useConfirm from "../../hooks/useConfirm";
 import { Typography, TextField, Button } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
-import Cookies from "js-cookie";
 import useLogout from "../../hooks/useLogout";
 import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 export default memo(() => {
     const
         [put, loading] = usePut(),
         [del, delLoading] = useDelete(),
         logout = useLogout(),
-        school_id = useSelector((s: any) => s.userInfo.school_id),
+        school_id = useSelector((s: RootState) => s.userInfo.school_id),
         [ConfirmDialog, confirm, close] = useConfirm(loading || delLoading),
         [state, setState] = useState({
             _id: "",

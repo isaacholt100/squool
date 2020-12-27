@@ -2,17 +2,21 @@ import React, { useState } from "react";
 import { Tabs, Tab, AppBar, Card, Box } from "@material-ui/core";
 import Icon from "../components/settings/Icon";
 import Password from "../components/settings/Password";
-import Timetable from "../components/settings/Timetable";
 import School from "../components/settings/School";
 import DeleteAccount from "../components/settings/DeleteAccount";
 import Theme from "../components/settings/Theme";
 import useRedirect from "../hooks/useRedirect";
 import Name from "../components/settings/Name";
 import Email from "../components/settings/Email";
+import useUrlHashIndex from "../hooks/useUrlHashIndex";
+
+const PAGES = ["account", "profile", "theme"];
 
 export default function Settings() {
-    const isLoggedIn = useRedirect();
-    const [page, setPage] = useState(0);
+    const
+        isLoggedIn = useRedirect(),
+        [hashIndex, changeHash] = useUrlHashIndex(PAGES),
+        [page, setPage] = useState(hashIndex);
     return !isLoggedIn ? null : (
         <div>
             <Box clone mb={{ xs: "8px !important", lg: "16px !important" }}>
@@ -26,12 +30,13 @@ export default function Settings() {
                         scrollButtons="auto"
                         aria-label="scrollable tabs"
                     >
-                        {["account", "profile", "theme"].map((tab, i) => (
+                        {PAGES.map((tab, i) => (
                             <Tab
                                 key={i}
-                                id={`scrollable-auto-tab-${i}`}
-                                aria-controls={`scrollable-auto-tabpanel-${i}`}
+                                id={`tab-${i + 1}`}
+                                aria-controls={tab}
                                 label={tab}
+                                onClick={() => changeHash(tab)}
                             />
                         ))}
                     </Tabs>

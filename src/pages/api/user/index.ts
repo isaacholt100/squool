@@ -4,10 +4,10 @@ import tryCatch from "../../../server/tryCatch";
 import bcrypt from "bcrypt";
 import getDB from "../../../server/getDB";
 import auth, { IUSer } from "../../../server/auth";
-import { Collection, InsertOneWriteOpResult, ObjectId } from "mongodb";
+import { InsertOneWriteOpResult, ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
-import cookie from "cookie";
+//import nodemailer from "nodemailer";
+//import cookie from "cookie";
 import getUser from "../../../server/getUser";
 import { setRefreshToken } from "../../../server/cookies";
 import getSession from "../../../server/getSession";
@@ -27,7 +27,7 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
                     lastName,
                     role,
                     repeatPassword,
-                    staySignedIn,
+                    //staySignedIn,
                     schoolID,
                     email
                 } = req.body,
@@ -86,7 +86,7 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
                             carouselView: false,
                         }, { session });
                         if (r.insertedCount === 1 && r1.insertedCount === 1) {
-                            const
+                            /*const
                                 transporter = nodemailer.createTransport({
                                     service: "gmail",
                                     secure: false,
@@ -139,7 +139,7 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
                                             </a>
                                         </div>
                                     `
-                                };
+                                };*/
                             const jwtInfo: IUSer = {
                                 role,
                                 _id: r.insertedId,
@@ -149,7 +149,7 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
                             setRefreshToken(res, refreshToken);
                             res.json({
                                 accessToken: jwt.sign(jwtInfo, process.env.ACCESS_TOKEN, {
-                                    expiresIn: "20m",
+                                    expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME,
                                 }),
                                 refreshToken,
                                 user_id: r.insertedId

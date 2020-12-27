@@ -30,7 +30,7 @@ export default async (req: NextApiRequest & {user: any}, res: NextApiResponse) =
                             _id: new ObjectId(payload._id),
                         };
                         res.setHeader("authorization", jwt.sign(payload, process.env.ACCESS_TOKEN, {
-                            expiresIn: "20m",
+                            expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME,
                         }));
                     } else {
                         throw err;

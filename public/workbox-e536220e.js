@@ -36,7 +36,7 @@ define("./workbox-e536220e.js",['exports'], function (exports) { 'use strict';
           // Safari doesn't print all console.groupCollapsed() arguments:
           // https://bugs.webkit.org/show_bug.cgi?id=182754
           if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
-            console[method](...args);
+            //console[method](...args);
             return;
           }
         }
@@ -44,7 +44,7 @@ define("./workbox-e536220e.js",['exports'], function (exports) { 'use strict';
         const styles = [`background: ${methodToColorMap[method]}`, `border-radius: 0.5em`, `color: white`, `font-weight: bold`, `padding: 2px 0.5em`]; // When in a group, the workbox prefix is not displayed.
 
         const logPrefix = inGroup ? [] : ['%cworkbox', styles.join(';')];
-        console[method](...logPrefix, ...args);
+        //console[method](...logPrefix, ...args);
 
         if (method === 'groupCollapsed') {
           inGroup = true;

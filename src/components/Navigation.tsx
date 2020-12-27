@@ -17,7 +17,7 @@ import {
 import { Box } from "@material-ui/core";
 import clsx from "clsx";
 import Icon from "./Icon";
-import { mdiAccountGroup, mdiBell, mdiBook, mdiCalendar, mdiChat, mdiCog, mdiFormatListChecks, mdiHome, mdiMenu, mdiSchool, mdiTimetable, mdiWrench } from "@mdi/js";
+import { mdiAccountGroup, mdiBell, mdiBook, mdiCalendar, mdiChat, mdiCog, mdiFormatListChecks, mdiMenu, mdiSchool, mdiTimetable, mdiWrench } from "@mdi/js";
 import Link from "next/link";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import NProgress from "nprogress";

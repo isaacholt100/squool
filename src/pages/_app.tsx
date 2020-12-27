@@ -2,13 +2,12 @@ import { useState, useEffect, ReactChild, useRef, MutableRefObject } from "react
 import Head from "next/head";
 import { createMuiTheme, makeStyles, ThemeProvider as MuiTheme } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import type { AppContext, AppProps } from "next/app";
 import { Provider as Redux, useDispatch } from "react-redux";
 import { MuiPickersUtilsProvider as Pickers } from "@material-ui/pickers";
 import DateUtils from "@date-io/date-fns";
 import "date-fns";
 import { ProviderContext, SnackbarProvider as Snackbar } from "notistack";
-import { Fade, Grow, IconButton } from "@material-ui/core";
+import { Grow, IconButton } from "@material-ui/core";
 import Icon from "../components/Icon";
 import { mdiClose } from "@mdi/js";
 import store from "../redux/store";
@@ -19,18 +18,13 @@ import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import LoadPreview from "../components/LoadPreview";
 import { useGet } from "../hooks/useRequest";
 import "../css/global.css";
-import { useRouter } from "next/router";
-
-const STATIC_ROUTES = ["/", "/login", "/signup"];
+import IsOnline from "../context/IsOnline";
+import { AppProps } from "next/app";
 
 function ThemeWrapper({ children }: { children: ReactChild }) {
     const
-        [get] = useGet(),
-        dispatch = useDispatch(),
-        isLoggedIn = useIsLoggedIn(),
-        router = useRouter(),
-        [dataLoaded, setDataLoaded] = useState(!isLoggedIn),
-        [theme, setTheme] = useTheme(),
+        //router = useRouter(),
+        [theme] = useTheme(),
         paperBg = theme.type === "light" ? "#f1f3f4" : "#424242",
         defaultBg = theme.type === "light" ? "#fff" : "#121212",
         level1Bg = theme.type === "light" ? "#ddd" : "#333",
@@ -228,7 +222,26 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     size: "small",
                 },
             },
-        }),
+        });
+    return (
+        <>
+            <Head>
+                <link rel="stylesheet" href={fontFamily} />
+            </Head>
+            <MuiTheme theme={muiTheme}>
+                {children}
+            </MuiTheme>
+        </>
+    );
+}
+function Frame({ children }: { children: ReactChild }) {
+    const
+        isLoggedIn = useIsLoggedIn(),
+        dispatch = useDispatch(),
+        [get] = useGet(),
+        [dataLoaded, setDataLoaded] = useState(false),
+        classes = useContainerStyles(isLoggedIn),
+        [, setTheme] = useTheme(),
         getData = () => {
             if (!dataLoaded && isLoggedIn) {
                 if (dataLoaded === undefined) {
@@ -248,6 +261,8 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                                 type: "UPLOAD_DATA",
                                 payload: data,
                             });
+                            console.log("User data:");
+                            console.log(data);
                         }, 500);
                     }
                 });
@@ -257,24 +272,10 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
         };
     useEffect(getData, []);
     return (
-        <>
-            <Head>
-                <link rel="stylesheet" href={fontFamily} />
-            </Head>
-            <MuiTheme theme={muiTheme}>
-                {true && (
-                    <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} opacity={dataLoaded ? 0 : 1} />
-                )}
-                <Frame>{children}</Frame>
-            </MuiTheme>
-        </>
-    );
-}
-function Frame({ children }) {
-    const isLoggedIn = useIsLoggedIn();
-    const classes = useContainerStyles(isLoggedIn);
-    return (
         <div className={"flex flex_col full_screen"}>
+            {true && (
+                <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} opacity={dataLoaded ? 0 : 1} />
+            )}
             <Navigation />
             <CssBaseline />
             <div className={classes.appContainer}>
@@ -365,9 +366,7 @@ const useStyles = makeStyles(({ palette }) => ({
         right: 8,
     },
 }));
-export default function App({ Component, pageProps }) {
-    console.log(pageProps);
-    
+export default function App({ Component, pageProps }: AppProps) {
     const snack: MutableRefObject<ProviderContext> = useRef();
     const classes = useStyles();
     useEffect(() => {
@@ -394,34 +393,38 @@ export default function App({ Component, pageProps }) {
                 </Head>
                 <Theme>
                     <Pickers utils={DateUtils}>
-                        <Snackbar
-                            ref={snack as any}
-                            action={key => (
-                                <IconButton size="small" onClick={() => snack.current.closeSnackbar(key)}>
-                                    <Icon path={mdiClose} />
-                                </IconButton>
-                            )}
-                            anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "right",
-                            }}
-                            preventDuplicate
-                            autoHideDuration={8192}
-                            TransitionComponent={Grow as any}
-                            classes={{
-                                variantError: classes.error,
-                                variantSuccess: classes.success,
-                                variantInfo: classes.info,
-                                variantWarning: classes.warning,
-                                root: classes.snackbar,
-                                containerAnchorOriginBottomRight: classes.bottom,
-                            }}
-                            maxSnack={4}
-                        >
+                        <IsOnline>
                             <ThemeWrapper>
-                                <Component {...pageProps} />
+                                <Snackbar
+                                    ref={snack as any}
+                                    action={key => (
+                                        <IconButton size="small" onClick={() => snack.current.closeSnackbar(key)}>
+                                            <Icon path={mdiClose} />
+                                        </IconButton>
+                                    )}
+                                    anchorOrigin={{
+                                        vertical: "bottom",
+                                        horizontal: "right",
+                                    }}
+                                    preventDuplicate
+                                    autoHideDuration={8192}
+                                    TransitionComponent={Grow as any}
+                                    classes={{
+                                        variantError: classes.error,
+                                        variantSuccess: classes.success,
+                                        variantInfo: classes.info,
+                                        variantWarning: classes.warning,
+                                        root: classes.snackbar,
+                                        containerAnchorOriginBottomRight: classes.bottom,
+                                    }}
+                                    maxSnack={4}
+                                >
+                                    <Frame>
+                                        <Component {...pageProps} />
+                                    </Frame>
+                                </Snackbar>
                             </ThemeWrapper>
-                        </Snackbar>
+                        </IsOnline>
                     </Pickers>
                 </Theme>
             </SWRConfig>

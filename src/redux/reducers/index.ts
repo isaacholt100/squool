@@ -1,7 +1,6 @@
 import { combineReducers } from "redux";
-import pageTitle from "./currentPage";
 import userInfo from "./userInfo";
-import userClasses from "./userClasses";
+import classes from "./classes";
 import timetable from "./timetable";
 import reminders from "./reminders";
 import loadError from "./loadError";
@@ -15,5 +14,5 @@ import books from "./books";
 import moreActions from "./moreActions";
 
 export default combineReducers({
-    pageTitle, userInfo, userClasses, timetable, reminders, loadError, carouselView, contextMenu, helpDialog, users, usersDialog, chats, books, moreActions,
+    userInfo, classes, timetable, reminders, loadError, carouselView, contextMenu, helpDialog, users, usersDialog, chats, books, moreActions,
 });

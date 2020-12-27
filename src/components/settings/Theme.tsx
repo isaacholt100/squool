@@ -10,6 +10,7 @@ import ColorPicker from "./ColorPicker";
 import { shades, colors } from "../../json/colors";
 //import useSocket from "../../hooks/useSocket";
 import { useTheme } from "../../context/Theme";
+import { RootState } from "../../redux/store";
 type Intent = "primary" | "secondary";
 export default memo(() => {
     const
@@ -28,7 +29,7 @@ export default memo(() => {
             ...huesAndShades(theme.secondary, "secondary")
         })),
         dispatch = useDispatch(),
-        carouselView = useSelector((s: any) => s.carouselView),
+        carouselView = useSelector((s: RootState) => s.carouselView),
         handleChangeHue = (name: Intent) => e => {
             setThemeState({
                 ...themeState,

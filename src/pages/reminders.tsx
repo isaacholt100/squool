@@ -6,7 +6,9 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import {
     TextField,
-    Box
+    Box,
+    IconButton,
+    CircularProgress
 } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -16,7 +18,7 @@ import Switch from "@material-ui/core/Switch";
 import { useDispatch, useSelector } from "react-redux";
 import { KeyboardDatePicker, KeyboardTimePicker } from "@material-ui/pickers";
 import { MenuItem, InputLabel, FormControl, FormControlLabel, Select } from "@material-ui/core";
-import ListView from "../components/ListView";
+import ListView, { IAction } from "../components/ListView";
 import compareWeek from "compare-week";
 import useConfirm from "../hooks/useConfirm";
 import useSnackbar from "../hooks/useSnackbar";
@@ -24,6 +26,9 @@ import Icon from "../components/Icon";
 import { mdiCheck, mdiClipboardAlert, mdiDelete, mdiPencil } from "@mdi/js";
 import LoadBtn from "../components/LoadBtn";
 import { useDelete, usePost, usePut } from "../hooks/useRequest";
+import IReminder from "../types/IReminder";
+import { RootState } from "../redux/store";
+import styles from "../css/loadBtn.module.css";
 
 const useStyles = makeStyles(theme => ({
     iconBtn: {
@@ -70,6 +75,10 @@ const useStyles = makeStyles(theme => ({
     },
     date: {
         color: theme.palette.text.hint,
+    },
+    loadingContainer: {
+        position: "relative",
+        height: 24,
     }
 }));
 
@@ -79,6 +88,8 @@ export default function Reminders() {
         [post, postLoading] = usePost(),
         [put, putLoading] = usePut(),
         [del, delLoading] = useDelete(),
+        [pending, setPending] = useState<string[]>([]),
+        [undoReq] = useDelete(),
         [ConfirmDialog, confirm, closeConfirm] = useConfirm(delLoading),
         dispatch = useDispatch(),
         classes = useStyles(),
@@ -86,17 +97,17 @@ export default function Reminders() {
         [selectedTime, handleTimeChange] = useState(new Date()),
         [filter, setFilter] = useState(0),
         [allDay, setAllDay] = useState(false),
-        reminders = useSelector((s: any) => s.reminders),
+        reminders = useSelector((s: RootState) => s.reminders),
         [values, setValues] = useState({
             desc: "",
             name: "",
             repeat: 0,
         }),
-        [currentTodo, setCurrentTodo] = useState(0),
+        [currentReminder, setCurrentReminder] = useState<string>(null),
         [dialogs, setDialogs] = useState({
             delete: false,
             edit: false,
-            newTodo: false,
+            newReminder: false,
             poo: false
         }),
         close = dialog => () => {
@@ -104,14 +115,18 @@ export default function Reminders() {
                 ...dialogs,
                 [dialog]: false
             });
-            setValues({
-                desc: "",
-                name: "",
-                repeat: 0,
-            });
+            if (dialog === "edit") {
+                setTimeout(() => {
+                    setValues({
+                        desc: "",
+                        name: "",
+                        repeat: 0,
+                    });
+                }, 500);
+            }
         },
         open = (dialog, _id) => () => {
-            setCurrentTodo(_id);
+            setCurrentReminder(_id);
             let newDate = new Date();
             let newTime = newDate;
             if (dialog === "edit") {
@@ -138,6 +153,12 @@ export default function Reminders() {
                 }
                 newTime = new Date(reminder.date);
                 setAllDay(Boolean(reminder.allDay));
+            } else {
+                setValues({
+                    desc: "",
+                    name: "",
+                    repeat: 0,
+                });
             }
             handleDateChange(newDate);
             handleTimeChange(newTime);
@@ -152,13 +173,14 @@ export default function Reminders() {
                 [name]: value,
             });
         },
-        todoDone = _id => () => {
-            del("/reminders", {
-                setLoading: true,
-                failedMsg: "deleting this reminder",
+        reminderDone = _id => () => {
+            setPending([...pending, _id]);
+            undoReq("/reminders", {
+                failedMsg: "updating this reminder",
                 body: { _id },
                 done: () => {
                     //dispatchEmit("/reminder/delete", _id);
+                    setPending(pending.filter(p => p !== _id));
                     dispatch({
                         type: "/reminder/delete",
                         payload: _id,
@@ -166,13 +188,18 @@ export default function Reminders() {
                     snackbar.open("Reminder done", {
                         variant: "info",
                         action: key => (
-                            <Button variant="outlined" onClick={undo(_id, key)}>Undo</Button>
+                            <Button variant="outlined" color="inherit" onClick={undo(_id, key)}>
+                                Undo
+                            </Button>
                         )
                     });
+                },
+                failed() {
+                    setPending(pending.filter(p => p !== _id));
                 }
             });
         },
-        deleteTodo = _id => () => {
+        deleteReminder = _id => () => {
             del("/reminders", {
                 failedMsg: "deleting this reminder",
                 setLoading: true,
@@ -187,56 +214,75 @@ export default function Reminders() {
                 }
             });
         },
-        changeTodo = e => {
+        changeReminder = e => {
             e.preventDefault();
             if (!putLoading) {
-                const todoTime = new Date(selectedTime),
+                const reminderTime = new Date(selectedTime),
                     date = new Date(selectedDate);
                 if (allDay) {
                     date.setHours(23);
                     date.setMinutes(59);
                 } else {
-                    date.setHours(todoTime.getHours());
-                    date.setMinutes(todoTime.getMinutes());
+                    date.setHours(reminderTime.getHours());
+                    date.setMinutes(reminderTime.getMinutes());
                 }
                 put("/reminders", {
                     setLoading: true,
                     failedMsg: "updating this reminder",
                     body: {
                         ...values,
-                        _id: currentTodo,
+                        _id: currentReminder,
                         allDay,
                         date,
+                    },
+                    done() {
+                        close("edit")();
+                        /*dispatchEmit("/reminder/update", {
+                            ...values,
+                            date,
+                            allDay,
+                            _id: currentTodo,
+                        });*/
+                        dispatch({
+                            type: "/reminder/update",
+                            payload: {
+                                ...values,
+                                date,
+                                allDay,
+                                _id: currentReminder,
+                            }
+                        });
                     }
                 });
             }
         },
         undo = (_id, key) => () => {
-            const doneTodo = reminders.find(r => r._id === _id);
+            const doneReminder = reminders.find(r => r._id === _id);
             post("/reminders", {
                 failedMsg: "undoing this reminder",
+                body: doneReminder,
                 done() {
                     snackbar.close(key);
-                    //dispatchEmit("/reminder/undo", doneTodo);
+                    //dispatchEmit("/reminder/undo", doneReminder);
                     dispatch({
-                        type: "/reminder/undo",
-                        payload: doneTodo,
+                        type: "/reminder/create",
+                        payload: doneReminder,
                     });
                 }
             });
         },
-        createTodo = e => {
+        createReminder = e => {
             e.preventDefault();
             if (!postLoading) {
                 const
-                    todoTime = new Date(selectedTime),
+                    reminderTime = new Date(selectedTime),
                     date = new Date(selectedDate);
                 if (allDay) {
                     date.setHours(23);
                     date.setMinutes(59);
                 } else {
-                    date.setHours(todoTime.getHours());
-                    date.setMinutes(todoTime.getMinutes());
+                    date.setHours(reminderTime.getHours());
+                    date.setMinutes(reminderTime.getMinutes());
                 }
                 post("/reminders", {
                     failedMsg: "creating this reminder",
@@ -247,7 +293,7 @@ export default function Reminders() {
                         date,
                         allDay: allDay,
                     },
-                    done: data => {
+                    done(data) {
                         /*dispatchEmit("/reminder/create", {
                             ...values,
                             date,
@@ -263,7 +309,7 @@ export default function Reminders() {
                                 _id: data,
                             }
                         });
-                        close("newTodo")();
+                        close("newReminder")();
                         setValues({
                             desc: "",
                             name: "",
@@ -274,7 +320,7 @@ export default function Reminders() {
             }
         },
         form = (create = true) => (
-            <form onSubmit={dialogs.newTodo ? createTodo : changeTodo}>
+            <form onSubmit={create ? createReminder : changeReminder}>
                 {!create && (
                     <DialogTitle id="alert-dialog-name">Edit reminder</DialogTitle>
                 )}
@@ -360,11 +406,11 @@ export default function Reminders() {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={close(dialogs.newTodo ? "newTodo" : "edit")}>
+                    <Button onClick={close(create ? "newReminder" : "edit")}>
                         Cancel
                     </Button>
                     <LoadBtn
-                        loading={dialogs.newTodo ? postLoading : putLoading}
+                        loading={create ? postLoading : putLoading}
                         label={create ? "Create" : "Change"}
                         disabled={values.name === ""}
                     />
@@ -437,13 +483,14 @@ export default function Reminders() {
                 height={160}
                 filter={filter}
                 setFilter={setFilter}
-                createOpen={dialogs.newTodo}
-                setCreateOpen={close("newTodo")}
-                createFn={open("newTodo", null)}
+                createOpen={dialogs.newReminder}
+                setCreateOpen={close("newReminder")}
+                createFn={open("newReminder", null)}
+                rerender={pending.toString()}
                 Actions={(r: IReminder) => {
-                    const icons = [{
+                    const icons: IAction[] = [{
                         label: "Delete",
-                        fn: () => confirm("delete this reminder?", deleteTodo(r._id)),
+                        fn: () => confirm("delete this reminder?", deleteReminder(r._id)),
                         icon: <Icon path={mdiDelete} />,
                     }, {
                         label: "Edit",
@@ -453,8 +500,21 @@ export default function Reminders() {
                     if (r.repeat === 0) {
                         icons.push({
                             label: "Done",
-                            fn: todoDone(r._id),
-                            icon: <Icon path={mdiCheck} />,
+                            fn: reminderDone(r._id),
+                            disabled: pending.includes(r._id),
+                            icon: (
+                                <div className={classes.loadingContainer}>
+                                    <Icon path={mdiCheck} />
+                                    {pending.includes(r._id) && (
+                                        <CircularProgress disableShrink size={24} className={styles.progress} />
+                                    )}
+                                </div>
+                            ),
+                            /*custom: (
+                                <form onSubmit={reminderDone(r._id)}>
+                                    <LoadBtn component={IconButton} disabled={false} loading={pending.includes(r._id)} label={<Icon path={mdiCheck} />} />
+                                </form>
+                            )*/
                         });
                     }
                     return icons;
@@ -498,11 +558,3 @@ export default function Reminders() {
         </>
     )
 };
-interface IReminder {
-    desc: string;
-    repeat: number;
-    allDay: boolean;
-    date: string;
-    _id: string;
-    name: string;
-}

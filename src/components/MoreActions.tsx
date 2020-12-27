@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { mdiDotsHorizontal } from "@mdi/js";
 import Icon from "./Icon";
+import { RootState } from "../redux/store";
 const Actions = memo(({ actions }: any) => actions.map(a => (
     <MenuItem key={a.label} onClick={a.fn}>
         {a.label}
@@ -19,7 +20,7 @@ export default memo(({ className }: {className: string}) => {
             setOpen(false);
             fn();
         },
-        moreActions = useSelector((s: any) => s.moreActions),
+        moreActions = useSelector((s: RootState) => s.moreActions),
         dispatch = useDispatch(),
         openHelp = () => dispatch({
             type: "OPEN_HELP_DIALOG",

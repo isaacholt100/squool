@@ -2,11 +2,11 @@ import { TextField, Typography } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { usePut } from "../../hooks/useRequest";
-import { dispatch } from "../../redux/store";
+import { dispatch, RootState } from "../../redux/store";
 import LoadBtn from "../LoadBtn";
 
 export default function Name() {
-    const { firstName, lastName } = useSelector((s: any) => ({firstName: s.userInfo.firstName, lastName: s.userInfo.lastName}));
+    const { firstName, lastName } = useSelector((s: RootState) => ({firstName: s.userInfo.firstName, lastName: s.userInfo.lastName}));
     const [put, loading] = usePut();
     const [first, setFirst] = useState(firstName || "");
     const [last, setLast] = useState(lastName || "");

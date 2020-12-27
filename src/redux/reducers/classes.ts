@@ -1,10 +1,11 @@
 import { pick } from "lodash";
 import IAction from "../../types/action";
+import IClass from "../../types/IClass";
 
-export default function userClasses(state = [], action: IAction) {
+export default function classes(state: IClass[] = [], action: IAction): IClass[] {
     switch (action.type) {
         case "UPLOAD_DATA":
-            return action.payload.classes;
+            return action.payload.classes || [];
         case "UPDATE_CLASSES":
             return action.payload;
         case "/classes/delete":

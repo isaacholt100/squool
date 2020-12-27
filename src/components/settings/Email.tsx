@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { usePut } from "../../hooks/useRequest";
 import isEmailValid from "../../lib/isEmailValid";
-import { dispatch } from "../../redux/store";
+import { dispatch, RootState } from "../../redux/store";
 import LoadBtn from "../LoadBtn";
 
 export default function Email() {
-    const email = useSelector((s: any) => s.userInfo.email);
+    const email = useSelector((s: RootState) => s.userInfo.email);
     const [put, loading] = usePut();
     const [stateEmail, setStateEmail] = useState(email || "");
     const error = !isEmailValid(stateEmail);

@@ -1,6 +1,7 @@
 import IAction from "../../types/action";
+import IUser from "../../types/IUser";
 
-export default function users(state = [], action: IAction) {
+export default function users(state: IUser[] = [], action: IAction): IUser[] {
     switch (action.type) {
         case "UPLOAD_USERS":
             return action.payload;

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, forwardRef, useEffect } from "react";
+import React, { useState, forwardRef } from "react";
 import { useGet, usePost } from "../../hooks/useRequest";
 import { makeStyles } from "@material-ui/core/styles";
 import match from "autosuggest-highlight/match";
@@ -25,13 +25,13 @@ import {
     Tooltip,
 } from "@material-ui/core";
 import useConfirm from "../../hooks/useConfirm";
-import useTitle from "../../hooks/useTitle";
 import Icon from "../../components/Icon";
 import { mdiClose } from "@mdi/js";
 import { useRouter } from "next/router";
 import { TransitionProps } from "@material-ui/core/transitions";
 import { dispatch } from "../../redux/store";
 import Head from "next/head";
+import useRedirect from "../../hooks/useRedirect";
 
 const
     useStyles = makeStyles(theme => ({
@@ -149,18 +149,9 @@ export default function TimetableSearch() {
                     router.push("/timetable");
                 }
             });
-            /*request("/timetable/choose", "PUT", true, () => {
-                dispatchEmit("/timetable/upload", {
-                    periods: preview.periods,
-                    lessons: fillTable(preview.sat, preview.periods),
-                });
-                history.push("/timetable");
-            }, "updating your timetable template", {
-                periods: preview.periods,
-                lessons: fillTable(preview.sat, preview.periods),
-            });*/
         };
-    return (
+    const isLoggedIn = useRedirect();
+    return !isLoggedIn ? null : (
         <>
             <Head>
                 <title>Search Timetables</title>

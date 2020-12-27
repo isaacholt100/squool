@@ -16,7 +16,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             const
                 db = await getDB(),
                 users = db.collection("users"),
-                { password, staySignedIn, email } = req.body,
+                { password, /*staySignedIn,*/ email } = req.body,
                 isUser = await users.findOne({ email }, { projection: { password: 1 } });
             if (!isUser) {
                 errors(res, {
@@ -36,7 +36,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     res.json({
                         ...user,
                         accessToken: jwt.sign(jwtInfo, process.env.ACCESS_TOKEN, {
-                            expiresIn: "20m",
+                            expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME,
                         }),
                         refreshToken,
                     });

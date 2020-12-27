@@ -1,12 +1,13 @@
 import IAction from "../../types/action";
 import defaultTimetable from "../../json/defaultTimetable.json";
+import ITimetable from "../../types/ITimetable";
 
-export default function timetable(state = null, action: IAction) {
+export default function timetable(state: ITimetable = null, action: IAction): ITimetable {
     switch (action.type) {
         case "UPLOAD_DATA":
             return action.payload.timetable ? {
                 periods: action.payload.timetable.periods,
-                lessons: action.payload.timetable.lessons.filter(l => l),
+                lessons: action.payload.timetable.lessons.filter(l => Boolean(l)),
             } : defaultTimetable;
         case "/timetable/upload":
             return action.payload || defaultTimetable;

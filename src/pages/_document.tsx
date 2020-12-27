@@ -3,7 +3,7 @@ import Document, {
     Html, Main, NextScript, Head
 } from "next/document";
 import { ServerStyleSheets } from "@material-ui/core/styles";
-import cookies from "next-cookies";
+
 const
     APP_NAME = "Squool",
     APP_DESC = "<Description Here>",

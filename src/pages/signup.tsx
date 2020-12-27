@@ -22,10 +22,10 @@ import { usePost } from "../hooks/useRequest";
 import Link from "next/link";
 import Head from "next/head";
 import jwtCookies from "../lib/jwtCookies";
-import styles from "../css/signup.module.css";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import { useRouter } from "next/router";
 import isEmailValid from "../lib/isEmailValid";
+
 interface IFields {
     firstName: string;
     lastName: string;
@@ -34,6 +34,7 @@ interface IFields {
     password: string;
     repeatPassword: string;
 }
+
 const
     initialValues: IFields = {
         firstName: "",
@@ -102,10 +103,6 @@ export default function Login() {
                         user_id: data.user_id,
                     });
                     router.replace("/home");
-                    /*sessionStorage.setItem("visited", "1");
-                    localStorage.setItem("role", role);
-                    setCookie("refresh", data.refreshToken, staySignedIn);
-                    setCookie("accessToken", data.accessToken, true);
                     dispatch({
                         type: "/user/info/update",
                         payload: {
@@ -115,8 +112,7 @@ export default function Login() {
                             user_id: data.user_id,
                         },
                     });
-                    history.push(redirect());
-                    socket.connect(`http://${serverUrl.split(":5000")[0]}`);*/
+                    //socket.connect(`http://${serverUrl.split(":5000")[0]}`);
                 },
                 errors: data => setHelpers({
                     ...helpers,

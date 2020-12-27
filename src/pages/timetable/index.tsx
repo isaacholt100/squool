@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef } from "react";
-import useRequest, { usePut } from "../../hooks/useRequest";
+import { usePut } from "../../hooks/useRequest";
 import { useDispatch, useSelector } from "react-redux";
 //import socket from "../../api/socket";
 import Loader from "../../components/Loader";
 import Timetable from "../../components/Timetable";
 import { useRouter } from "next/router";
+import useRedirect from "../../hooks/useRedirect";
+import { RootState } from "../../redux/store";
 
 
 export default function TimetableView() {
@@ -15,7 +17,7 @@ export default function TimetableView() {
         dispatch = useDispatch(),
         router = useRouter(),
         //classes = useStyles(),
-        timetable = useSelector((s: any) => s.timetable);
+        timetable = useSelector((s: RootState) => s.timetable);
     if (timetable?.periods?.length === 0) {
         router.replace("/timetable/search");
     }
@@ -80,7 +82,8 @@ export default function TimetableView() {
     useEffect(() => {
         length.current = timetable?.periods?.length;
     }, []);
-    return (
+    const isLoggedIn = useRedirect();
+    return !isLoggedIn ? null : (
         timetable && timetable.periods.length > 0 ?
             <Timetable
                 type="edit"

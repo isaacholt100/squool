@@ -8,7 +8,7 @@ export interface IFetchOptions {
     url: string;
     method: "GET" | "POST" | "PUT" | "DELETE";
     file?: boolean;
-    body?: object | BodyInit;
+    body?: any | BodyInit;
     fetchOptions?: RequestInit;
 }
 export interface IRes {

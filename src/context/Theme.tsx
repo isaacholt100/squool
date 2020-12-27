@@ -1,14 +1,15 @@
 import { createContext, ReactChild, useContext, useState } from "react";
-import useSWR from "swr";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import defaultTheme from "../json/defaultTheme.json";
+
 interface ITheme {
     fontFamily: string;
     primary: string;
     secondary: string;
     type: "light" | "dark";
 }
-export const ThemeContext = createContext({});
+
+const ThemeContext = createContext({});
 export default function Theme({ children }: { children: ReactChild }) {
     const
         isLoggedIn = useIsLoggedIn(),

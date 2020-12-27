@@ -9,7 +9,7 @@ import profileIcons from "../../json/profileIcons";
 import LoadBtn from "../LoadBtn";
 import Icon from "../Icon";
 import clsx from "clsx";
-import { dispatch } from "../../redux/store";
+import { dispatch, RootState } from "../../redux/store";
 
 const useStyles = makeStyles(theme => ({
     avatar: {
@@ -37,7 +37,7 @@ export default memo(() => {
     const
         classes = useStyles(),
         [put, loading] = usePut(),
-        icon = useSelector((s: any) => s.userInfo.icon),
+        icon = useSelector((s: RootState) => s.userInfo.icon),
         [enlarged, setEnlarged] = useState(""),
         [open, setOpen] = useState(false),
         change = (e: React.FormEvent<HTMLFormElement>) => {

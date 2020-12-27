@@ -1,12 +1,11 @@
 import fetchData from "../lib/fetchData";
-import { useDispatch } from "react-redux";
 import useSnackbar from "./useSnackbar";
 import { IFetchOptions, IRes } from "../types/fetch";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import useLogout from "./useLogout";
 
-type Handler = (data: object | string) => void;
+type Handler = (data: any) => void;
 interface IOptions extends IFetchOptions {
     setLoading?: boolean;
     failedMsg?: string;
@@ -19,6 +18,7 @@ interface IOptions extends IFetchOptions {
 interface IErrors {
     errors: string | { [key: string]: string };
 }
+
 function useFetch(): [({ url, setLoading: load, method, failedMsg, doneMsg, errors, done, failed, file, body, ...other }: IOptions) => void, boolean] {
     const
         snackbar = useSnackbar(),
@@ -27,7 +27,7 @@ function useFetch(): [({ url, setLoading: load, method, failedMsg, doneMsg, erro
     const fetcher = ({ url, setLoading: load, method, failedMsg, doneMsg, errors, done, failed, file, body, ...other }: IOptions) => {
         const response = (res: IRes) => {
             load && setLoading(false);
-            res.accessToken && Cookies.set("accessToken", res.accessToken, {sameSite: "strict", ...(true ? { expires: 100 } : {expires: 100})});
+            res.accessToken && Cookies.set("accessToken", res.accessToken, {...(true ? { expires: 100 } : {expires: 100})});
             switch (res.type) {
                 case "noauth":
                     done(res.data);

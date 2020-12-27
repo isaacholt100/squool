@@ -1,7 +1,8 @@
 //import { ObjectId } from "mongodb";
 import IAction from "../../types/action";
+import IReminder from "../../types/IReminder";
 
-export default function reminders(state = [], action: IAction) {
+export default function reminders(state: IReminder[] = [], action: IAction): IReminder[] {
     switch(action.type) {
         case "/reminder/create":
             return [action.payload, ...state];

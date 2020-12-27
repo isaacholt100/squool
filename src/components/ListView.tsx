@@ -9,7 +9,6 @@ import {
     Tabs,
     useMediaQuery,
     Grid,
-    Card,
     CardActionArea,
     Tooltip,
     IconButton,
@@ -30,6 +29,7 @@ import { mdiChevronLeft, mdiChevronRight, mdiPlus } from "@mdi/js";
 import Icon from "./Icon";
 import styles from "../css/listView.module.css";
 import clsx from "clsx";
+import { RootState } from "../redux/store";
 
 const useStyles = makeStyles(theme => ({
     animated: {
@@ -148,7 +148,6 @@ const Stepper = memo((props: { length: number, activeStep: number, setActiveStep
                     disabled={props.activeStep === props.length - 1}
                 >
                     <Icon path={mdiChevronRight} />
-                {console.log(props.activeStep)}
                 </IconButton>
             </Tooltip>
         }
@@ -166,11 +165,11 @@ const Stepper = memo((props: { length: number, activeStep: number, setActiveStep
     />
 ), (prev, next) => !(prev.length !== next.length || prev.activeStep !== next.activeStep));
 
-interface IAction {
+export type IAction = {
     label: string;
     fn: () => void;
     icon: JSX.Element;
-}
+} & Partial<IconButtonProps>;
 
 interface IListProps<T> {
     noCreate?: boolean;
@@ -184,13 +183,14 @@ interface IListProps<T> {
     Actions?: (item: T) => IAction[];
     activeStep: number;
     setActiveStep: (x: number) => void;
+    rerender?: any;
 }
 
 const List = memo(function<T>(props: IListProps<T>) {
     const
         contextMenu = useContextMenu(),
         classes = useStyles(),
-        carouselView = useSelector(s => (s as any).carouselView),
+        carouselView = useSelector((s: RootState) => s.carouselView),
         isLarge = useMediaQuery("(min-width: 600px)"),
         isSmall = useMediaQuery((theme: Theme) => theme.breakpoints.down("md")),
         swipeable = !isLarge && carouselView,
@@ -268,7 +268,7 @@ const List = memo(function<T>(props: IListProps<T>) {
             </div>
         </>
     );
-}, (prev, next) => !(!isEqual(prev.filtered, next.filtered) || prev.animate !== next.animate || prev.activeStep !== next.activeStep));
+}, (prev, next) => !(!isEqual(prev.filtered, next.filtered) || prev.animate !== next.animate || prev.activeStep !== next.activeStep || prev.rerender !== next.rerender));
 
 interface IFormProps {
     createOpen: boolean;
@@ -279,7 +279,7 @@ interface IFormProps {
 
 const Form = (props: IFormProps) => (
     <Dialog
-        open={props.createOpen}
+        open={props.createOpen || false}
         onClose={() => props.setCreateOpen(false)}
         aria-labelledby={`new-${props.name}-title`}
         keepMounted
@@ -292,7 +292,7 @@ const Form = (props: IFormProps) => (
 export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "animate" | "setAnimate" | "activeStep" | "setActiveStep"> & Partial<IFormProps>) {
     const
         [activeStep, setActiveStep] = useState(0),
-        carouselView = useSelector(s => (s as any).carouselView),
+        carouselView = useSelector((s: RootState) => s.carouselView),
         [animate, setAnimate] = useState(true),
         isLarge = useMediaQuery("(min-width: 600px)"),
         swipeable = !isLarge && carouselView;
@@ -327,6 +327,7 @@ export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "anim
                     height={props.height}
                     activeStep={activeStep}
                     setActiveStep={setActiveStep}
+                    rerender={props.rerender}
                 />
                 {swipeable && props.filtered.length > 0 && <Stepper activeStep={activeStep} setActiveStep={setActiveStep} length={props.filtered.length} />}
             </Box>

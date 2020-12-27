@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect, Fragment } from "react";
-import useRequest, { usePost } from "../../hooks/useRequest";
+import React, { useState } from "react";
+import { usePost } from "../../hooks/useRequest";
 import { KeyboardTimePicker } from "@material-ui/pickers";
 import { makeStyles } from "@material-ui/core/styles";
 import Timetable from "../../components/Timetable";
 import defaultTimetable from "../../json/defaultTimetable.json";
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Switch, FormControlLabel, Box } from '@material-ui/core';
-import useTitle from "../../hooks/useTitle";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Switch, FormControlLabel } from "@material-ui/core";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import LoadBtn from "../../components/LoadBtn";
+import useRedirect from "../../hooks/useRedirect";
 
 const
     useStyles = makeStyles(theme => ({
@@ -36,7 +36,6 @@ const
 export default function TimetableCreate() {
     const
         [post, loading] = usePost(),
-        title = useTitle(),
         router = useRouter(),
         classes = useStyles(),
         [timetable, setTimetable] = useState(defaultTimetable),
@@ -66,13 +65,6 @@ export default function TimetableCreate() {
                         router.push("/timetable/list");
                     }
                 });
-                /*request("/timetable", "POST", true, () => {
-                    history.push("/timetable/list");
-                }, "updating your timetable", {
-                    name: timetableName,
-                    periods: timetable.periods,
-                    sat,
-                });*/
             }
         },
         deletePeriod = i => {
@@ -111,7 +103,8 @@ export default function TimetableCreate() {
                 closeDialog();
             }
         };
-    return (
+    const isLoggedIn = useRedirect();
+    return !isLoggedIn ? null : (
         <div>
             <Head>
                 <title>Create Timetable</title>
