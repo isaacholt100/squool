@@ -22,14 +22,13 @@ import {
 } from "@material-ui/core";
 import { Box } from "@material-ui/core";
 import isEqual from "react-fast-compare";
-import { useSelector } from "react-redux";
 import useContextMenu from "../hooks/useContextMenu";
 import isHotkey from "is-hotkey";
 import { mdiChevronLeft, mdiChevronRight, mdiPlus } from "@mdi/js";
 import Icon from "./Icon";
 import styles from "../css/listView.module.css";
 import clsx from "clsx";
-import { RootState } from "../redux/store";
+import useCarouselView from "../hooks/useCarouselView";
 
 const useStyles = makeStyles(theme => ({
     animated: {
@@ -190,7 +189,7 @@ const List = memo(function<T>(props: IListProps<T>) {
     const
         contextMenu = useContextMenu(),
         classes = useStyles(),
-        carouselView = useSelector((s: RootState) => s.carouselView),
+        carouselView = useCarouselView(),
         isLarge = useMediaQuery("(min-width: 600px)"),
         isSmall = useMediaQuery((theme: Theme) => theme.breakpoints.down("md")),
         swipeable = !isLarge && carouselView,
@@ -292,7 +291,7 @@ const Form = (props: IFormProps) => (
 export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "animate" | "setAnimate" | "activeStep" | "setActiveStep"> & Partial<IFormProps>) {
     const
         [activeStep, setActiveStep] = useState(0),
-        carouselView = useSelector((s: RootState) => s.carouselView),
+        carouselView = useCarouselView(),
         [animate, setAnimate] = useState(true),
         isLarge = useMediaQuery("(min-width: 600px)"),
         swipeable = !isLarge && carouselView;

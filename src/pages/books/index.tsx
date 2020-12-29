@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useDelete, usePost, usePut } from "../../hooks/useRequest";
 import {
     Typography,
@@ -28,7 +28,9 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import useRedirect from "../../hooks/useRedirect";
 import IBook from "../../types/IBook";
-import { RootState } from "../../redux/store";
+import useUserInfo from "../../hooks/useUserInfo";
+import useClasses from "../../hooks/useClasses";
+import useBooks from "../../hooks/useBooks";
 
 export default function Books() {
     const
@@ -38,8 +40,8 @@ export default function Books() {
         [put, putLoading] = usePut(),
         [ConfirmDialog, confirm, closeConfirm] = useConfirm(deleteLoading),
         router = useRouter(),
-        role = useSelector((s: RootState) => s.userInfo.role),
-        userClasses = useSelector((s: RootState) => s.classes),
+        { role } = useUserInfo(),
+        userClasses = useClasses(),
         [state, setState] = useState({
             nameError: "",
             name: "",
@@ -52,7 +54,7 @@ export default function Books() {
         [activePeriod, setActivePeriod] = useState(0),
         [createOpen, setCreateOpen] = useState(false),
         dispatch = useDispatch(),
-        books = useSelector((s: RootState) => s.books),
+        books = useBooks(),
         periods = unique(books.map(b => b.period)).sort().reverse(),
         filtered = books && books.filter(book => book.period === periods[activePeriod]),
         openDialog = (dialog, book_id) => {
@@ -240,17 +242,7 @@ export default function Books() {
                     </MenuItem>
                 </Select>
             </FormControl>
-        ),
-        getBooks = () => {
-            /*request.get("/books", {
-                setLoading: true,
-                failedMsg: "loading your books",
-                done: data => dispatch({
-                    type: "UPLOAD_BOOKS",
-                    payload: data,
-                }),
-            });*/
-        };
+        );
     useEffect(() => {
         /*dispatch({
             type: "/moreActions",

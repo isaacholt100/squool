@@ -19,7 +19,7 @@ export default function Settings() {
         [page, setPage] = useState(hashIndex);
     return !isLoggedIn ? null : (
         <div>
-            <Box clone mb={{ xs: "8px !important", lg: "16px !important" }}>
+            <Box>
                 <AppBar position="relative" color="default">
                     <Tabs
                         value={page}
@@ -42,7 +42,7 @@ export default function Settings() {
                     </Tabs>
                 </AppBar>
             </Box>
-            <Box component={Card} mb={{ xs: 0.5, lg: 1, }}>
+            <Box component={Card} my={{ xs: "8px", lg: "16px", }}>
                 {page === 0 && (
                     <>
                         <Email />

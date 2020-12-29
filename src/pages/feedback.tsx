@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import { startCase } from "lodash";
 import { Typography, Button, TextField, Box, Card } from '@material-ui/core';
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
@@ -12,7 +11,6 @@ const initialState = {
 
 export default function Feedback() {
     const
-        dispatch = useDispatch(),
         isLoggedIn = useIsLoggedIn(),
         [message, setMessage] = useState(initialState),
         [subject, setSubject] = useState(initialState),

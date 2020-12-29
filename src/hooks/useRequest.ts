@@ -41,7 +41,7 @@ function useFetch(): [({ url, setLoading: load, method, failedMsg, doneMsg, erro
                     errors && errors(res.data as IErrors);
                     break;
                 default:
-                    doneMsg && snackbar.info(doneMsg);
+                    doneMsg && snackbar.success(doneMsg);
                     done && done(res.data);
             }
         }

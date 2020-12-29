@@ -1,8 +1,5 @@
-import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
-import auth from "../../../../server/auth";
-import getDB from "../../../../server/getDB";
-import { didUpdate, done, notAllowed } from "../../../../server/helpers";
+import { notAllowed } from "../../../../server/helpers";
 import tryCatch from "../../../../server/tryCatch";
 import updateSettings from "../../../../server/updateSettings";
 

@@ -4,8 +4,6 @@ import { TextField, Typography, Card } from "@material-ui/core";
 import Decimal from "decimal.js";
 import LoadBtn from "../../components/LoadBtn";
 
-const _0 = new Decimal(0);
-
 const useStyles = makeStyles(theme => ({
     result: {
         color: theme.palette.secondary.main,

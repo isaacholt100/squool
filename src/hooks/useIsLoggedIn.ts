@@ -3,22 +3,24 @@ import useSWR from "swr";
 import { useIsOnline } from "../context/IsOnline";
 
 export default function useIsLoggedIn() {
-    const [online, setOnline] = useIsOnline();
+    const [, setOnline] = useIsOnline();
     const l = Boolean(Cookies.get("refreshToken") && Cookies.get("accessToken"));
     const { data, error } = useSWR("/api/login", async url => {
         try {
             const res = await fetch(url);
             const json = res.json();
-            !online && setOnline(true);
+            process.env.NODE_ENV === "production" && setOnline(true);
             return json;
         } catch (err) {
-            online && setOnline(false);
+            process.env.NODE_ENV === "production" && setOnline(false);
             throw err;
         }
     }, {
         refreshInterval: 1000,
         onError: () => {},
         initialData: l,
+        //refreshWhenOffline: true,
+        //refreshWhenHidden: true,
     });
     if (!error) {
         return data as boolean;

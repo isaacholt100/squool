@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef } from "react";
 import { usePut } from "../../hooks/useRequest";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 //import socket from "../../api/socket";
 import Loader from "../../components/Loader";
 import Timetable from "../../components/Timetable";
 import { useRouter } from "next/router";
 import useRedirect from "../../hooks/useRedirect";
-import { RootState } from "../../redux/store";
+import useTimetable from "../../hooks/useTimetable";
 
 
 export default function TimetableView() {
@@ -17,7 +17,7 @@ export default function TimetableView() {
         dispatch = useDispatch(),
         router = useRouter(),
         //classes = useStyles(),
-        timetable = useSelector((s: RootState) => s.timetable);
+        timetable = useTimetable();
     if (timetable?.periods?.length === 0) {
         router.replace("/timetable/search");
     }

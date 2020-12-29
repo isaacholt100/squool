@@ -1,13 +1,13 @@
 import { Divider, TextField, Typography } from "@material-ui/core";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { usePut } from "../../hooks/useRequest";
+import useUserInfo from "../../hooks/useUserInfo";
 import isEmailValid from "../../lib/isEmailValid";
-import { dispatch, RootState } from "../../redux/store";
+import { dispatch } from "../../redux/store";
 import LoadBtn from "../LoadBtn";
 
 export default function Email() {
-    const email = useSelector((s: RootState) => s.userInfo.email);
+    const { email } = useUserInfo();
     const [put, loading] = usePut();
     const [stateEmail, setStateEmail] = useState(email || "");
     const error = !isEmailValid(stateEmail);

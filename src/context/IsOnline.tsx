@@ -1,8 +1,26 @@
-import { createContext, ReactChild, useContext, useEffect, useState } from "react";
+import { createContext, ReactChild, ReactText, useContext, useEffect, useRef } from "react";
+import useRefState from "../hooks/useRefState";
+import useSnackbar from "../hooks/useSnackbar";
 
 const IsOnlineContext = createContext<[boolean, (online: boolean) => void]>([true, (online: boolean) => {}]);
 export default function IsOnline({ children }: { children: ReactChild }) {
-    const [online, setOnline] = useState(typeof(navigator) !== "undefined" ? navigator.onLine : true);
+    const snackbar = useSnackbar();
+    const key = useRef<ReactText>();
+    const [online, setState] = useRefState(process.browser ? navigator.onLine : true);
+    function setOnline(o: boolean) {
+        if (o && !online.current) {
+            key.current && snackbar.close(key.current);
+            key.current = snackbar.open("Back online", {
+                variant: "success",
+            });
+        } else if (!o && online.current) {
+            key.current && snackbar.close(key.current);
+            key.current = snackbar.open("You're offline - some functionality may be disabled", {
+                variant: "warning",
+            });
+        }
+        setState(o);
+    }
     useEffect(() => {
         window.addEventListener("online", () => {
             setOnline(true);
@@ -10,9 +28,9 @@ export default function IsOnline({ children }: { children: ReactChild }) {
         window.addEventListener("offline", () => {
             setOnline(false);
         });
-    });
+    }, []);
     return (
-        <IsOnlineContext.Provider value={[online, setOnline]}>
+        <IsOnlineContext.Provider value={[online.current, setOnline]}>
             {children}
         </IsOnlineContext.Provider>
     );

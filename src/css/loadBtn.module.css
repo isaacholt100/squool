@@ -9,3 +9,7 @@
     margin-top: -12px;
     margin-left: -12px;
 }
+.icon_btn_container {
+    position: relative;
+    height: 24px;
+}

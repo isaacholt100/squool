@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { startCase } from "lodash";
 import { Paper, Typography, TextField, IconButton, Tooltip, Box } from "@material-ui/core";
 import Icon from "./Icon";
-import { mdiBook, mdiClockTimeFour, mdiDelete, mdiFace, mdiMapMarker, mdiPencil } from "@mdi/js";
+import { mdiBook, mdiDelete, mdiFace, mdiMapMarker, mdiPencil } from "@mdi/js";
 import Color from "color";
 const Slot = memo((props: any) => {
     const classes = useStyles();

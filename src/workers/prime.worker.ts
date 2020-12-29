@@ -7,7 +7,6 @@ function isPrime(x: string): boolean | string {
     if (x === "2" || x === "3") {
         return true
     }
-    let prime = true;
     const num = new Decimal(x);
     if (!num.isInteger()) {
         return "Number is not whole";

@@ -58,6 +58,11 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     }
                 },
                 MuiMenu: {
+                    list: {
+                        padding: 0,
+                    },
+                },
+                MuiPopover: {
                     paper: {
                         border: `2px solid gray`,
                         "& li:first-child .MuiTouchRipple-root": {
@@ -70,9 +75,6 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                             borderRadius: 14,
                         },
                         overflowX: "hidden !important" as any,
-                    },
-                    list: {
-                        padding: 0,
                     },
                 },
                 MuiDivider: {
@@ -326,16 +328,18 @@ const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
     },
 }));
 const useStyles = makeStyles(({ palette }) => ({
-    snackbar: {
+    snackbarRoot: {
+        maxWidth: 512,
         "& > div": {
             borderRadius: 8,
             width: "100%",
             paddingLeft: 12,
+            flexWrap: "initial !important",
         },
         "& .MuiIconButton-root": {
             color: "inherit",
             "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.08)",
+               // backgroundColor: "rgba(255, 255, 255, 0.08)",
             },
         },
     },
@@ -393,38 +397,38 @@ export default function App({ Component, pageProps }: AppProps) {
                 </Head>
                 <Theme>
                     <Pickers utils={DateUtils}>
-                        <IsOnline>
-                            <ThemeWrapper>
-                                <Snackbar
-                                    ref={snack as any}
-                                    action={key => (
-                                        <IconButton size="small" onClick={() => snack.current.closeSnackbar(key)}>
-                                            <Icon path={mdiClose} />
-                                        </IconButton>
-                                    )}
-                                    anchorOrigin={{
-                                        vertical: "bottom",
-                                        horizontal: "right",
-                                    }}
-                                    preventDuplicate
-                                    autoHideDuration={8192}
-                                    TransitionComponent={Grow as any}
-                                    classes={{
-                                        variantError: classes.error,
-                                        variantSuccess: classes.success,
-                                        variantInfo: classes.info,
-                                        variantWarning: classes.warning,
-                                        root: classes.snackbar,
-                                        containerAnchorOriginBottomRight: classes.bottom,
-                                    }}
-                                    maxSnack={4}
-                                >
+                        <ThemeWrapper>
+                            <Snackbar
+                                ref={snack as any}
+                                action={key => (
+                                    <IconButton size="small" onClick={() => snack.current.closeSnackbar(key)}>
+                                        <Icon path={mdiClose} />
+                                    </IconButton>
+                                )}
+                                anchorOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "right",
+                                }}
+                                preventDuplicate
+                                autoHideDuration={8192}
+                                TransitionComponent={Grow as any}
+                                classes={{
+                                    variantError: classes.error,
+                                    variantSuccess: classes.success,
+                                    variantInfo: classes.info,
+                                    variantWarning: classes.warning,
+                                    root: classes.snackbarRoot,
+                                    containerAnchorOriginBottomRight: classes.bottom,
+                                }}
+                                maxSnack={4}
+                            >
+                                <IsOnline>
                                     <Frame>
                                         <Component {...pageProps} />
                                     </Frame>
-                                </Snackbar>
-                            </ThemeWrapper>
-                        </IsOnline>
+                                </IsOnline>
+                            </Snackbar>
+                        </ThemeWrapper>
                     </Pickers>
                 </Theme>
             </SWRConfig>

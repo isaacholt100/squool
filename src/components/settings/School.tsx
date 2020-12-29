@@ -4,15 +4,14 @@ import useConfirm from "../../hooks/useConfirm";
 import { Typography, TextField, Button } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
 import useLogout from "../../hooks/useLogout";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import useUserInfo from "../../hooks/useUserInfo";
 
 export default memo(() => {
     const
         [put, loading] = usePut(),
         [del, delLoading] = useDelete(),
         logout = useLogout(),
-        school_id = useSelector((s: RootState) => s.userInfo.school_id),
+        { school_id } = useUserInfo(),
         [ConfirmDialog, confirm, close] = useConfirm(loading || delLoading),
         [state, setState] = useState({
             _id: "",

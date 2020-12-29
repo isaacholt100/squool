@@ -2,7 +2,7 @@
 import React, { useRef, memo, useState, useEffect } from "react";
 import screenfull, { Screenfull } from "screenfull";
 import ReactPlayer from "react-player/lazy";
-import { Box, IconButton, Slider, Typography, Tooltip, makeStyles, FormControl, MenuItem, Select } from "@material-ui/core";
+import { IconButton, Slider, Typography, Tooltip, makeStyles, FormControl, MenuItem, Select } from "@material-ui/core";
 import AlertError from "../AlertError";
 import Duration from "./Duration";
 import MediaLoader from "./MediaLoader";
@@ -10,10 +10,11 @@ import Icon from "../Icon";
 import clsx from "clsx";
 import { mdiFullscreen, mdiFullscreenExit, mdiPause, mdiPictureInPictureBottomRight, mdiPlay, mdiSync, mdiVolumeMedium, mdiVolumeMute } from "@mdi/js";
 import useIsMobile from "../../hooks/useIsMobile";
+import { canPlay } from "react-player/lazy/patterns";
+import YTPlayer from "react-player/youtube";
+import useRefState from "../../hooks/useRefState";
 
-const AUDIO_EXTENSIONS = /\.(m4a|mp4a|mpga|mp2|mp2a|mp3|m2a|m3a|wav|weba|aac|oga|spx)($|\?)/i;
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
     thumb: {
         "&.Mui-focusVisible,&:hover": {
             boxShadow: `0px 0px 0px 4px rgba(255, 255, 255, 0.25)`,
@@ -35,8 +36,9 @@ const useStyles = makeStyles(theme => ({
         alignItems: "center",
         "& *": {
             fontFamily: "Helvetica, Arial, sans-serif !important",
-            //transition: "all 0.5s linear",
-        }
+            transition: "all 0.5s linear",
+        },
+        zIndex: 100,
     },
     topBar: {
         top: 0,
@@ -50,6 +52,9 @@ const useStyles = makeStyles(theme => ({
     player: {
         marginBottom: -4,
         outline: "none !important",
+        position: "absolute",
+        top: 0,
+        left: 0,
     },
     sliderDiv: {
         flex: 1,
@@ -75,15 +80,38 @@ const useStyles = makeStyles(theme => ({
             borderColor: "#fff",
         }
     },
-    audioContainer: {
+    audioPlayerContainer: {
         position: "relative",
         width: "100%",
         height: 56,
     },
     slider: {
         color: "#fff !important",
+        "& *": {
+            transition: "all 0s ease-out"
+        }
+    },
+    transition: {
+        "& *": {
+            transition: "all 0.5s linear"
+        }
+    },
+    videoContainer: {
+        position: "relative",
+        paddingTop: "56.25%",
+    },
+    audioContainer: {
+        display: "none",
+    },
+    cover: {
+        position: "absolute",
+        top: 0, 
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 99,
     }
-}));
+});
 
 interface IBasePlayerProps {
     isVideo: boolean;
@@ -96,21 +124,40 @@ interface IBasePlayerProps {
     onKeyPress(e): void;
     seeking: boolean;
     setSeeking(s: boolean): void;
+    onEnablePip?(): void;
+    onDisablePip?(): void;
+    pip?: boolean;
+    dragging?: boolean;
+    setDragging?(d: boolean): void;
+    onMouseOverBar?(): void;
+    onMouseOutBar?(): void;
+    playing: boolean;
+    setPlaying(p: boolean): void;
+}
+
+export function YoutubePlayer({ url }: { url: string }) {
+    const classes = useStyles();
+    return (
+        <div className={classes.videoContainer}>
+            <YTPlayer style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                    }} url={url}  height="100%" width="100%" config={{playerVars: {controls: 1, disablekb: 0, modestbranding: 1, color: "white"}}} />
+        </div>
+    );
 }
 
 function BasePlayer(props: IBasePlayerProps) {
     const
         classes = useStyles(),
         isMobile = useIsMobile(),
-        [playing, setPlaying] = useState(false),
-        [vol, setVol] = useState(0.75),
-        [muted, setMuted] = useState(false),
-        [played, setPlayed] = useState(0),
-        [duration, setDuration] = useState(0),
+        [vol, setVol] = useRefState(0.75),
+        [muted, setMuted] = useRefState(false),
+        [played, setPlayed] = useRefState(0),
+        [duration, setDuration] = useRefState(0),
         [rate, setRate] = useState(1),
-        [pip, setPip] = useState(false),
         [volOpen, setVolOpen] = useState(false),
-        [dragging, setDragging] = useState(false),
         player = useRef<ReactPlayer>(),
         volume = useRef(),
         seek = (e, s: number) => {
@@ -118,26 +165,24 @@ function BasePlayer(props: IBasePlayerProps) {
             player.current.seekTo(s);
         },
         keyPress = e => {
-            console.log(e.key);
-            
             switch (e.key) {
                 case "ArrowRight":
-                    player.current.seekTo(Math.min(duration, played * duration + 15));
+                    player.current.seekTo(Math.min(duration.current, played.current * duration.current + 15));
                     break;
                 case "ArrowLeft":
-                    player.current.seekTo(Math.max(duration, played * duration - 15));
+                    player.current.seekTo(Math.max(0, played.current * duration.current - 15));
                     break;
                 case "ArrowDown":
-                    setVol(Math.max(0, vol - 0.1));
+                    const v = Math.max(0, vol.current - 0.1);
+                    setMuted(v === 0);
+                    setVol(v);
                     break;
                 case "ArrowUp":
-                    setVol(Math.min(1, vol + 0.1));
+                    setMuted(false);
+                    setVol(Math.min(1, vol.current + 0.1));
                     break;
                 case "m":
-                    setMuted(!muted);
-                    break;
-                case " ":
-                    setPlaying(!playing)
+                    setMuted(!muted.current);
                     break;
                 default:
                     props.onKeyPress && props.onKeyPress(e);
@@ -145,158 +190,188 @@ function BasePlayer(props: IBasePlayerProps) {
             }
         };
     useEffect(() => {
-        document.addEventListener("keypress", keyPress);
-    });
-    useEffect(() => {
+        document.addEventListener("keydown", keyPress);
         return () => {
-            document.removeEventListener("keypress", keyPress);
+            document.removeEventListener("keydown", keyPress);
         }
     }, []);
     return (
         <>
-            <div onClick={!isMobile && props.isVideo ? () => setPlaying(!playing) : null}>
+            <div className={props.isVideo ? classes.videoContainer : classes.audioContainer}>
                 <ReactPlayer
                     ref={player}
                     url={props.url}
-                    playing={playing}
-                    volume={vol}
-                    pip={pip}
-                    muted={muted}
-                    width="100%"
-                    height="100%"
+                    playing={props.playing}
+                    volume={vol.current}
+                    pip={props.pip}
+                    muted={muted.current}
+                    width={"100%"}
+                    height={"100%"}
                     className={classes.player}
                     playbackRate={rate}
-                    progressInterval={100}
+                    progressInterval={10}
                     onReady={props.onReady}
                     onError={props.onError}
                     onDuration={d => setDuration(d)}
-                    onEnded={() => setPlaying(props.loop)}
-                    onPlay={() => setPlaying(true)}
-                    onPause={() => setPlaying(false)}
-                    onEnablePIP={() => setPip(true)}
-                    onDisablePIP={() => setPip(false)}
+                    onEnded={() => props.setPlaying(props.loop)}
+                    onPlay={() => props.setPlaying(true)}
+                    onPause={() => props.setPlaying(false)}
+                    onEnablePIP={props.onEnablePip}
+                    onDisablePIP={props.onDisablePip}
                     onProgress={s => !props.seeking && setPlayed(s.played)}
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                    }}
                     config={{
-                        youtube: {
-                            playerVars: {
-                                controls: 0,
-                                color: "white",
-                                disablekb: 1,
-                                fs: 0,
-                                modestbranding: 1,
+                        dailymotion: {
+                            params: {
+                                controls: false,
+                                autoplay: false,
+                                "queue-enable": false,
+                                "sharing-enable": false,
+                                "ui-logo": false,
+                                "ui-start-screen-info": false,
+                                fullscreen: false,
                             }
-                        }
+                        },
+                        vimeo: {
+                            playerOptions: {
+                                byline: false,
+                                controls: false,
+                                portrait: false,
+                                title: false,
+                                autoplay: false,
+                            }
+                        },
                     }}
                 />
             </div>
-            <div className={classes.bar} style={{opacity: props.opacity, bottom: props.full ? 0 : 4, backgroundColor: props.isVideo ? "rgba(0, 0, 0, 0.32)" : "black"}}>
-                <Tooltip title={playing ? "Pause" : "Play"}>
-                    <IconButton onClick={() => setPlaying(!playing)} color="inherit">
-                        <Icon path={playing ? mdiPause : mdiPlay} />
-                    </IconButton>
-                </Tooltip>
-                {!isMobile && (
-                    <div onMouseEnter={() => setVolOpen(true)} onMouseLeave={() => !dragging && setVolOpen(false)} className="flex align_items_center">
-                        <Tooltip title="Volume">
-                            <IconButton ref={volume} onClick={() => setMuted(!muted)} color="inherit">
-                                <Icon path={!muted ? mdiVolumeMedium : mdiVolumeMute} />
-                            </IconButton>
-                        </Tooltip>
-                        <div className="flex align_items_center" style={{transition: "all 0.5s", width: volOpen ? 80 : 0, opacity: volOpen ? 1 : 0, padding: volOpen ? "2px 8px" : "2px 0px",}}>
-                            <Slider
-                                orientation="horizontal"
-                                value={muted ? 0 : vol}
-                                max={1}
-                                step={0.05}
-                                onMouseDown={() => setDragging(true)}
-                                onChange={(e, v: number) => {
-                                    setMuted(false);
-                                    setVol(v);
-                                }}
-                                onMouseUp={() => setDragging(false)}
-                                aria-labelledby="volume"
-                                className={classes.slider}
-                                classes={{
-                                    thumb: classes.thumb,
-                                }}
-                            />
+            <div className={classes.bar} style={{opacity: props.opacity, bottom: 0, backgroundColor: props.isVideo ? "rgba(0, 0, 0, 0.32)" : "black"}} onMouseOver={props.onMouseOverBar} onMouseOut={props.onMouseOutBar}>
+                    <Tooltip title={props.playing ? "Pause" : "Play"}>
+                        <IconButton onClick={() => props.setPlaying(!props.playing)} color="inherit">
+                            <Icon path={props.playing ? mdiPause : mdiPlay} />
+                        </IconButton>
+                    </Tooltip>
+                    {!isMobile && (
+                        <div onMouseEnter={() => setVolOpen(true)} onMouseLeave={() => !props.dragging && setVolOpen(false)} className="flex align_items_center">
+                            <Tooltip title="Volume">
+                                <IconButton ref={volume} onClick={() => setMuted(!muted.current)} color="inherit">
+                                    <Icon path={!muted.current ? mdiVolumeMedium : mdiVolumeMute} />
+                                </IconButton>
+                            </Tooltip>
+                            <div className="flex align_items_center" style={{transition: "all 0.5s linear", width: volOpen ? 80 : 0, opacity: volOpen ? 1 : 0, padding: volOpen ? "2px 8px" : "2px 0px"}}>
+                                <Slider
+                                    orientation="horizontal"
+                                    value={muted.current ? 0 : vol.current}
+                                    max={1}
+                                    step={0.05}
+                                    onChange={(e, v: number) => {
+                                        !props.dragging && props.setDragging && props.setDragging(true);
+                                        setMuted(v === 0);
+                                        setVol(v);
+                                    }}
+                                    onChangeCommitted={() => props.setDragging && props.setDragging(false)}
+                                    aria-labelledby="volume"
+                                    className={classes.slider}
+                                    classes={{
+                                        thumb: classes.thumb,
+                                    }}
+                                />
+                            </div>
                         </div>
+                    )}
+                    <div className={classes.sliderDiv}>
+                        <Typography className={clsx(classes.duration, classes.left)}>
+                            <Duration seconds={duration.current * played.current} />
+                        </Typography>
+                        <Slider
+                            max={0.999999}
+                            value={played.current}
+                            step={0.000001}
+                            onMouseDown={() => props.setSeeking(true)}
+                            onTouchStart={() => props.setSeeking(true)}
+                            onChangeCommitted={seek}
+                            onChange={(e, p) => setPlayed(p as number)}
+                            aria-labelledby="seek"
+                            className={clsx(classes.slider)}
+                            classes={{
+                                thumb: classes.thumb,
+                            }}
+                        />
+                        <Typography className={clsx(classes.duration, classes.right)}>
+                            -<Duration seconds={duration.current * (1 - played.current)} />
+                        </Typography>
                     </div>
-                )}
-                <div className={classes.sliderDiv}>
-                    <Typography className={clsx(classes.duration, classes.left)}>
-                        <Duration seconds={duration * played} />
-                    </Typography>
-                    <Slider
-                        max={0.999999}
-                        value={played}
-                        step={0.000001}
-                        onMouseDown={() => props.setSeeking(true)}
-                        onTouchStart={() => props.setSeeking(true)}
-                        onChangeCommitted={seek}
-                        onChange={(e, p) => setPlayed(p as number)}
-                        aria-labelledby="seek"
-                        className={classes.slider}
-                        classes={{
-                            thumb: classes.thumb,
-                        }}
-                    />
-                    <Typography className={clsx(classes.duration, classes.right)}>
-                        -<Duration seconds={duration * (1 - played)} />
-                    </Typography>
+                    {/*<Tooltip title="Rate">*/}
+                        <FormControl className={classes.rateSelect}>
+                            <Select
+                                labelId="rate"
+                                id="rate-select"
+                                value={rate}
+                                onChange={e => setRate(e.target.value as number)}
+                            >
+                                {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2].map(n => (
+                                    <MenuItem value={n} key={n}>{n + "x"}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    {/*</Tooltip>*/}
                 </div>
-                {/*<Tooltip title="Rate">*/}
-                    <FormControl className={classes.rateSelect}>
-                        <Select
-                            labelId="rate"
-                            id="rate-select"
-                            value={rate}
-                            onChange={e => setRate(e.target.value as number)}
-                        >
-                            {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2].map(n => (
-                                <MenuItem value={n} key={n}>{n + "x"}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                {/*</Tooltip>*/}
-            </div>
         </>
     );
 }
 
-const VideoViewer = memo(({ url }: { url: string }) => {
+export const VideoViewer = ({ url }: { url: string }) => {
     const
+        isYoutube = canPlay.youtube(url),
         classes = useStyles(),
         timer = useRef<NodeJS.Timeout>(),
         [show, setShow] = useState(true),
         [err, setErr] = useState(false),
         [loaded, setLoaded] = useState(false),
-        [loop, setLoop] = useState(false),
+        [loop, setLoop] = useRefState(false),
         [full, setFull] = useState(false),
-        [pip, setPip] = useState(false),
+        [pip, setPip] = useRefState(false),
+        [dragging, setDragging] = useState(false),
         [seeking, setSeeking] = useState(false),
+        [playing, setPlaying] = useRefState(false),
         container = useRef(),
         canPip = ReactPlayer.canEnablePIP(url),
+        isMobile = useIsMobile(),
         fullScreen = () => {
             (screenfull as Screenfull).toggle(container.current);
         },
         showControls = () => {
-            clearTimeout(timer.current);
-            timer.current = setTimeout(() => setShow(false), 5000);
+            if (!isMobile) {
+                clearTimeout(timer.current);
+                timer.current = setTimeout(() => setShow(false), 5000);
+            }
             setShow(true);
         },
         onKeyPress = e => {
             switch (e.key) {
                 case "l":
-                    setLoop(!loop);
+                    setLoop(!loop.current);
                     break;
                 case "f":
                     screenfull.isEnabled && fullScreen();
                     break;
                 case "p":
-                    canPip && setPip(!pip);
+                    canPip && setPip(!pip.current);
+                    break;
+                case " ":
+                    setPlaying(!playing.current);
                     break;
             }
+        },
+        showControlsPermanent = () => {
+            clearTimeout(timer.current);
+            setShow(true);
+        },
+        onMouseOut = () => {
+            !seeking && !dragging && setShow(false);
         }
     useEffect(() => {
         (screenfull as Screenfull).on("change", () => setFull((screenfull as Screenfull).isFullscreen));
@@ -312,59 +387,64 @@ const VideoViewer = memo(({ url }: { url: string }) => {
                     display: loaded ? "block" : "none",
                     position: "relative"
                 }}
-                onMouseMove={showControls}
-                onMouseOut={() => !seeking && setShow(false)}
-                onMouseOver={showControls}
-                onTouchStart={() => setShow(!show)}
             >
-                <div className={clsx(classes.bar, classes.topBar)} style={{opacity: show ? 1 : 0}} onTouchStart={show ? null : () => setShow(!show)}>
-                    {canPip && (
-                        <Tooltip title="Pop Out (p)">
-                            <IconButton onClick={() => setPip(!pip)} color="inherit" className={clsx(pip && classes.activeBtn, "mr_4")} disabled={full}>
-                                <Icon path={mdiPictureInPictureBottomRight} />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                    {screenfull.isEnabled && (
-                        <Tooltip title="Full Screen (f)">
-                            <IconButton onClick={fullScreen} color="inherit" className="mr_4">
-                                <Icon path={full ? mdiFullscreenExit : mdiFullscreen} />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                    <Tooltip title="Loop (l)">
-                        <IconButton onClick={() => setLoop(!loop)} color="inherit" className={loop ? classes.activeBtn : null}>
-                            <Icon path={mdiSync} />
-                        </IconButton>
-                    </Tooltip>
-                </div>
-                <BasePlayer url={url} isVideo={true} opacity={show ? 1 : 0} full={full} onReady={() => setLoaded(true)} onError={() => setErr(true)} loop={loop} onKeyPress={onKeyPress} seeking={seeking} setSeeking={setSeeking} />
+                {!isYoutube && (
+                    <>
+                        <div
+                            className={classes.cover}
+                            onMouseMove={showControls}
+                            onMouseOut={onMouseOut}
+                            onMouseOver={showControls}
+                            onTouchStart={() => setShow(!show)}
+                            onClick={!isMobile ? () => setPlaying(!playing.current) : null}
+                        />
+                        <div className={clsx(classes.bar, classes.topBar)} style={{opacity: show ? 1 : 0}} onMouseOver={showControlsPermanent}>
+                            {canPip && (
+                                <Tooltip title="Pop Out (p)">
+                                    <IconButton onClick={() => setPip(!pip)} color="inherit" className={clsx(pip && classes.activeBtn, "mr_4")} disabled={full}>
+                                        <Icon path={mdiPictureInPictureBottomRight} />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                            {screenfull.isEnabled && (
+                                <Tooltip title="Full Screen (f)">
+                                    <IconButton onClick={fullScreen} color="inherit" className="mr_4">
+                                        <Icon path={full ? mdiFullscreenExit : mdiFullscreen} />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                            <Tooltip title="Loop (l)">
+                                <IconButton onClick={() => setLoop(!loop)} color="inherit" className={loop.current ? classes.activeBtn : null}>
+                                    <Icon path={mdiSync} />
+                                </IconButton>
+                            </Tooltip>
+                        </div>
+                    </>
+                )}
+                <BasePlayer playing={playing.current} setPlaying={setPlaying} onMouseOverBar={showControlsPermanent} onMouseOutBar={onMouseOut} dragging={dragging} setDragging={setDragging} pip={pip.current} onEnablePip={() => setPip(true)} onDisablePip={() => setPip(false)} url={url} isVideo={true} opacity={show ? 1 : 0} full={full} onReady={() => setLoaded(true)} onError={() => setErr(true)} loop={loop.current} onKeyPress={onKeyPress} seeking={seeking} setSeeking={setSeeking} />
             </div>
         </>
     );
-});
+};
 
-function AudioViewer({ url }: { url: string }) {
+export function AudioViewer({ url }: { url: string }) {
     const
         [err, setErr] = useState(false),
         [loaded, setLoaded] = useState(false),
         [seeking, setSeeking] = useState(false),
-        classes = useStyles();
+        [playing, setPlaying] = useRefState(false),
+        classes = useStyles(),
+        onKeyPress = e => {
+            if (e.key === " ") {
+                setPlaying(!playing.current);
+            }
+        };
     return err ? <AlertError msg="Error loading media" btn={null} /> : (
         <>
             {!loaded && <MediaLoader />}
-            <Box border="2px" borderColor="secondary.main">
-                <div className={classes.audioContainer}>
-                    <BasePlayer url={url} isVideo={false} opacity={1} full={false} onReady={() => setLoaded(true)} onError={() => setErr(true)} loop={false} onKeyPress={undefined} seeking={seeking} setSeeking={setSeeking} />
-                </div>
-            </Box>
+            <div className={classes.audioPlayerContainer} style={{display: loaded ? "block" : "none"}}>
+                <BasePlayer onKeyPress={onKeyPress} playing={playing.current} setPlaying={setPlaying} url={url} isVideo={false} opacity={1} full={false} onReady={() => setLoaded(true)} onError={() => setErr(true)} loop={false} seeking={seeking} setSeeking={setSeeking} />
+            </div>
         </>
     );
 }
-
-function MediaViewer({ url }: { url: string }) {
-    const isAudio = AUDIO_EXTENSIONS.test(url);
-    return isAudio ? <AudioViewer url={url} /> : <VideoViewer url={url} />;
-}
-
-export default MediaViewer;

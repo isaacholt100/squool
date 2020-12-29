@@ -3,7 +3,6 @@ import React, { useState, createRef, useRef, useEffect, useMemo } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import { create, all } from "mathjs";
-import dynamic from "next/dynamic";
 //import { addStyles } from "react-mathquill";
 import "mathquill/build/mathquill.css";
 import AnimateHeight from "react-animate-height";
@@ -26,12 +25,6 @@ import { mdiBackspace, mdiHistory } from "@mdi/js";
 import MathField from "../../components/MathField";
 import { MQ } from "@edtr-io/mathquill";
 
-const EditableMathField: any = dynamic(
-    () => import("react-mathquill").then(mod => mod.EditableMathField) as any,
-    {
-        ssr: false
-    }
-);
 let replacements = {}, scope={};
 const
     { PI } = Math,

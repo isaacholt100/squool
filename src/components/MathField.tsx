@@ -1,4 +1,4 @@
-import { makeStyles, Theme, withStyles } from "@material-ui/core";
+import { Theme, withStyles } from "@material-ui/core";
 import dynamic from "next/dynamic";
 import { MQ, Config } from "@edtr-io/mathquill";
 

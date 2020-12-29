@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useRef } from "react";
-import useRequest, { useDelete, useGet } from "../../hooks/useRequest";
+import { useDelete, useGet } from "../../hooks/useRequest";
 import { useDispatch } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import {
@@ -16,7 +16,6 @@ import {
     Card,
     Box,
 } from "@material-ui/core";
-import usePathname from "../../hooks/usePathname";
 import useConfirm from "../../hooks/useConfirm";
 import useTitle from "../../hooks/useTitle";
 import Icon from "../../components/Icon";
@@ -27,6 +26,37 @@ import Loader from "../../components/Loader";
 import copyToClipboard from "../../lib/copyToClipboard";
 import { NextPageContext } from "next";
 import useUrlHashIndex from "../../hooks/useUrlHashIndex";
+import Files from "../../components/file/Files";
+import IFile, { Tags } from "../../types/IFile";
+import { ObjectID } from "bson";
+import { getClassDB } from "../../lib/idb";
+import { useIsOnline } from "../../context/IsOnline";
+
+const sampleFiles: IFile[] = [{
+    name: "file.png",
+    size: 998298,
+    _id: new ObjectID().toHexString(),
+    tags: ["image", "png", "file"],
+    viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
+    owner_id: new ObjectID().toHexString(),
+    writer_ids: [],
+    url: "https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_100kB.jpg",
+}, {
+    name: "pic.jpg",
+    size: 24363452,
+    _id: new ObjectID().toHexString(),
+    owner_id: new ObjectID().toHexString(),
+    viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
+    tags: ["image", "cool"],
+    url: "https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_100kB.jpg",
+    writer_ids: [],
+}];
+const sampleTags: Tags = {
+    "image": "#378ef2",
+    "png": "#4caf50",
+    "file": "#3f51b5",
+    "cool": "#ff4722"
+}
 
 const
     useStyles = makeStyles(theme => ({
@@ -50,6 +80,7 @@ const
 const pages = ["info", "students", "files", "homeworks", "tests"];
 export default function Class() {
     const
+        [isOnline] = useIsOnline(),
         [del, delLoading] = useDelete(),
         [get] = useGet(),
         [ConfirmDialog, confirm] = useConfirm(delLoading),
@@ -61,6 +92,7 @@ export default function Class() {
         router = useRouter(),
         [hashIndex, changeHash] = useUrlHashIndex(pages),
         [activeTab, setActiveTab] = useState(hashIndex),
+        [offlineFiles, setOfflineFiles] = useState<IFile[]>([]),
         class_id = router.query.id as string,
         kickout = (_id: string) => {
             del("/classes/member", {
@@ -137,6 +169,14 @@ export default function Class() {
     }, [classInfo]);
     console.log(router);
     console.log(activeTab);
+    useEffect(() => {
+        (async () => {
+            const db = await getClassDB(class_id);
+            const list = await db.getAll("files");
+            setOfflineFiles(list);
+        })();
+    }, []);
+    console.log(isOnline, offlineFiles);
     
     return !classInfo ? <Loader /> : (
         <div className="fadeup">
@@ -155,7 +195,7 @@ export default function Class() {
                 ))}
             </Tabs>
             </AppBar>
-            <Box component={Card} mt={{xs: 1, lg: 2}}>
+            <Box component={Card} my={{ xs: "8px", lg: "16px", }}>
                 {activeTab === 0 && (
                     <>
                         <Typography variant="h5" gutterBottom>
@@ -181,7 +221,7 @@ export default function Class() {
                     </>
                 )}
                 {activeTab === 1 && (
-                    <Box component={List} p={"0 !important"}>
+                    <List className="p_0">
                         {classInfo.members ? classInfo.members.split(",").filter(x => x !== " ").map(member => (
                             <Box clone p={"0 !important"} my={"4px"}>
                             <ListItem
@@ -215,7 +255,10 @@ export default function Class() {
                             </ListItem>
                             </Box>
                         )) : "There aren't any students in this class yet"}
-                    </Box>
+                    </List>
+                )}
+                {activeTab === 2 && (
+                    <Files db={async () => getClassDB(class_id) as any} files={isOnline ? sampleFiles : offlineFiles} setFiles={(f) => {}} tags={sampleTags} />
                 )}
             </Box>
             {ConfirmDialog}

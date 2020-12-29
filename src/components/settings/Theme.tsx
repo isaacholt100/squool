@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useState, useEffect } from "react";
-import useRequest, { usePut } from "../../hooks/useRequest";
-import { useSelector, useDispatch } from "react-redux";
+import { usePut } from "../../hooks/useRequest";
+import { useDispatch } from "react-redux";
 //import socket from "../../api/socket";
 import { FormControlLabel, Switch, Grid, Button } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
@@ -10,7 +10,7 @@ import ColorPicker from "./ColorPicker";
 import { shades, colors } from "../../json/colors";
 //import useSocket from "../../hooks/useSocket";
 import { useTheme } from "../../context/Theme";
-import { RootState } from "../../redux/store";
+import useCarouselView from "../../hooks/useCarouselView";
 type Intent = "primary" | "secondary";
 export default memo(() => {
     const
@@ -29,7 +29,7 @@ export default memo(() => {
             ...huesAndShades(theme.secondary, "secondary")
         })),
         dispatch = useDispatch(),
-        carouselView = useSelector((s: RootState) => s.carouselView),
+        carouselView = useCarouselView(),
         handleChangeHue = (name: Intent) => e => {
             setThemeState({
                 ...themeState,
@@ -65,9 +65,6 @@ export default memo(() => {
             });
         },
         resetTheme = () => {
-            dispatch({
-                type: "/theme/reset",
-            });
             setThemeState({
                 primaryShade: "500",
                 secondaryShade: "500",

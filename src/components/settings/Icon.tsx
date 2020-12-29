@@ -1,15 +1,15 @@
-import React, { memo, useEffect, useState } from "react";
-import useRequest, { usePut } from "../../hooks/useRequest";
-import { useSelector } from "react-redux";
+import React, { memo, useState } from "react";
+import { usePut } from "../../hooks/useRequest";
 //import { dispatchEmit } from "../../api/socketDispatch";
-import { Typography, Box, Avatar, Button, Dialog, DialogTitle, DialogContent, ButtonBase, DialogActions, makeStyles } from "@material-ui/core";
+import { Typography, Avatar, Button, Dialog, DialogTitle, DialogContent, ButtonBase, DialogActions, makeStyles } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
 import { mdiAccount } from "@mdi/js";
 import profileIcons from "../../json/profileIcons";
 import LoadBtn from "../LoadBtn";
 import Icon from "../Icon";
 import clsx from "clsx";
-import { dispatch, RootState } from "../../redux/store";
+import { dispatch } from "../../redux/store";
+import useUserInfo from "../../hooks/useUserInfo";
 
 const useStyles = makeStyles(theme => ({
     avatar: {
@@ -37,7 +37,7 @@ export default memo(() => {
     const
         classes = useStyles(),
         [put, loading] = usePut(),
-        icon = useSelector((s: RootState) => s.userInfo.icon),
+        { icon } = useUserInfo(),
         [enlarged, setEnlarged] = useState(""),
         [open, setOpen] = useState(false),
         change = (e: React.FormEvent<HTMLFormElement>) => {

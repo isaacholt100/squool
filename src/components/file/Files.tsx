@@ -1,61 +1,39 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState } from "react";
-import { List, ListItem, ListItemIcon, Checkbox, ListItemText, ListItemSecondaryAction, IconButton, Box, Tooltip, Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField, Chip, Typography, Divider } from "@material-ui/core";
+import React, { memo, useRef, useState } from "react";
+import { List, ListItem, Checkbox, ListItemText, ListItemSecondaryAction, IconButton, Box, Tooltip, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Chip, Typography, Divider, ListItemIcon, InputAdornment, Menu, MenuItem, Popover } from "@material-ui/core";
 import { useEffect } from "react";
-import useRequest from "../../hooks/useRequest";
+import useRequest, { useDelete, usePost } from "../../hooks/useRequest";
 import useContrastText from "../../hooks/useContraxtText";
-import { Info, Close, SelectAll, CloudUpload, Delete, GetApp, Save } from "@material-ui/icons";
 import { Autocomplete } from "@material-ui/lab";
-import { ObjectId } from "mongodb";
 import isHotkey from "is-hotkey";
 import UploadBtn from "../UploadBtn";
 import useSnackbar from "../../hooks/useSnackbar";
-import formatBytes from "../../api/formatBytes";
-import { useSelector } from "react-redux";
-import { equal } from "../../api/array";
-const sampleFiles = [{
-    name: "file.png",
-    size: 998298,
-    _id: ObjectId(),
-    tags: ["image", "png", "file"],
-    user_ids: [ObjectId(), ObjectId()],
-    owner_id: ObjectId(),
-    url: "",
-}, {
-    name: "pic.jpg",
-    size: 24363452,
-    _id: ObjectId(),
-    owner_id: ObjectId(),
-    user_ids: [ObjectId(), ObjectId()],
-    tags: ["image", "cool"],
-    url: "",
-}];
-const tags = [{
-    name: "image",
-    color: "#ff0000"
-}, {
-    name: "cool",
-    color: "#ffff00"
-}, {
-    name: "png",
-    color: "#ff00ff"
-}, {
-    name: "file",
-    color: "#00ff00"
-}];
+import formatBytes from "../../lib/formatBytes";
+import { equal } from "../../lib/array";
+import Icon from "../Icon";
+import { mdiClose, mdiCloseCircle, mdiCloudUpload, mdiContentSave, mdiDelete, mdiDownload, mdiFilter, mdiInformation, mdiSelectAll, mdiSortAlphabeticalAscending, mdiSortAlphabeticalDescending, mdiSortClockAscending, mdiSortClockDescending } from "@mdi/js";
+import useUserInfo from "../../hooks/useUserInfo";
+import IFile, { Tags } from "../../types/IFile";
+import LoadBtn, { LoadIconBtn } from "../LoadBtn";
+import { ObjectID } from "bson";
+import { IDBPDatabase } from "idb";
+
 const MiniTag = ({ color, name }) => (
     <Tooltip title={name}>
-        <Box height={16} width={16} bgcolor={color} borderRadius={0.5} mr={"2px"} />
+        <Box height={16} width={16} bgcolor={color} borderRadius={"50%"} mr={"2px"} />
     </Tooltip>
 );
-const TagField = ({ tagsVal, setTags, create, disabled }) => {
+
+const TagField = ({ tagsVal, setTags, disabled, tags }: { tagsVal: string[]; setTags(t: string[]): void; disabled?: boolean; tags: Tags }) => {
     const contrastText = useContrastText();
+    const tagsList = Object.keys(tags);
     return (
         <Autocomplete
             value={tagsVal}
+            multiple
             onChange={(e, n) => setTags(n)}
             id="tags"
-            options={tags}
+            options={tagsList}
             disabled={disabled}
             fullWidth
             renderInput={params => (
@@ -63,67 +41,237 @@ const TagField = ({ tagsVal, setTags, create, disabled }) => {
                     {...params}
                     label="Tags"
                     variant="outlined"
-                    margin="dense"
+                    margin="normal"
                 />
             )}
+            renderOption={(option) => (
+                <>
+                    <Box height={24} width={24} bgcolor={tags[option]} borderRadius={"50%"} mr="12px" />
+                    {option}
+                </>
+            )}
             renderTags={(value, getTagProps) => value.map((option, i) => {
-                const bg = tags.find(t => t.name === option).color;
+                const bg = tags[option], color = contrastText(bg);
                 return (
-                    <Box clone bgcolor={bg} color={contrastText(bg)}>
-                        <Chip
-                            variant="outlined"
-                            label={option}
-                            {...getTagProps({ i })}
-                        />
-                    </Box>
+                    <Chip
+                        label={option}
+                        {...getTagProps({ index: i })}
+                        key={i}
+                        style={{
+                            backgroundColor: bg,
+                            color,
+                        }}
+                        deleteIcon={(
+                            <Box clone css={{"&:hover": { opacity: 0.75 }} as any}>
+                                <Icon path={mdiCloseCircle} color={color} size="20px" />
+                            </Box>
+                        )}
+                    />
                 );
             })}
         />
     );
 }
-export default () => {
+
+const SORT_BY_ICONS = [mdiSortAlphabeticalAscending, mdiSortAlphabeticalDescending, mdiSortClockAscending, mdiSortClockDescending];
+const SORT_BY_OPTIONS = ["A-Z", "Z-A", "Date (oldest)", "Date (newest)"];
+
+function UploadDialog(props: { open: boolean; setOpen(o: boolean): void; tags: Tags }) {
     const
-        request = useRequest(),
-        user_id = useSelector(s => s.userInfo._id),
-        snackbar = useSnackbar(),
-        [files, setFiles] = useState(sampleFiles),
-        [uploadFile, setUploadFile] = useState(null),
-        [selected, setSelected] = useState([]),
-        [fileId, setFileId] = useState(""),
+        [post, postLoading] = usePost(),
         [name, setName] = useState(""),
-        [fileTags, setFileTags] = useState([]),
-        create = fileId === "new",
-        currentFile = !create && fileId ? files.some(f => f._id === fileId) : null,
-        disabled = !create && currentFile.owner_id !== user_id && !currentFile.user_ids.includes(user_id),
-        noneSelected = selected.length === 0,
-        toggleSelected = _id => () => {
-            if (selected.includes(_id)) {
-                setSelected(selected.filter(f => f._id !== _id));
-            } else {
-                setSelected([...selected, _id]);
-            }
-        },
-        selectAll = () => setSelected(files.map(f => f._id)),
-        fileInfo = (_id, name, tags) => () => {
-            setName(name);
-            setFileTags(tags);
-            setFileId(_id);
-        },
-        selectFiles = f => {
+        [fileTags, setFileTags] = useState<string[]>([]),
+        [uploadFile, setUploadFile] = useState<File>(null),
+        snackbar = useSnackbar(),
+        selectFiles = (f: FileList) => {
             if (f[0].size >= 3172389719) {
                 snackbar.error("File too big");
             } else {
                 name === "" && setName(f[0].name);
                 setUploadFile(f[0]);
-                setFileId("new");
+                props.setOpen(true);
             }
         },
-        deleteFile = () => {
-            request.delete("/files", {
+        upload = e => {
+            e.preventDefault();
+
+        };
+    
+    useEffect(() => {
+        const onDrop = (e: DragEvent) => {
+            e.preventDefault();
+            selectFiles(e.dataTransfer.files);
+        }
+        const onPaste = (e: ClipboardEvent) => selectFiles(e.clipboardData.files);
+        document.addEventListener("paste", onPaste);
+        document.addEventListener("dragover", e => e.preventDefault());
+        document.addEventListener("drop", onDrop);
+        return () => {
+            document.removeEventListener("paste", onPaste);
+            document.removeEventListener("dragover", e => e.preventDefault());
+            document.removeEventListener("drop", onDrop);
+        }
+    }, []);
+    return (
+        <Dialog
+            open={props.open}
+            onClose={() => props.setOpen(false)}
+            aria-labelledby="upload-file"
+        >
+            <DialogTitle id="upload-file">Upload File</DialogTitle>
+            <form onSubmit={upload}>
+                <DialogContent>
+                    <TextField
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        label="Name"
+                        fullWidth
+                        autoFocus
+                        //margin="normal"
+                    />
+                    <TagField tags={props.tags} tagsVal={fileTags} setTags={setFileTags} />
+                    <UploadBtn accept="*" onChange={e => selectFiles(e.target.files)} />
+                    {uploadFile && (
+                        <Typography>
+                            Size: {formatBytes(uploadFile.size)}
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => props.setOpen(false)}>
+                        Cancel
+                    </Button>
+                    <LoadBtn disabled={!uploadFile || name === ""} loading={postLoading} label="Upload" />
+                </DialogActions>
+            </form>
+        </Dialog>
+    );
+}
+
+const FileDialog = memo((props: { close(): void, currentFile?: IFile, tags: Tags, name: string; setName(n: string): void, deleteFiles(files: string[]): void, fileTags: string[], setFileTags(tags: string[]): void }) => {
+    const
+        user_id = useUserInfo()._id,
+        contrastText = useContrastText(),
+        disabled = props.currentFile && props.currentFile.owner_id !== user_id && !props.currentFile.viewer_ids.includes(user_id) && !props.currentFile.writer_ids.includes(user_id);
+
+    return (
+        <>
+            <DialogTitle id="file-title">File Info</DialogTitle>
+            <DialogContent>
+                {disabled ? (
+                    <>
+                        <Typography gutterBottom>
+                            Name: {props.name}
+                        </Typography>
+                        <Typography gutterBottom>
+                            Tags:{" "}
+                        </Typography>
+                        {props.currentFile.tags.length === 0 ? "No tags" : (
+                            props.currentFile.tags.map(tag => {
+                                const bg = props.tags[tag], color = contrastText(bg);
+                                return (
+                                    <Chip
+                                        label={tag}
+                                        key={tag}
+                                        style={{
+                                            backgroundColor: bg,
+                                            color,
+                                            marginRight: 4,
+                                            marginBottom: 4,
+                                        }}
+                                    />
+                                );
+                            }
+                        ))}
+                    </>
+                ) : (
+                    <>
+                        <TextField
+                            value={props.name}
+                            onChange={e => props.setName(e.target.value)}
+                            label="Name"
+                            disabled={disabled}
+                            fullWidth
+                        />
+                        <TagField tags={props.tags} tagsVal={props.fileTags} setTags={props.setFileTags} disabled={disabled} />
+                    </>
+                )}
+                <Typography gutterBottom>
+                    Size: {formatBytes(props.currentFile.size)}
+                </Typography>
+                <Typography gutterBottom>
+                    Uploaded: {new ObjectID(props.currentFile._id).getTimestamp().toLocaleDateString()}
+                </Typography>
+                <Typography gutterBottom>
+                    Uploaded by: {props.currentFile.owner_id}
+                </Typography>
+                {props.currentFile.owner_id === user_id && (
+                    <Button onClick={() => props.deleteFiles([props.currentFile._id])}>
+                        Delete
+                    </Button>
+                )}
+            </DialogContent>
+            <DialogActions>
+                {props.currentFile?.name === props.name && equal(props.currentFile?.tags.sort(), props.fileTags.sort()) ? (
+                    <Button onClick={props.close}>
+                        Close
+                    </Button>
+                ) : (
+                    <>
+                        <Button onClick={props.close}>
+                            Close
+                        </Button>
+                        <Button onClick={undefined}>
+                            Update
+                        </Button>
+                    </>
+                )}
+            </DialogActions>
+        </>
+    );
+}, (prev, next) => next.currentFile === null);
+
+export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: IFile[]): void, db(): Promise<IDBPDatabase> }) {
+    const
+        user_id = useUserInfo()._id,
+        [del, delLoading] = useDelete(),
+        request = useRequest(),
+        [selected, setSelected] = useState<string[]>([]),
+        [currentFile, setCurrentFile] = useState<IFile>(null),
+        [name, setName] = useState(""),
+        [fileTags, setFileTags] = useState<string[]>(),
+        [search, setSearch] = useState(""),
+        [sortBy, setSortBy] = useState(0),
+        [filterTags, setFilterTags] = useState(Object.keys(props.tags)),
+        [uploadOpen, setUploadOpen] = useState(false),
+        noneSelected = selected.length === 0,
+        searchField = useRef(),
+        snackbar = useSnackbar(),
+        [sortByAnchor, setSortByAnchor] = useState<HTMLElement>(null),
+        [filterAnchor, setFilterAnchor] = useState<HTMLElement>(null),
+        [saveLoading, setSaveLoading] = useState(false),
+        toggleSelected = _id => {
+            if (selected.includes(_id)) {
+                setSelected(selected.filter(f => f !== _id));
+            } else {
+                setSelected([...selected, _id]);
+            }
+        },
+        selectAll = () => setSelected(props.files.map(f => f._id)),
+        fileInfo = (f: IFile) => () => {
+            setName(f.name);
+            setFileTags(f.tags);
+            setCurrentFile(f);
+            //setFileId(_id);
+        },
+        deleteFiles = (files: string[]) => {
+            del("/files", {
                 setLoading: true,
                 failedMsg: "deleting this file",
-                body: selected,
-                done: () => setFiles(files.filter(f => !selected.includes(f._id))),
+                body: files,
+                done() {
+                    props.setFiles(props.files.filter(f => !files.includes(f._id)));
+                },
             });
         },
         updateFile = () => {
@@ -131,186 +279,272 @@ export default () => {
                 setLoading: true,
                 failedMsg: "updating this file",
                 body: {
-                    _id: fileId,
+                    _id: currentFile._id,
                     name,
                     tags: fileTags,
                 },
-                done: setFiles,
+                //done: props.setFiles,
             });
+        },
+        openFile = (file: IFile) => () => {
+            
+        },
+        toggleFilter = (tag: string) => {
+            setFilterTags(filterTags.includes(tag) ? filterTags.filter(t => t !== tag) : [...filterTags, tag]);
+        },
+        sortFn = (a: IFile, b: IFile) => {
+            switch (sortBy) {
+                case 0: {
+                    return a.name > b.name ? 1 : -1;
+                }
+                case 1: {
+                    return a.name < b.name ? 1 : -1;
+                }
+                case 2: {
+                    return new ObjectID(a._id).generationTime - new ObjectID(b._id).generationTime;
+                }
+                default: {
+                    return new ObjectID(b._id).generationTime - new ObjectID(a._id).generationTime;
+                }
+            }
+        },
+        saveFileOffline = async (f: IFile) => {
+            try {
+                setSaveLoading(true);
+                const db = await props.db();
+                const exists = (await db.get("files", f._id)) !== undefined;
+                if (exists) {
+                    snackbar.info("File '" + f.name + "' is already saved");
+                } else {
+                    const res = await fetch(f.url);
+                    const blob = await res.blob();
+                    await db.add("files", { ...f, blob }, f._id);
+                    snackbar.success("File '" + f.name + "' saved and is now available offline");
+                }
+            } catch (err) {
+                console.error(err);
+                snackbar.error("There was an error saving the file '" + f.name + "'");
+            } finally {
+                setSaveLoading(false);
+            }
+        },
+        saveFilesOffline = async (files: IFile[]) => {
+            try {
+                setSaveLoading(true);
+                const db = await props.db();
+                const list: (IFile & { blob: Blob })[] = [];
+                const l = files.length;
+                for (let i = 0; i < l; i++) {
+                    const exists = (await db.get("files", files[i]._id)) !== undefined;
+                    if (exists) {
+                        const res = await fetch(files[i].url);
+                        const blob = await res.blob();
+                        list.push({
+                            ...files[i],
+                            blob,
+                        });
+                    }
+                }
+                const tx = db.transaction("files", "readwrite");
+                const inserts = list.map(file => tx.store.add(file));
+                await Promise.all([
+                    ...inserts,
+                    tx.done as any,
+                ]);
+                setSaveLoading(false);
+                snackbar.success(l + " files saved and are now available offline");
+            } catch (err) {
+                setSaveLoading(false);
+                console.error(err);
+                snackbar.error("There was an error saving these files");
+            }
+        },
+        saveToDevice = async () => {
+            const list = props.files.filter(f => selected.includes(f._id));
+            await saveFilesOffline(list);
         };
     useEffect(() => {
-        request.get("/files", {
-            setLoading: true,
-            failedMsg: "getting the files",
-            done: setFiles,
-        });
         const keyDown = e => {
-            if (isHotkey("mod+a", e)) {
+            if (isHotkey("shift+a", e)) {
                 e.preventDefault();
                 selectAll();
-            } else if (isHotkey("mod+u", e)) {
+            } else if (isHotkey("shift+u", e)) {
                 e.preventDefault();
-                setFileId("new");
+                setUploadOpen(true);
             } else if (isHotkey("esc", e)) {
                 e.preventDefault();
                 setSelected([]);
+            } else if (isHotkey("mod+f", e)) {
+                e.preventDefault();
+                (searchField.current as any).focus();
             }
         }
-        const onDrop = e => {
-            e.preventDefault();
-            selectFiles(e.dataTransfer.files);
-        }
-        const onPaste = e => selectFiles(e.clipboardData.files);
-        document.addEventListener("paste", onPaste);
-        document.addEventListener("dragover", e => e.preventDefault());
-        document.addEventListener("drop", onDrop);
         document.addEventListener("keydown", keyDown);
         return () => {
-            document.removeEventListener("paste", onPaste);
-            document.removeEventListener("dragover", e => e.preventDefault());
-            document.removeEventListener("drop", onDrop);
             document.removeEventListener("keydown", keyDown);
         }
     }, []);
     return (
         <>
-            <Box display="flex" alignItems="space-between">
-                {files.every(f => selected.includes(f._id)) ? (
-                    <IconButton onClick={() => setSelected([])}>
-                        <Close />
-                    </IconButton>
+            <Dialog
+                open={currentFile !== null}
+                onClose={() => setCurrentFile(null)}
+                aria-labelledby="file-title"
+                aria-describedby="file-description"
+            >
+                <FileDialog close={() => setCurrentFile(null)} currentFile={currentFile} tags={props.tags} name={name} setName={setName} deleteFiles={deleteFiles} fileTags={fileTags} setFileTags={setFileTags} />
+            </Dialog>
+            <UploadDialog open={uploadOpen} setOpen={setUploadOpen} tags={props.tags} />
+            <div className="flex mb_8">
+                <TextField
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    label="Search Files"
+                    fullWidth
+                    className="flex_1 mr_8"
+                    inputRef={searchField}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton size="small" aria-label="clear search field" onMouseDown={e => e.preventDefault()} onClick={() => setSearch("")}>
+                                    <Icon path={mdiClose} />
+                                </IconButton>
+                            </InputAdornment>
+                        )
+                    }}
+                />
+                <Tooltip title="Upload Files">
+                    <Button color="secondary" onClick={() => setUploadOpen(true)} style={{minWidth: 0, padding: "6px 8px"}}>
+                        <Icon path={mdiCloudUpload} />
+                    </Button>
+                </Tooltip>
+            </div>
+            <div className="flex" style={{overflow: "auto"}}>
+                {props.files.every(f => selected.includes(f._id)) ? (
+                    <Tooltip title="Clear Selection">
+                        <IconButton onClick={() => setSelected([])} className="mr_4">
+                            <Icon path={mdiClose} />
+                        </IconButton>
+                    </Tooltip>
                 ) : (
-                    <IconButton onClick={selectAll}>
-                        <SelectAll />
-                    </IconButton>
+                    <Tooltip title="Select All">
+                        <IconButton onClick={selectAll} className="mr_4">
+                            <Icon path={mdiSelectAll} />
+                        </IconButton>
+                    </Tooltip>
                 )}
-                <Box clone mr="8px" ml="auto">
-                    <Divider orientation="vertical" flexItem />
-                </Box>
+                <Tooltip title="Sort By">
+                    <IconButton className="mr_4" onClick={e => setSortByAnchor(e.currentTarget)}>
+                        <Icon path={SORT_BY_ICONS[sortBy]} />
+                    </IconButton>
+                </Tooltip>
+                <Menu
+                    id="sort-by-menu"
+                    anchorEl={sortByAnchor}
+                    keepMounted
+                    open={Boolean(sortByAnchor)}
+                    onClose={() => setSortByAnchor(null)}
+                >
+                    {SORT_BY_OPTIONS.map((opt, i) => (
+                        <MenuItem
+                            key={i}
+                            selected={sortBy === i}
+                            onClick={() => {
+                                setSortByAnchor(null);
+                                setSortBy(i);
+                            }}
+                        >
+                            {opt}
+                        </MenuItem>
+                    ))}
+                </Menu>
+                <Tooltip title="Filter Tags">
+                    <IconButton className="mr_4" onClick={e => setFilterAnchor(e.currentTarget)}>
+                        <Icon path={mdiFilter} />
+                    </IconButton>
+                </Tooltip>
+                <Popover
+                    id="filter-menu"
+                    anchorEl={filterAnchor}
+                    keepMounted
+                    open={Boolean(filterAnchor)}
+                    onClose={() => setFilterAnchor(null)}
+                    PaperProps={{
+                        style: {
+                            maxHeight: 256
+                        }
+                    }}
+                >
+                    <MenuItem onClick={() => setFilterTags(Object.keys(props.tags))}>Reset</MenuItem>
+                    {Object.keys(props.tags).map(tag => (
+                        <ListItem key={tag} button selected={filterTags.includes(tag)} onClick={() => toggleFilter(tag)}>
+                            <Box height={24} width={24} bgcolor={props.tags[tag]} borderRadius={"50%"} mr="12px" />
+                            <ListItemText primary={tag} className="mr_8" />
+                            <ListItemSecondaryAction>
+                                <Checkbox
+                                    edge="end"
+                                    onChange={() => toggleFilter(tag)}
+                                    checked={filterTags.includes(tag)}
+                                />
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    ))}
+                </Popover>
+                <Divider orientation="vertical" className="ml_auto mr_4" flexItem />
                 <Tooltip title="Delete">
-                    <IconButton disabled={noneSelected}>
-                        <Delete />
+                    <IconButton disabled={noneSelected || selected.some(_id => !props.files.find(file => file._id === _id).writer_ids.includes(user_id))} className="mr_4" onClick={() => deleteFiles(selected)}>
+                        <Icon path={mdiDelete} />
                     </IconButton>
                 </Tooltip>
                 <Tooltip title="Download">
-                    <IconButton disabled={noneSelected}>
-                        <GetApp />
+                    <IconButton disabled={noneSelected} className="mr_4">
+                        <Icon path={mdiDownload} />
                     </IconButton>
                 </Tooltip>
                 <Tooltip title="Save to device">
-                    <IconButton disabled={noneSelected}>
-                        <Save />
+                    <IconButton disabled={noneSelected || saveLoading} onClick={saveToDevice}>
+                        <LoadIconBtn loading={saveLoading}>
+                            <Icon path={mdiContentSave} />
+                        </LoadIconBtn>
                     </IconButton>
                 </Tooltip>
-            </Box>
-            <Box component={List} overflow="auto">
-                <Button
-                    onClick={() => setFileId("new")}
-                    color="primary"
-                    endIcon={<CloudUpload />}
-                    fullWidth
-                >
-                    Upload
-                </Button>
-                {files.map(f => (
-                    <Box whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" borderRadius={8} mb="2px">
-                        {b => <ListItem key={f._id} role={undefined} dense button onClick={toggleSelected(f._id)} {...b}>
-                            <ListItemSecondaryAction>
+            </div>
+            <Box component={List} overflow="auto" className="p_0">
+                {props.files.filter(f => f.name.toLowerCase().includes(search.toLowerCase()) && filterTags.some(t => f.tags.includes(t))).sort(sortFn).map(f => (
+                    <Box whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" borderRadius={8} mt="4px" key={f._id}>
+                        {b => <ListItem role={undefined} button dense {...b} onClick={openFile(f)} disableRipple /*selected={selected.includes(f._id)}*/>
+                            <ListItemIcon>
                                 <Checkbox
-                                    edge="start"
                                     checked={selected.includes(f._id)}
-                                    tabIndex={-1}
-                                    disableRipple
                                     inputProps={{ "aria-labelledby": `file-${f.name}-${f._id}` }}
+                                    tabIndex={-1}
+                                    color="secondary"
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        toggleSelected(f._id);
+                                    }}
                                 />
-                            </ListItemSecondaryAction>
+                            </ListItemIcon>
                             <ListItemText
                                 id={`file-${f.name}-${f._id}`}
                                 primary={f.name}
                                 secondary={(
-                                    <>
+                                    <div className="flex mt_8">
                                         {f.tags.map(t => (
-                                            <MiniTag name={t} color={tags.find(tag => t === tag).color} />
+                                            <MiniTag key={t} name={t} color={props.tags[t]} />
                                         ))}
-                                    </>
+                                    </div>
                                 )}
                             />
                             <ListItemSecondaryAction>
-                                <IconButton edge="end" aria-label="info" onClick={fileInfo(f._id, f.name, f.tags)}>
-                                    <Info />
+                                <IconButton edge="end" aria-label="info" onClick={fileInfo(f)}>
+                                    <Icon path={mdiInformation} />
                                 </IconButton>
                             </ListItemSecondaryAction>
                         </ListItem>}
                     </Box>
                 ))}
             </Box>
-            <Dialog
-                open={fileId !== ""}
-                onClose={() => setFileId("")}
-                aria-labelledby="file-title"
-                aria-describedby="file-description"
-            >
-                <DialogTitle id="file-title">{create ? "Upload File" : "File Info"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="file-description">
-                        Upload files.
-                    </DialogContentText>
-                    <TextField
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        label="Name"
-                        disabled={disabled}
-                    />
-                    <TagField tagsVal={fileTags} setTags={setFileTags} disabled={disabled} />
-                    {(!create || uploadFile) && (
-                        <Typography>
-                            Size: {formatBytes((create ? uploadFile : currentFile).size)}
-                        </Typography>
-                    )}
-                    {create ? (
-                        <UploadBtn accept="*" onChange={e => selectFiles(e.target.files)} />
-                    ) : (
-                        <>
-                            <Typography>
-                                Uploaded: {new ObjectId(fileId).getTimestamp().toLocaleDateString()}
-                            </Typography>
-                            <Typography>
-                                Uploaded by: {currentFile.owner_id}
-                            </Typography>
-                            {currentFile.owner_id === user_id && (
-                                <Button onClick={deleteFile}>
-                                    Delete
-                                </Button>
-                            )}
-                        </>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    {create ? (
-                        <>
-                            <Button onClick={() => setFileId("")}>
-                                Cancel
-                            </Button>
-                            <Button disabled={!uploadFile} onClick={() => setFileId("")} color="primary">
-                                Upload
-                            </Button>
-                        </>
-                    ) : currentFile.name === name && equal(currentFile.tags.sort(), fileTags.sort()) ? (
-                        <Button onClick={() => setFileId("")}>
-                            Close
-                        </Button>
-                    ) : (
-                        <>
-                            <Button onClick={() => setFileId("")}>
-                                Cancel
-                            </Button>
-                            <Button onClick={updateFile}>
-                                Update
-                            </Button>
-                        </>
-                    )}
-                </DialogActions>
-            </Dialog>
         </>
     );
 }

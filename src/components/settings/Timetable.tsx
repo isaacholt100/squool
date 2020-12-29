@@ -1,15 +1,16 @@
 import React, { memo } from "react";
 import useRequest from "../../hooks/useRequest";
-import { useSelector } from "react-redux";
 //import { dispatchEmit } from "../../api/socketDispatch";
-import { Box, FormControlLabel, Switch, Button } from "@material-ui/core";
+import { FormControlLabel, Switch, Button } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
 import Link from "next/link";
+import useTimetable from "../../hooks/useTimetable";
 export default memo(() => {
     const
         request = useRequest(),
-        periodsLength = 5,//useSelector(s => s.timetable.periods.length),
-        sat = false,//useSelector(s => s.timetable.lessons.length === 6),
+        timetable = useTimetable(),
+        periodsLength = timetable.periods.length,
+        sat = timetable.lessons.length === 6,
         change = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
             request.put("/timetable/sat", {
                 failedMsg: "updating your timetable",
@@ -19,12 +20,6 @@ export default memo(() => {
                 },
                 done: () => {}//dispatchEmit("/timetable/sat", checked),
             });
-            /*request("/timetable/sat", "PUT", false, () => {
-                dispatchEmit("/timetable/sat", checked);
-            }, "updating your timetable", {
-                sat: checked,
-                length: periodsLength,
-            });*/
         };
     return (
         <>

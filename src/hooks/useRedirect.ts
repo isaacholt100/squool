@@ -13,5 +13,5 @@ export default function useRedirect() {
             snackbar.error("Please login first");
         }
     });
-    return Boolean(isLoggedIn);
+    return isLoggedIn;
 }

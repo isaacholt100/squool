@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useDelete, usePost } from "../../hooks/useRequest";
 import {
     Typography,
@@ -21,7 +21,8 @@ import LoadBtn from "../../components/LoadBtn";
 import Link from "next/link";
 import useRedirect from "../../hooks/useRedirect";
 import IClass from "../../types/IClass";
-import { RootState } from "../../redux/store";
+import useUserInfo from "../../hooks/useUserInfo";
+import useClasses from "../../hooks/useClasses";
 
 export default function Class() {
     const
@@ -29,9 +30,8 @@ export default function Class() {
         [del, delLoading] = useDelete(),
         [post, postLoading] = usePost(),
         [ConfirmDialog, confirm] = useConfirm(delLoading),
-        email = useSelector((s: RootState) => s.userInfo.email),
-        role = useSelector((s: RootState) => s.userInfo.role),
-        userClasses = useSelector((s: RootState) => s.classes),
+        { email, role } = useUserInfo(),
+        userClasses = useClasses(),
         [createOpen, setCreateOpen] = useState(false),
         [name, setName] = useState(""),
         [options, setOptions] = useState(null),

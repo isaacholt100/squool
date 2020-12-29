@@ -24,6 +24,7 @@ import NProgress from "nprogress";
 import NProgressBar from "./NProgressBar";
 import { useRouter } from "next/router";
 import MoreActions from "./MoreActions";
+import useUserInfo from "../hooks/useUserInfo";
 
 NProgress.configure({
     parent: "#nprogress-parent",
@@ -95,7 +96,7 @@ const Nav = memo(() => {
         [mobileOpen, setMobileOpen] = useState(false),
         [notificationOpen, setNotificationOpen] = useState(false),
         classes = useStyles(),
-        role = ["student", "teacher"][0],//useSelector(s => s.userInfo.role),
+        { role } = useUserInfo(),
         iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent),
         icons = {
             "Books": mdiBook,

@@ -7,7 +7,6 @@ import Button from "@material-ui/core/Button";
 import {
     TextField,
     Box,
-    IconButton,
     CircularProgress
 } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
@@ -15,7 +14,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Switch from "@material-ui/core/Switch";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { KeyboardDatePicker, KeyboardTimePicker } from "@material-ui/pickers";
 import { MenuItem, InputLabel, FormControl, FormControlLabel, Select } from "@material-ui/core";
 import ListView, { IAction } from "../components/ListView";
@@ -27,8 +26,8 @@ import { mdiCheck, mdiClipboardAlert, mdiDelete, mdiPencil } from "@mdi/js";
 import LoadBtn from "../components/LoadBtn";
 import { useDelete, usePost, usePut } from "../hooks/useRequest";
 import IReminder from "../types/IReminder";
-import { RootState } from "../redux/store";
 import styles from "../css/loadBtn.module.css";
+import useReminders from "../hooks/useReminders";
 
 const useStyles = makeStyles(theme => ({
     iconBtn: {
@@ -97,7 +96,7 @@ export default function Reminders() {
         [selectedTime, handleTimeChange] = useState(new Date()),
         [filter, setFilter] = useState(0),
         [allDay, setAllDay] = useState(false),
-        reminders = useSelector((s: RootState) => s.reminders),
+        reminders = useReminders(),
         [values, setValues] = useState({
             desc: "",
             name: "",
