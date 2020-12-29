@@ -475,20 +475,22 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                         }
                     }}
                 >
-                    <MenuItem onClick={() => setFilterTags(Object.keys(props.tags))}>Reset</MenuItem>
-                    {Object.keys(props.tags).map(tag => (
-                        <ListItem key={tag} button selected={filterTags.includes(tag)} onClick={() => toggleFilter(tag)}>
-                            <Box height={24} width={24} bgcolor={props.tags[tag]} borderRadius={"50%"} mr="12px" />
-                            <ListItemText primary={tag} className="mr_8" />
-                            <ListItemSecondaryAction>
-                                <Checkbox
-                                    edge="end"
-                                    onChange={() => toggleFilter(tag)}
-                                    checked={filterTags.includes(tag)}
-                                />
-                            </ListItemSecondaryAction>
-                        </ListItem>
-                    ))}
+                    <List disablePadding>
+                        <MenuItem onClick={() => setFilterTags(Object.keys(props.tags))}>Reset</MenuItem>
+                        {Object.keys(props.tags).map(tag => (
+                            <ListItem key={tag} button selected={filterTags.includes(tag)} onClick={() => toggleFilter(tag)}>
+                                <Box height={24} width={24} bgcolor={props.tags[tag]} borderRadius={"50%"} mr="12px" />
+                                <ListItemText primary={tag} className="mr_8" />
+                                <ListItemSecondaryAction>
+                                    <Checkbox
+                                        edge="end"
+                                        onChange={() => toggleFilter(tag)}
+                                        checked={filterTags.includes(tag)}
+                                    />
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        ))}
+                    </List>
                 </Popover>
                 <Divider orientation="vertical" className="ml_auto mr_4" flexItem />
                 <Tooltip title="Delete">
