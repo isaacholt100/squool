@@ -22,13 +22,14 @@ import {
 } from "@material-ui/core";
 import { Box } from "@material-ui/core";
 import isEqual from "react-fast-compare";
-import useContextMenu from "../hooks/useContextMenu";
+//import useContextMenu from "../hooks/useContextMenu";
 import isHotkey from "is-hotkey";
 import { mdiChevronLeft, mdiChevronRight, mdiPlus } from "@mdi/js";
 import Icon from "./Icon";
 import styles from "../css/listView.module.css";
 import clsx from "clsx";
 import useCarouselView from "../hooks/useCarouselView";
+import useContextMenu from "../hooks/useContextMenu.tsx";
 
 const useStyles = makeStyles(theme => ({
     animated: {
@@ -187,7 +188,7 @@ interface IListProps<T> {
 
 const List = memo(function<T>(props: IListProps<T>) {
     const
-        contextMenu = useContextMenu(),
+        [ContextMenu, openContextMenu] = useContextMenu(),
         classes = useStyles(),
         carouselView = useCarouselView(),
         isLarge = useMediaQuery("(min-width: 600px)"),
@@ -205,6 +206,7 @@ const List = memo(function<T>(props: IListProps<T>) {
         };
     return (
         <>
+            {ContextMenu}
             {swipeable && !props.noCreate && (
                 <Box height={props.height} mb={1}>
                     <Paper
@@ -237,7 +239,7 @@ const List = memo(function<T>(props: IListProps<T>) {
                                     animation: (!swipeable && props.animate) ? `fadein 0.5s forwards ${(i + 1) / (props.filtered.length + 1) / 2}s` : "none",
                                     opacity: (!swipeable && props.animate) ? 0 : 1,
                                 }}
-                                onContextMenu={item !== "create" && props.Actions ? contextMenu(props.Actions(item)) : undefined}
+                                onContextMenu={item !== "create" && props.Actions ? openContextMenu(props.Actions(item)) : undefined}
                             >
                                 {item === "create" ? <CreateBtn createFn={props.createFn} name={props.name} /> : (
                                     <>

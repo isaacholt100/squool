@@ -42,9 +42,10 @@ const Slot = memo((props: any) => {
                         <TextField
                             placeholder={startCase(label)}
                             value={props.edit ? props[type] : startCase(label)}
-                            onChange={props.edit ? props.onChange(props.i, props.j, type) : null}
+                            onChange={props.onChange ? props.onChange(props.i, props.j, type) : null}
                             className={classes.field}
                             onKeyDown={props.edit ? e => e.key === "Enter" && (e.target as any).blur() : null}
+                            onBlur={props.onBlur ? props.onBlur(props.i, props.j, type) : null}
                             disabled={!props.edit}
                             variant="standard"
                         />
@@ -276,7 +277,7 @@ export default memo((props: any) => {
                             onScroll={scrollDay(days[i].toLowerCase())}
                             ref={refs[days[i].toLowerCase()]}
                         >
-                            {day.map((lesson, j) => <Slot key={`${i}${j}`} lesson={lesson} i={i} j={j} edit={edit} length={props.timetable.lessons.length} onChange={props.onChange} create={create} r={lesson.r} s={lesson.s} t={lesson.t} />)}
+                            {day.map((lesson, j) => <Slot key={`${i}${j}`} lesson={lesson} i={i} j={j} edit={edit} length={props.timetable.lessons.length} onChange={props.onChange} onBlur={props.onBlur} create={create} r={lesson.r} s={lesson.s} t={lesson.t} />)}
                         </div>
                     </div>
                 ))}

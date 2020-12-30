@@ -71,7 +71,7 @@ export default async (user_id: ObjectId, users: Collection<any>) => await users.
                     input: "$users",
                     as: "id",
                     cond: {
-                        $ne: [user_id, "$$id"]
+                        $ne: ["user_id", "$$id"]
                     },
                 }
             },

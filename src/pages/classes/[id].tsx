@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, memo } from "react";
 import { useDelete, useGet } from "../../hooks/useRequest";
 import { useDispatch } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
@@ -17,7 +17,6 @@ import {
     Box,
 } from "@material-ui/core";
 import useConfirm from "../../hooks/useConfirm";
-import useTitle from "../../hooks/useTitle";
 import Icon from "../../components/Icon";
 import { mdiBlockHelper, mdiBook, mdiMessage } from "@mdi/js";
 import { useRouter } from "next/router";
@@ -33,23 +32,27 @@ import { getClassDB } from "../../lib/idb";
 import { useIsOnline } from "../../context/IsOnline";
 
 const sampleFiles: IFile[] = [{
-    name: "file.png",
+    name: "file",
+    extension: "png",
     size: 998298,
     _id: new ObjectID().toHexString(),
     tags: ["image", "png", "file"],
     viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
-    owner_id: new ObjectID().toHexString(),
+    owner_id: new ObjectID("5ed7edf6b556eb28e51d597d").toHexString(),
     writer_ids: [],
     url: "https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_100kB.jpg",
+    modified: new Date(),
 }, {
-    name: "pic.jpg",
+    name: "pic",
+    extension: "jpg",
     size: 24363452,
     _id: new ObjectID().toHexString(),
-    owner_id: new ObjectID().toHexString(),
+    owner_id: new ObjectID("5ed7edf6b556eb28e51d597d").toHexString(),
     viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
     tags: ["image", "cool"],
     url: "https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_100kB.jpg",
     writer_ids: [],
+    modified: new Date("2020-12-30T12:05:55.874Z"),
 }];
 const sampleTags: Tags = {
     "image": "#378ef2",
@@ -78,17 +81,15 @@ const
     }));
 
 const pages = ["info", "students", "files", "homeworks", "tests"];
-export default function Class() {
+function Class() {
     const
         [isOnline] = useIsOnline(),
         [del, delLoading] = useDelete(),
         [get] = useGet(),
         [ConfirmDialog, confirm] = useConfirm(delLoading),
-        title = useTitle(),
         dispatch = useDispatch(),
         classes = useStyles(),
         [classInfo, setClassInfo] = useState(null),
-        classRef = useRef(classInfo),
         router = useRouter(),
         [hashIndex, changeHash] = useUrlHashIndex(pages),
         [activeTab, setActiveTab] = useState(hashIndex),
@@ -115,69 +116,35 @@ export default function Class() {
                 classid: classid,
                 owner: member,
             });*/
+        },
+        getOfflineFiles = async () => {
+            const db = await getClassDB("class_" + class_id);
+            const list = await db.getAll("files");
+            console.log(list);
+            
+            setOfflineFiles(list);
         };
     useEffect(() => {
-        !classInfo && get(`/classes?_id=${class_id}`, {
-            setLoading: true,
+        get(`/classes?_id=${class_id}`, {
+            //setLoading: true,
             failedMsg: "loading the class info",
             done(data) {
-                title(data.name + " Class");
+                //title(data.name + " Class");
                 setClassInfo(data);
             },
             errors() {
-                console.log("error");
-                
                 dispatch({
                     type: "LOAD_ERROR",
                     payload: "This class couldn't be found",
                 });
             }
         });
-        /*socket.on("member kicked out", member => {
-            if (classInfo) {
-                setClassInfo({
-                    ...classRef.current,
-                    members: classRef.current.members.replace(member + ", ", ""),
-                });
-            }
-        });
-        socket.on("your class joined", (classcode, member) => {
-            if (classInfo) {
-                if (classid === classcode) {
-                    setClassInfo({
-                        ...classRef.current,
-                        members: classRef.current.members + member + ", ",
-                    });
-                }
-            }
-        });
-        socket.on("your class left", (classcode, member) => {
-            if (classid === classcode && classRef.current) {
-                setClassInfo({
-                    ...classRef.current,
-                    members: classRef.current.members.replace(member + ", ", ""),
-                });
-            }
-        });
-        socket.off("member kicked out");
-        socket.off("your class joined");
-        socket.off("your class left");*/
     }, []);
     useEffect(() => {
-        if (classRef) classRef.current = classInfo;
-        //outsideClassInfo = classInfo;
-    }, [classInfo]);
-    console.log(router);
-    console.log(activeTab);
-    useEffect(() => {
-        (async () => {
-            const db = await getClassDB(class_id);
-            const list = await db.getAll("files");
-            setOfflineFiles(list);
-        })();
-    }, []);
-    console.log(isOnline, offlineFiles);
-    
+        if (!isOnline) {
+            getOfflineFiles();
+        }
+    }, [isOnline]);
     return !classInfo ? <Loader /> : (
         <div className="fadeup">
             <AppBar position="static" color="default">
@@ -258,13 +225,14 @@ export default function Class() {
                     </List>
                 )}
                 {activeTab === 2 && (
-                    <Files db={async () => getClassDB(class_id) as any} files={isOnline ? sampleFiles : offlineFiles} setFiles={(f) => {}} tags={sampleTags} />
+                    <Files db_id={"class_" + class_id} files={isOnline ? sampleFiles : offlineFiles || []} setFiles={(f) => {}} tags={sampleTags} />
                 )}
             </Box>
             {ConfirmDialog}
         </div>
     );
 }
+export default memo(Class);
 export async function getServerSideProps(ctx: NextPageContext) {
     return {props: {}};
 }

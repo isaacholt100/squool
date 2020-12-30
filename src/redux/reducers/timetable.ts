@@ -5,7 +5,7 @@ import ITimetable from "../../types/ITimetable";
 export default function timetable(state: ITimetable = null, action: IAction): ITimetable {
     switch (action.type) {
         case "UPLOAD_DATA":
-            return action.payload.timetable ? {
+            return action.payload.timetable && action.payload.timetable.periods ? {
                 periods: action.payload.timetable.periods,
                 lessons: action.payload.timetable.lessons.filter(l => Boolean(l)),
             } : defaultTimetable;

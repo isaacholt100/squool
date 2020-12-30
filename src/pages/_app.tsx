@@ -258,13 +258,13 @@ function Frame({ children }: { children: ReactChild }) {
                     done: (data: any) => {
                         setTimeout(() => {
                             setDataLoaded(true);
+                            console.log("User data:");
+                            console.log(data);
                             setTheme(data.theme);
                             dispatch({
                                 type: "UPLOAD_DATA",
                                 payload: data,
                             });
-                            console.log("User data:");
-                            console.log(data);
                         }, 500);
                     }
                 });

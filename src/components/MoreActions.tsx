@@ -13,10 +13,10 @@ const Actions = memo(({ actions }: any) => actions.map(a => (
     </MenuItem>
 )), (prev, next: any) => isEqual(prev, next) || next.actions === null);
 //const history = typeof(History) === "undefined" ? {} : new History();
-export default memo(({ className }: {className: string}) => {
+export default memo(({ className }: { className: string }) => {
     const
         [open, setOpen] = useState(false),
-        exec = fn => () => {
+        exec = (fn: () => void) => () => {
             setOpen(false);
             fn();
         },
@@ -27,6 +27,8 @@ export default memo(({ className }: {className: string}) => {
             payload: "Some text",
         }),
         router = useRouter();
+        console.log(router);
+        
     return (
         <>
             <Tooltip title="More Options">
@@ -52,12 +54,15 @@ export default memo(({ className }: {className: string}) => {
                 }}
             >
                 <Actions actions={moreActions.actions.map(a => ({ ...a, fn: exec(a.fn) }))} />
-                <MenuItem onClick={exec(!process.browser ? () => {} : () => console.log(window.history, history))}>Back</MenuItem>
-                <MenuItem onClick={exec(!process.browser ? () => {} : history.forward)}>Forward</MenuItem>
+                <MenuItem onClick={process.browser ? exec(router.back) : undefined}>Back</MenuItem>
+                <MenuItem onClick={process.browser ? exec(window.history.forward) : undefined}>Forward</MenuItem>
                 <MenuItem onClick={openHelp}>Help</MenuItem>
                 <Link href="/feedback">
-                    <MenuItem onClick={close}>Feedback</MenuItem>
+                    <MenuItem onClick={() => setOpen(false)}>Feedback</MenuItem>
                 </Link>
+                <MenuItem onClick={exec(() => router.replace(router.asPath))}>
+                    Refresh Page
+                </MenuItem>
             </Menu>
         </>
     );

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextField, Typography, Card } from "@material-ui/core";
-import Decimal from "decimal.js";
 import LoadBtn from "../../components/LoadBtn";
 
 const useStyles = makeStyles(theme => ({
@@ -24,7 +23,7 @@ export default function PrimeTest() {
         },
         handleSubmit = () => {
             setLoading(true);
-            const worker = new Worker("../../workers/prime.worker", { type: "module" });
+            const worker = new Worker("../../workers/prime", { type: "module", name: "prime" });
             worker.postMessage(number);
             worker.addEventListener("message", ({ data }) => {
                 if (typeof(data) === "boolean") {

@@ -7,5 +7,7 @@ export default interface IFile {
     writer_ids: string[];
     viewer_ids: string[];
     url: string;
+    modified: Date;
+    extension: string;
 }
 export type Tags = Record<string, string>;

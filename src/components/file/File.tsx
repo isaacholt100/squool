@@ -64,8 +64,7 @@ const DocumentViewer = ({ url }: { url: string }) => {
     );
 }
 
-const Viewer = memo(({ url }: { url: string }) => {
-    const ext = getExtension(url);
+const Viewer = memo(({ url, ext }: { url: string, ext: string }) => {
     if (langs.code.includes(extensions.code[ext] || ext)) {
         return <CodeViewer ext={extensions.code[ext] || ext} url={url} />;
     }
@@ -93,12 +92,14 @@ const Viewer = memo(({ url }: { url: string }) => {
     return <>File can't be displayed</>;
 });
 
-export default function File({ url }: { url: string }) {
+export default function File({ url, ext }: { url: string, ext: string }) {
+    console.log(url, ext);
+    
     return (
-        <div className="flex flex_col">
+        <div className="flex flex_col flex_1">
             <Actions url={url} />
             <div className="flex_1" style={{width: "100%", maxWidth: 1024, margin: "0 auto"}}>
-                <Viewer url={url} />
+                <Viewer url={url} ext={ext} />
             </div>
         </div>
     );

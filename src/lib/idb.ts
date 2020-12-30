@@ -10,10 +10,7 @@ export async function getClassDB(_id: string) {
         upgrade(db) {
             console.log("upgrade");
             
-            const store = db.createObjectStore("files", {
-                keyPath: "_id",
-                autoIncrement: false,
-            });
+            db.createObjectStore("files");
             //store.createIndex("_id", "_id");
         },
         terminated() {
@@ -21,4 +18,11 @@ export async function getClassDB(_id: string) {
         }
     });
     return db;
+}
+export async function getDB(db_id: string) {
+    if (db_id.slice(0, 6) === "class_") {
+        return getClassDB(db_id);
+    }
+    // For now
+    return getClassDB(db_id);
 }

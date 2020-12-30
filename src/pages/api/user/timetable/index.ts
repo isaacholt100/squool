@@ -10,12 +10,15 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             const { _id } = await auth(req, res);
             const db = await getDB();
             const users = db.collection("users");
+            if (!["r", "s", "t"].includes(req.body.key) || req.body.day > 6 || req.body.day < 0 || typeof(req.body.value) !== "string") {
+                throw new Error("400");
+            }
             await users.updateOne({ _id }, req.body.sat !== undefined ? req.body.sat ? { $set: {"timetable.lessons.5": Array(req.body.length).fill({
                 s: "",
                 t: "",
                 r: ""
             }) }} : {$unset: {"timetable.lessons.5": ""}} : {
-                $set: {[`timetable.lessons.${req.body.day}.${req.body.period}.s`]: req.body.value}
+                $set: {[`timetable.lessons.${req.body.day}.${req.body.period}.${req.body.key}`]: req.body.value}
             });
             done(res);
             break;

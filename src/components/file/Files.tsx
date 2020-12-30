@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useRef, useState } from "react";
-import { List, ListItem, Checkbox, ListItemText, ListItemSecondaryAction, IconButton, Box, Tooltip, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Chip, Typography, Divider, ListItemIcon, InputAdornment, Menu, MenuItem, Popover } from "@material-ui/core";
+import { List, ListItem, Checkbox, ListItemText, ListItemSecondaryAction, IconButton, Box, Tooltip, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Chip, Typography, Divider, ListItemIcon, InputAdornment, Menu, MenuItem, Popover, AppBar, Toolbar } from "@material-ui/core";
 import { useEffect } from "react";
 import useRequest, { useDelete, usePost } from "../../hooks/useRequest";
 import useContrastText from "../../hooks/useContraxtText";
@@ -16,7 +16,12 @@ import useUserInfo from "../../hooks/useUserInfo";
 import IFile, { Tags } from "../../types/IFile";
 import LoadBtn, { LoadIconBtn } from "../LoadBtn";
 import { ObjectID } from "bson";
-import { IDBPDatabase } from "idb";
+import { useMember } from "../../hooks/useMembers";
+import { getDB } from "../../lib/idb";
+import useContextMenu from "../../hooks/useContextMenu";
+import { ContextMenuItem } from "../../types/contextMenu";
+import File from "./File";
+import { useIsOnline } from "../../context/IsOnline";
 
 const MiniTag = ({ color, name }) => (
     <Tooltip title={name}>
@@ -151,6 +156,7 @@ function UploadDialog(props: { open: boolean; setOpen(o: boolean): void; tags: T
 const FileDialog = memo((props: { close(): void, currentFile?: IFile, tags: Tags, name: string; setName(n: string): void, deleteFiles(files: string[]): void, fileTags: string[], setFileTags(tags: string[]): void }) => {
     const
         user_id = useUserInfo()._id,
+        uploader = useMember(props.currentFile.owner_id),
         contrastText = useContrastText(),
         disabled = props.currentFile && props.currentFile.owner_id !== user_id && !props.currentFile.viewer_ids.includes(user_id) && !props.currentFile.writer_ids.includes(user_id);
 
@@ -203,7 +209,7 @@ const FileDialog = memo((props: { close(): void, currentFile?: IFile, tags: Tags
                     Uploaded: {new ObjectID(props.currentFile._id).getTimestamp().toLocaleDateString()}
                 </Typography>
                 <Typography gutterBottom>
-                    Uploaded by: {props.currentFile.owner_id}
+                    Uploaded by: {uploader.firstName + " " + uploader.lastName}
                 </Typography>
                 {props.currentFile.owner_id === user_id && (
                     <Button onClick={() => props.deleteFiles([props.currentFile._id])}>
@@ -231,8 +237,24 @@ const FileDialog = memo((props: { close(): void, currentFile?: IFile, tags: Tags
     );
 }, (prev, next) => next.currentFile === null);
 
-export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: IFile[]): void, db(): Promise<IDBPDatabase> }) {
+const ViewDialog = memo((props: { url: string, ext: string, close(): void }) => {
+    return (
+        <div className="flex full_height flex_col">
+            <AppBar>
+                <Toolbar>
+                    <IconButton edge="start" color="inherit" onClick={props.close} aria-label="close">
+                        <Icon path={mdiClose} />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <File url={props.url} ext={props.ext} />
+        </div>
+    );
+}, (prev, next) => prev.url === next.url || next.url === null);
+
+export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: IFile[]): void, db_id: string }) {
     const
+        [ContextMenu, openContextMenu] = useContextMenu(),
         user_id = useUserInfo()._id,
         [del, delLoading] = useDelete(),
         request = useRequest(),
@@ -250,6 +272,8 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
         [sortByAnchor, setSortByAnchor] = useState<HTMLElement>(null),
         [filterAnchor, setFilterAnchor] = useState<HTMLElement>(null),
         [saveLoading, setSaveLoading] = useState(false),
+        [viewFile, setViewFile] = useState<[string, string]>([null, null]),
+        isOnline = useIsOnline(),
         toggleSelected = _id => {
             if (selected.includes(_id)) {
                 setSelected(selected.filter(f => f !== _id));
@@ -287,7 +311,13 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             });
         },
         openFile = (file: IFile) => () => {
+            console.log(file);
             
+            if ((file as any).blob) {
+                setViewFile([URL.createObjectURL((file as any).blob), file.extension]);
+            } else {
+                setViewFile([file.url, file.extension]);
+            }
         },
         toggleFilter = (tag: string) => {
             setFilterTags(filterTags.includes(tag) ? filterTags.filter(t => t !== tag) : [...filterTags, tag]);
@@ -308,10 +338,10 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                 }
             }
         },
-        saveFileOffline = async (f: IFile) => {
+        /*saveFileOffline = async (f: IFile) => {
             try {
                 setSaveLoading(true);
-                const db = await props.db();
+                const db = await getDB(props.db_id);
                 const exists = (await db.get("files", f._id)) !== undefined;
                 if (exists) {
                     snackbar.info("File '" + f.name + "' is already saved");
@@ -327,41 +357,56 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             } finally {
                 setSaveLoading(false);
             }
-        },
-        saveFilesOffline = async (files: IFile[]) => {
-            try {
-                setSaveLoading(true);
-                const db = await props.db();
-                const list: (IFile & { blob: Blob })[] = [];
-                const l = files.length;
-                for (let i = 0; i < l; i++) {
-                    const exists = (await db.get("files", files[i]._id)) !== undefined;
-                    if (exists) {
-                        const res = await fetch(files[i].url);
-                        const blob = await res.blob();
-                        list.push({
-                            ...files[i],
-                            blob,
-                        });
-                    }
+        },*/
+        saveFilesOffline = async (files: IFile[], fn: () => void = null) => {
+            const worker = new Worker("../../workers/saveFilesOffline", { type: "module", name: "saveFilesOffline" });
+            worker.postMessage({
+                db_id: props.db_id,
+                files,
+            });
+            worker.addEventListener("message", async e => {
+                setSaveLoading(false);
+                if (e.data) {
+                    fn && fn();
+                    snackbar.success(files.length + " file" + (files.length !== 1 ? "s" : "") + " saved and " + (files.length !== 1 ? "are" : "is") + " now available offline");
+                    console.log(props.db_id);
+                    const test = await getDB(props.db_id);
+                    console.log(await test.getAll("files"));
+                    
+                } else {
+                    snackbar.error("There was an error saving these files");
                 }
-                const tx = db.transaction("files", "readwrite");
-                const inserts = list.map(file => tx.store.add(file));
-                await Promise.all([
-                    ...inserts,
-                    tx.done as any,
-                ]);
-                setSaveLoading(false);
-                snackbar.success(l + " files saved and are now available offline");
-            } catch (err) {
-                setSaveLoading(false);
-                console.error(err);
-                snackbar.error("There was an error saving these files");
-            }
+            });
         },
         saveToDevice = async () => {
             const list = props.files.filter(f => selected.includes(f._id));
-            await saveFilesOffline(list);
+            await saveFilesOffline(list, () => setSelected([]));
+        },
+        onContextMenu = (file: IFile) => (e: React.MouseEvent) => {
+            const items: ContextMenuItem[] = [{
+                label: "Delete",
+                icon: <Icon path={mdiDelete} />,
+                fn() {
+                    deleteFiles([file._id]);
+                }
+            }, {
+                label: "Download",
+                icon: <Icon path={mdiDownload} />,
+                fn() {}
+            }, {
+                label: "Save to device",
+                icon: <Icon path={mdiContentSave} />,
+                fn() {
+                    saveFilesOffline([file]);
+                }
+            }, {
+                label: "File Info",
+                icon: <Icon path={mdiInformation} />,
+                fn() {
+                    fileInfo(file)();
+                }
+            }];
+            openContextMenu(items)(e);
         };
     useEffect(() => {
         const keyDown = e => {
@@ -386,6 +431,10 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
     }, []);
     return (
         <>
+            {ContextMenu}
+            <Dialog fullScreen open={viewFile[0] !== null} onClose={() => setViewFile([null, null])}>
+                <ViewDialog close={() => setViewFile([null, null])} url={viewFile[0]} ext={viewFile[1]} />
+            </Dialog>
             <Dialog
                 open={currentFile !== null}
                 onClose={() => setCurrentFile(null)}
@@ -494,7 +543,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                 </Popover>
                 <Divider orientation="vertical" className="ml_auto mr_4" flexItem />
                 <Tooltip title="Delete">
-                    <IconButton disabled={noneSelected || selected.some(_id => !props.files.find(file => file._id === _id).writer_ids.includes(user_id))} className="mr_4" onClick={() => deleteFiles(selected)}>
+                    <IconButton disabled={noneSelected || selected.some(_id => !props.files.find(file => file._id === _id)?.writer_ids?.includes(user_id))} className="mr_4" onClick={() => deleteFiles(selected)}>
                         <Icon path={mdiDelete} />
                     </IconButton>
                 </Tooltip>
@@ -504,7 +553,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                     </IconButton>
                 </Tooltip>
                 <Tooltip title="Save to device">
-                    <IconButton disabled={noneSelected || saveLoading} onClick={saveToDevice}>
+                    <IconButton disabled={noneSelected || saveLoading || !isOnline} onClick={saveToDevice}>
                         <LoadIconBtn loading={saveLoading}>
                             <Icon path={mdiContentSave} />
                         </LoadIconBtn>
@@ -514,7 +563,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             <Box component={List} overflow="auto" className="p_0">
                 {props.files.filter(f => f.name.toLowerCase().includes(search.toLowerCase()) && filterTags.some(t => f.tags.includes(t))).sort(sortFn).map(f => (
                     <Box whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" borderRadius={8} mt="4px" key={f._id}>
-                        {b => <ListItem role={undefined} button dense {...b} onClick={openFile(f)} disableRipple /*selected={selected.includes(f._id)}*/>
+                        {b => <ListItem role={undefined} button dense {...b} onClick={openFile(f)} disableRipple /*selected={selected.includes(f._id)}*/ onContextMenu={onContextMenu(f)}>
                             <ListItemIcon>
                                 <Checkbox
                                     checked={selected.includes(f._id)}
@@ -539,9 +588,11 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                                 )}
                             />
                             <ListItemSecondaryAction>
-                                <IconButton edge="end" aria-label="info" onClick={fileInfo(f)}>
-                                    <Icon path={mdiInformation} />
-                                </IconButton>
+                                <Tooltip title="File Info">
+                                    <IconButton edge="end" aria-label="info" onClick={fileInfo(f)}>
+                                        <Icon path={mdiInformation} />
+                                    </IconButton>
+                                </Tooltip>
                             </ListItemSecondaryAction>
                         </ListItem>}
                     </Box>
