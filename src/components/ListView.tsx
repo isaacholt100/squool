@@ -29,7 +29,7 @@ import Icon from "./Icon";
 import styles from "../css/listView.module.css";
 import clsx from "clsx";
 import useCarouselView from "../hooks/useCarouselView";
-import useContextMenu from "../hooks/useContextMenu.tsx";
+import useContextMenu from "../hooks/useContextMenu";
 
 const useStyles = makeStyles(theme => ({
     animated: {
