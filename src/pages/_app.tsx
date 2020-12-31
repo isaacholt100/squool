@@ -77,6 +77,16 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                         overflowX: "hidden !important" as any,
                     },
                 },
+                MuiTypography: {
+                    root: {
+                        WebkitTouchCallout: "text",
+                        WebkitUserSelect: "text",
+                        KhtmlUserSelect: "text",
+                        MozUserSelect: "text",
+                        MsUserSelect: "text",
+                        userSelect: "text",
+                    },
+                },
                 MuiDivider: {
                     root: {
                         height: 2,
@@ -106,6 +116,18 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                         borderWidth: "2px !important",
                         "& .MuiTouchRipple-root": {
                             borderRadius: 6,
+                        }
+                    },
+                },
+                MuiButtonBase: {
+                    root: {
+                        "& *": {
+                            WebkitTouchCallout: "none !important",
+                            WebkitUserSelect: "none !important",
+                            KhtmlUserSelect: "none !important",
+                            MozUserSelect: "none !important",
+                            MsUserSelect: "none !important",
+                            userSelect: "none !important",
                         }
                     },
                 },

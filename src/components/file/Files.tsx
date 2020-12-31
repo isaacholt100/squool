@@ -311,10 +311,8 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             });
         },
         openFile = (file: IFile) => () => {
-            console.log(file);
-            
-            if ((file as any).blob) {
-                setViewFile([URL.createObjectURL((file as any).blob), file.extension]);
+            if (file.blob) {
+                setViewFile([URL.createObjectURL(file.blob), file.extension]);
             } else {
                 setViewFile([file.url, file.extension]);
             }
@@ -359,6 +357,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             }
         },*/
         saveFilesOffline = async (files: IFile[], fn: () => void = null) => {
+            setSaveLoading(true);
             const worker = new Worker("../../workers/saveFilesOffline", { type: "module", name: "saveFilesOffline" });
             worker.postMessage({
                 db_id: props.db_id,
@@ -369,13 +368,11 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                 if (e.data) {
                     fn && fn();
                     snackbar.success(files.length + " file" + (files.length !== 1 ? "s" : "") + " saved and " + (files.length !== 1 ? "are" : "is") + " now available offline");
-                    console.log(props.db_id);
                     const test = await getDB(props.db_id);
-                    console.log(await test.getAll("files"));
-                    
                 } else {
                     snackbar.error("There was an error saving these files");
                 }
+                worker.terminate();
             });
         },
         saveToDevice = async () => {
@@ -581,7 +578,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                                 primary={f.name}
                                 secondary={(
                                     <div className="flex mt_8">
-                                        {f.tags.map(t => (
+                                        {f.tags.sort().map(t => (
                                             <MiniTag key={t} name={t} color={props.tags[t]} />
                                         ))}
                                     </div>

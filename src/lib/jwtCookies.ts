@@ -7,6 +7,4 @@ export default function jwtCookies({ accessToken, refreshToken, staySignedIn, us
     Cookies.set("refreshToken", refreshToken, {...(staySignedIn ? { expires: 1000000 } : {})});
     Cookies.set("user_id", user_id);
     mutate("/api/login", true, false);
-    console.log(Cookies.get());
-    
 }

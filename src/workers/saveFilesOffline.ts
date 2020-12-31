@@ -26,11 +26,9 @@ self.addEventListener("message", async ({ data }: { data: IData }) => {
         }
         const tx = db.transaction("files", "readwrite");
         await Promise.all([...list.map(file => tx.store.add(file, file._id)), tx.done as any]);
-        console.log(await db.getAll("files"));
-        
         self.postMessage(true);
     } catch (err) {
-        console.log(err);
+        console.error(err);
         self.postMessage(false);
     }
 });

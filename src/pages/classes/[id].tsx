@@ -30,12 +30,13 @@ import IFile, { Tags } from "../../types/IFile";
 import { ObjectID } from "bson";
 import { getClassDB } from "../../lib/idb";
 import { useIsOnline } from "../../context/IsOnline";
+import useUserInfo from "../../hooks/useUserInfo";
 
 const sampleFiles: IFile[] = [{
     name: "file",
     extension: "png",
     size: 998298,
-    _id: new ObjectID().toHexString(),
+    _id: new ObjectID("5fedaf6e73757100007b314d").toHexString(),
     tags: ["image", "png", "file"],
     viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
     owner_id: new ObjectID("5ed7edf6b556eb28e51d597d").toHexString(),
@@ -46,7 +47,7 @@ const sampleFiles: IFile[] = [{
     name: "pic",
     extension: "jpg",
     size: 24363452,
-    _id: new ObjectID().toHexString(),
+    _id: new ObjectID("5fedaf6e73757100007b3150").toHexString(),
     owner_id: new ObjectID("5ed7edf6b556eb28e51d597d").toHexString(),
     viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
     tags: ["image", "cool"],
@@ -85,6 +86,7 @@ function Class() {
     const
         [isOnline] = useIsOnline(),
         [del, delLoading] = useDelete(),
+        [files, setFiles] = useState<IFile[]>(null),
         [get] = useGet(),
         [ConfirmDialog, confirm] = useConfirm(delLoading),
         dispatch = useDispatch(),
@@ -95,6 +97,7 @@ function Class() {
         [activeTab, setActiveTab] = useState(hashIndex),
         [offlineFiles, setOfflineFiles] = useState<IFile[]>([]),
         class_id = router.query.id as string,
+        user_id = useUserInfo()._id,
         kickout = (_id: string) => {
             del("/classes/member", {
                 setLoading: true,
@@ -120,9 +123,30 @@ function Class() {
         getOfflineFiles = async () => {
             const db = await getClassDB("class_" + class_id);
             const list = await db.getAll("files");
-            console.log(list);
-            
             setOfflineFiles(list);
+        },
+        syncOfflineFiles = () => {
+            // Make sure files aved offline in IDB are updated when files saved in shared DB are updated.
+            console.log({files});
+            
+            const worker = new Worker("../../workers/syncOfflineFiles", { type: "module", name: "syncOfflineFiles" });
+            worker.postMessage({
+                user_id,
+                db_id: "class_" + class_id,
+                files,
+            });
+            console.log("posted");
+            
+            worker.addEventListener("message", e => {
+                console.log(e.data);
+                
+                if (e.data) {
+
+                } else {
+
+                }
+                worker.terminate();
+            });
         };
     useEffect(() => {
         get(`/classes?_id=${class_id}`, {
@@ -139,15 +163,20 @@ function Class() {
                 });
             }
         });
+        setFiles(sampleFiles);
     }, []);
     useEffect(() => {
         if (!isOnline) {
             getOfflineFiles();
         }
     }, [isOnline]);
+    useEffect(() => {
+        console.log("effect");
+        files !== null && syncOfflineFiles();
+    }, [files]);
     return !classInfo ? <Loader /> : (
         <div className="fadeup">
-            <AppBar position="static" color="default">
+            <AppBar position="relative" color="default">
                 <Tabs
                     value={activeTab}
                     onChange={(e, p) => setActiveTab(p)}
@@ -155,7 +184,7 @@ function Class() {
                     textColor="primary"
                     variant="scrollable"
                     scrollButtons="auto"
-                    aria-label="scrollable tabs"
+                    aria-label="class tabs"
                 >
                 {pages.map(p => (
                     <Tab label={p} key={p} onClick={() => changeHash(p)} />
@@ -225,7 +254,15 @@ function Class() {
                     </List>
                 )}
                 {activeTab === 2 && (
-                    <Files db_id={"class_" + class_id} files={isOnline ? sampleFiles : offlineFiles || []} setFiles={(f) => {}} tags={sampleTags} />
+                    <>
+                    <button onClick={() => {
+                        const oldFiles = [...files];
+                        oldFiles[0].name = "newName";
+                        oldFiles[0].modified = new Date();
+                        setFiles(oldFiles);
+                    }}>Test</button>
+                    <Files db_id={"class_" + class_id} files={isOnline ? (files || []) : offlineFiles || []} setFiles={(f) => {}} tags={sampleTags} />
+                    </>
                 )}
             </Box>
             {ConfirmDialog}

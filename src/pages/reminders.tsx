@@ -542,10 +542,10 @@ export default function Reminders() {
                                 .slice(0, -1)
                                 .join(":")}
                         {r.repeat === 0 && new Date().getTime() > new Date(r.date).getTime() && (
-                            <span className={classes.late}>
+                            <Typography component="span" className={classes.late}>
                                 {" "}
                                 <Icon path={mdiClipboardAlert} style={{ marginBottom: -4 }} /> Late
-                            </span>
+                            </Typography>
                         )}
                     </Typography>
                     <Typography style={{ height: 36, overflow: "hidden", /*textTruncate: "ellipsis",*/ whiteSpace: "nowrap" }}>{r.desc}</Typography>

@@ -160,7 +160,13 @@ const useStyles = makeStyles(theme => ({
         height: "0 !important",
         opacity: "0 !important",
     },
+    font: {
+        "& *": {
+            fontFamily: "Arial, Helvetica, sans-serif !important",
+        },
+    },
 }));
+
 export default function Calculator() {
     let ma: MQ = null;
     let historyArrow = 0, oldLatex = "", currentShown = true;
@@ -226,10 +232,10 @@ export default function Calculator() {
         backspace = () => {
             field.keystroke("Backspace");
         },
-        handleSubmit = f => e => {
+        handleSubmit = (f: MQ) => e => {
             e.preventDefault();
             //f.focus();
-            let expression = f.text()
+            let expression = (f as any).text()
                 .replace(/\bsin\(/g, "(sin(")
                 .replace(/\bcos\(/g, "(cos(")
                 .replace(/\btan\(/g, "(tan(")
@@ -300,25 +306,7 @@ export default function Calculator() {
                         expression = expression.replace(`sqrt[${root}]${inside}`, `(1 / 1e14 * round(1e14 * (${inside}^(1/${root}))))`);
                     } while (expression.includes("sqrt["));
                 }
-                if (expression.includes("log_")) {
-                    do {
-                        let
-                            log = expression.split("log_")[1].split("(")[0],
-                            after = expression.split("log_" + log)[1],
-                            afterBraces = 0;
-                        for (let l = 0; l < expression.length; l++) {
-                            if (after[l] === "(") {
-                                afterBraces = afterBraces + 1;
-                            } 
-                        }
-                        const inside = after.split(")")[0] + Array(afterBraces + 1).join(")");
-                        expression = expression.replace(`log_${log}${inside}`, `(1 / 1e14 * (round(1e14 / log10(${log}) * log10(${inside}))))`);
-                    } while (expression.includes("log_"));
-                }
-                if (expression.includes("1_")) {
-
-                }
-               if (expression.includes("/")) {
+                if (expression.includes("/")) {
                     do {
                         let
                             before = expression.split(")/(")[0],
@@ -354,6 +342,21 @@ export default function Calculator() {
                         expression = expression.replace(`(${insideBefore})/(${insideAfter})`, `((${insideBefore})÷(${insideAfter}))`);
                     } while (expression.includes("/"));
                 }
+                if (expression.includes("log_")) {
+                    do {
+                        let
+                            log = expression.split("log_")[1].split("(")[0],
+                            after = expression.split("log_" + log)[1],
+                            afterBraces = 0;
+                        for (let l = 0; l < expression.length; l++) {
+                            if (after[l] === "(") {
+                                afterBraces = afterBraces + 1;
+                            } 
+                        }
+                        const inside = after.split(")")[0] + Array(afterBraces + 1).join(")");
+                        expression = expression.replace(`log_${log}${inside}`, `(1 / 1e14 * (round(1e14 / log10(${log}) * log10(${inside}))))`);
+                    } while (expression.includes("log_"));
+                }
                 expression = expression.replace(/÷/g, "/");
                 try {
                     let evaluated = math.evaluate(expression, scope).toString();
@@ -373,14 +376,17 @@ export default function Calculator() {
                     if (answer.includes("/")) {
                         answer = `\\frac{${answer.split(" / ")[0]}}{${answer.split(" / ")[1]}}`;
                     }
-                    answer = answer.replace(/pi/g, "\\pi")
+                    answer = answer.replace(/pi/g, "\\pi");
+                    if (Number.isNaN(answer) || answer === "NaN") {
+                        throw new Error("Not a number");
+                    }
                     const historyEntry =
                         expression.indexOf("=") > -1
                             ? ""
                             : " = " + answer;
                     const newHistory = [
+                        {[f.latex()]: historyEntry},
                         ...historyRef.current,
-                        {[f.latex()]: historyEntry}
                     ];
                     f.latex(answer);
                     //const promise = new Promise(res => {
@@ -487,60 +493,48 @@ export default function Calculator() {
                 "sqrt("
             ],
             [
-                "sin(x)",
-                <span>
-                    sin<sup>-</sup><sup>1</sup>(x)
-                </span>,
+                "sin",
+                "asin",
                 "sin(",
                 "arcsin("
             ],
             [
-                "cos(x)",
-                <span>
-                    cos<sup>-</sup><sup>1</sup>(x)
-                </span>,
+                "cos",
+                "acos",
                 "cos(",
                 "arccos("
             ],
             [
-                "tan(x)",
-                <span>
-                    tan<sup>-</sup><sup>1</sup>(x)
-                </span>,
+                "tan",
+                "atan",
                 "tan(",
                 "arctan("
             ],
             [
-                "sinh(x)",
-                <span>
-                    sinh<sup>-</sup><sup>1</sup>(x)
-                </span>,
+                "sinh",
+                "asinh",
                 "sinh(",
                 "arcsinh("
             ],
             [
-                "cosh(x)",
-                <span>
-                    cosh<sup>-</sup><sup>1</sup>(x)
-                </span>,
+                "cosh",
+                "acosh",
                 "cosh(",
                 "arccosh("
             ],
             [
-                "tanh(x)",
-                <span>
-                    tanh<sup>-</sup><sup>1</sup>(x)
-                </span>,
+                "tanh",
+                "atanh",
                 "tanh(",
                 "arctanh("
             ],
             [
                 "log(x)",
                 <span>
-                    log<sub>y</sub>(x)
+                    10<sup>x</sup>
                 </span>,
                 "log(",
-                "log_{}({}"
+                "10^"
             ],
             [
                 "ln(x)",
@@ -548,17 +542,17 @@ export default function Calculator() {
                     e<sup>x</sup>
                 </span>,
                 "ln(",
-                "e^{}"
+                "e^"
             ],
             [
                 <span>
                     x<sup>y</sup>
                 </span>,
                 <span>
-                    <sup>x</sup>√y
+                    log<sub>y</sub>(x)
                 </span>,
                 "^",
-                "\\sqrt[{}]{}"
+                "log_"
             ]
         ],
         historyBox = (
@@ -681,9 +675,9 @@ export default function Calculator() {
                                         }}
                                     />
                                 ), [])}
-                                <FormHelperText style={{margin: 0, marginBottom: 8,}}>{state.error && "Error"}</FormHelperText>
+                                <FormHelperText style={{margin: 0, marginBottom: 8,}}>{state.error ? "Error" : " "}</FormHelperText>
                             </FormControl>
-                            <Grid container spacing={0}>
+                            <Grid container spacing={0} className={classes.font}>
                                 <Grid
                                     item
                                     xs={12}
@@ -768,7 +762,7 @@ export default function Calculator() {
                                     </Button>
                                 </Grid>
                             </Grid>
-                            <Grid container spacing={0}>
+                            <Grid container spacing={0} className={classes.font}>
 
                             {(!isSmall || state.fns) &&
                                 <Grid

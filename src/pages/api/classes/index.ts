@@ -62,12 +62,10 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             const db = await getDB();
             const classes = db.collection("classes");
             if (req.query._id) {
-                console.log(req.query._id);
                 if (!ObjectId.isValid(req.query._id as string)) {
                     errors(res, "Class not found.");
                     break;
                 }
-                
                 const Class = await classes.findOne({ _id: new ObjectId(req.query._id as string), member_ids: _id });
                 Class ? res.json(Class) : errors(res, "Class not found.");
             } else {

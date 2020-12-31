@@ -9,5 +9,6 @@ export default interface IFile {
     url: string;
     modified: Date;
     extension: string;
+    blob?: Blob;
 }
 export type Tags = Record<string, string>;

@@ -27,8 +27,6 @@ export default memo(({ className }: { className: string }) => {
             payload: "Some text",
         }),
         router = useRouter();
-        console.log(router);
-        
     return (
         <>
             <Tooltip title="More Options">

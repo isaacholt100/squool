@@ -93,8 +93,6 @@ const Viewer = memo(({ url, ext }: { url: string, ext: string }) => {
 });
 
 export default function File({ url, ext }: { url: string, ext: string }) {
-    console.log(url, ext);
-    
     return (
         <div className="flex flex_col flex_1">
             <Actions url={url} />

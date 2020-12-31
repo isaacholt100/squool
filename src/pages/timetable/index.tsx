@@ -36,8 +36,6 @@ export default function TimetableView() {
                 type: "/timetable/update",
                 payload: obj,
             });
-            console.log(timetable.lessons[0][2].s);
-            
         },
         onBlur = (day, period, key) => e => {
             const value = timetable.lessons[day][period][key];
@@ -47,8 +45,6 @@ export default function TimetableView() {
                 period,
                 key,
             };
-            console.log(value);
-            
             put("/user/timetable", {
                 failedMsg: "updating your timetable",
                 body: obj,
