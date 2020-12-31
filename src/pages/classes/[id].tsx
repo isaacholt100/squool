@@ -36,10 +36,10 @@ const sampleFiles: IFile[] = [{
     name: "file",
     extension: "png",
     size: 998298,
-    _id: new ObjectID("5fedaf6e73757100007b314d").toHexString(),
+    _id: "5fedaf6e73757100007b314d",
     tags: ["image", "png", "file"],
     viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
-    owner_id: new ObjectID("5ed7edf6b556eb28e51d597d").toHexString(),
+    owner_id: "5ed7edf6b556eb28e51d597d",
     writer_ids: [],
     url: "https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_100kB.jpg",
     modified: new Date(),
@@ -48,7 +48,7 @@ const sampleFiles: IFile[] = [{
     extension: "jpg",
     size: 24363452,
     _id: new ObjectID("5fedaf6e73757100007b3150").toHexString(),
-    owner_id: new ObjectID("5ed7edf6b556eb28e51d597d").toHexString(),
+    owner_id: "5ed7edf6b556eb28e51d597d",
     viewer_ids: [new ObjectID().toHexString(), new ObjectID().toHexString()],
     tags: ["image", "cool"],
     url: "https://file-examples-com.github.io/uploads/2017/10/file_example_JPG_100kB.jpg",
@@ -128,7 +128,6 @@ function Class() {
         syncOfflineFiles = () => {
             // Make sure files aved offline in IDB are updated when files saved in shared DB are updated.
             console.log({files});
-            
             const worker = new Worker("../../workers/syncOfflineFiles", { type: "module", name: "syncOfflineFiles" });
             worker.postMessage({
                 user_id,
@@ -148,6 +147,7 @@ function Class() {
                 worker.terminate();
             });
         };
+        
     useEffect(() => {
         get(`/classes?_id=${class_id}`, {
             //setLoading: true,
@@ -172,8 +172,8 @@ function Class() {
     }, [isOnline]);
     useEffect(() => {
         console.log("effect");
-        files !== null && syncOfflineFiles();
-    }, [files]);
+        files !== null && isOnline && user_id && syncOfflineFiles();
+    }, [files, user_id]);
     return !classInfo ? <Loader /> : (
         <div className="fadeup">
             <AppBar position="relative" color="default">
