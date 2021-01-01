@@ -17,8 +17,8 @@ import {
     Box,
 } from "@material-ui/core";
 import { startCase, capitalize } from "lodash";
-import useTitle from "../../hooks/useTitle";
 import useSnackbar from "../../hooks/useSnackbar";
+import Title from "../../components/Title";
 
 const
     useStyles = makeStyles(theme => ({
@@ -165,7 +165,6 @@ export default function PeriodicTable() {
     const
         classes = useStyles(),
         snackbar = useSnackbar(),
-        title = useTitle(),
         [table, setTable] = useState(false),
         [open, setOpen] = useState(false),
         [activeIndex, setActiveIndex] = useState(0),
@@ -183,65 +182,69 @@ export default function PeriodicTable() {
                 snackbar.error("There was an error loading the periodic table");
             }
         })();
-        title("Periodic Table");
     }, []);
-    return table ? (
-        <div className={classes.container}>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-                {structure.map((row, i) => (
-                    <div key={i} className={`${classes["row" + i]} ${classes.row}`}>
-                        {row.map((index, j) => (
-                            <div className={`${classes.cell} ${j < 2 || j > 11 ? classes["col" + j] : classes.transitions}`} key={j}>
-                                <Box position="absolute" top={0} left={0} right={0} bottom={0} className={classes.hover}>
-                                    <Button
-                                        className={index !== "" ? `button ${classes["symbol" + table[index].symbol]}` : null}
-                                        onClick={openDialog(index)}
-                                        disabled={index === ""}
-                                        //disableTouchRipple
-                                        focusRipple={true}
-                                    >
-                                        <Typography component="span" className={index === "" ? classes.hide : null}>
-                                            {index !== "" ? table[index].symbol : "p"}
-                                        </Typography>
-                                    </Button>
-                                </Box>
+    return (
+        <>
+            <Title title="Periodic Table" />
+            {!table ? <Loader /> : (
+                <div className={classes.container}>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                        {structure.map((row, i) => (
+                            <div key={i} className={`${classes["row" + i]} ${classes.row}`}>
+                                {row.map((index, j) => (
+                                    <div className={`${classes.cell} ${j < 2 || j > 11 ? classes["col" + j] : classes.transitions}`} key={j}>
+                                        <Box position="absolute" top={0} left={0} right={0} bottom={0} className={classes.hover}>
+                                            <Button
+                                                className={index !== "" ? `button ${classes["symbol" + table[index].symbol]}` : null}
+                                                onClick={openDialog(index)}
+                                                disabled={index === ""}
+                                                //disableTouchRipple
+                                                focusRipple={true}
+                                            >
+                                                <Typography component="span" className={index === "" ? classes.hide : null}>
+                                                    {index !== "" ? table[index].symbol : "p"}
+                                                </Typography>
+                                            </Button>
+                                        </Box>
+                                    </div>
+                                ))}
                             </div>
                         ))}
                     </div>
-                ))}
-            </div>
-            <Dialog
-                open={open}
-                onClose={close}
-                aria-labelledby="element-info"
-            >
-                <DialogTitle id="element-info">Element info</DialogTitle>
-                <DialogContent>
-                    <Table aria-label="element properties table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Element</TableCell>
-                                <TableCell align="right">{table[activeIndex].name}</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {Object.keys(table[activeIndex]).filter(x => x !== "cpkHexColor" && table[activeIndex][x] !== "").map(key => (
-                                <TableRow key={key}>
-                                    <TableCell component="th" scope="row">
-                                        {key.includes("negativity") ? "Electron Negativity" : startCase(key)}
-                                    </TableCell>
-                                    <TableCell align="right">{capitalize(table[activeIndex][key])}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={close} color="primary" autoFocus>
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    ) : <Loader />;
+                    <Dialog
+                        open={open}
+                        onClose={close}
+                        aria-labelledby="element-info"
+                    >
+                        <DialogTitle id="element-info">Element info</DialogTitle>
+                        <DialogContent>
+                            <Table aria-label="element properties table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Element</TableCell>
+                                        <TableCell align="right">{table[activeIndex].name}</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {Object.keys(table[activeIndex]).filter(x => x !== "cpkHexColor" && table[activeIndex][x] !== "").map(key => (
+                                        <TableRow key={key}>
+                                            <TableCell component="th" scope="row">
+                                                {key.includes("negativity") ? "Electron Negativity" : startCase(key)}
+                                            </TableCell>
+                                            <TableCell align="right">{capitalize(table[activeIndex][key])}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={close} color="primary" autoFocus>
+                                Close
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                </div>
+            )}
+        </>
+    );
 };

@@ -32,6 +32,7 @@ import useUserInfo from "../../hooks/useUserInfo";
 import useClasses from "../../hooks/useClasses";
 import useBooks from "../../hooks/useBooks";
 import { defaultRedirect } from "../../lib/serverRedirect";
+import Title from "../../components/Title";
 
 export default function Books() {
     const
@@ -261,85 +262,90 @@ export default function Books() {
             setActivePeriod(Math.max(periods.length - 1, 0));
         }
     }, [periods.length]);
-    return !isLoggedIn ? null : (
+    return (
         <>
-            <ListView
-                name="Book"
-                filtered={filtered}
-                tabs={periods}
-                height={104}
-                filter={activePeriod}
-                setFilter={f => setActivePeriod(f)}
-                createOpen={createOpen}
-                setCreateOpen={o => setCreateOpen(o)}
-                createFn={() => setCreateOpen(true)}
-                Actions={(book: IBook) => [{
-                    label: "Delete",
-                    fn: () => confirm("delete this book?", deleteBook(book._id)),
-                    icon: <Icon path={mdiDelete} />,
-                }, {
-                    label: !book.class_id ? "Link" : "Unlink",
-                    fn: () => !book.class_id ? openDialog("linkOpen", book._id) : confirm("unlink this book?", unlinkBook(book._id)),
-                    icon: !book.class_id ? <Icon path={mdiLink} /> : <Icon path={mdiLinkOff} />,
-                }]}
-                Item={book => (
-                    <Link href={`/book/${book._id}/edit`}>
-                        <CardActionArea className={"p_8 full_height"}>
-                            <div className="full_height">
-                                <Typography variant="h6">
-                                    {book.name}
-                                </Typography>
-                            </div>
-                        </CardActionArea>
-                    </Link>
-                )}
-                createForm={(
-                    <form onSubmit={submit}>
-                        <DialogContent>
-                            <Box mb={1}>
-                                <TextField
-                                    autoFocus
-                                    id="name"
-                                    label="Book name"
-                                    fullWidth
-                                    helperText={state.nameError + " "}
-                                    error={state.nameError !== ""}
-                                    value={state.name}
-                                    onChange={handleChange("name")}
-                                    autoComplete="off"
-                                    variant="outlined"
-                                />
-                            </Box>
-                            {classPicker}
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={() => setCreateOpen(false)} color="default">
-                                Cancel
-                            </Button>
-                            <LoadBtn label="Create" disabled={state.nameError !== "" || state.name === ""} loading={postLoading} />
-                        </DialogActions>
-                    </form>
-                )}
-            />
-            <Dialog
-                open={state.linkOpen}
-                onClose={() => close("linkOpen")}
-                aria-labelledby="form-dialog-title"
-            >
-                <form onSubmit={linkClass}>
-                    <DialogTitle id="form-dialog-title">Link class</DialogTitle>
-                        <DialogContent>
-                            {classPicker}
-                        </DialogContent>
-                        <DialogActions>
-                        <Button onClick={() => setState({ ...state, linkOpen: false })} color="default">
-                            Cancel
-                        </Button>
-                        <LoadBtn label="Link" disabled={state.className === "" && state.classLink === ""} loading={putLoading} />
-                    </DialogActions>
-                </form>
-            </Dialog>
-            {ConfirmDialog}
+            <Title title="Books" />
+            {!isLoggedIn ? null : (
+                <>
+                    <ListView
+                        name="Book"
+                        filtered={filtered}
+                        tabs={periods}
+                        height={104}
+                        filter={activePeriod}
+                        setFilter={f => setActivePeriod(f)}
+                        createOpen={createOpen}
+                        setCreateOpen={o => setCreateOpen(o)}
+                        createFn={() => setCreateOpen(true)}
+                        Actions={(book: IBook) => [{
+                            label: "Delete",
+                            fn: () => confirm("delete this book?", deleteBook(book._id)),
+                            icon: <Icon path={mdiDelete} />,
+                        }, {
+                            label: !book.class_id ? "Link" : "Unlink",
+                            fn: () => !book.class_id ? openDialog("linkOpen", book._id) : confirm("unlink this book?", unlinkBook(book._id)),
+                            icon: !book.class_id ? <Icon path={mdiLink} /> : <Icon path={mdiLinkOff} />,
+                        }]}
+                        Item={book => (
+                            <Link href={`/book/${book._id}/edit`}>
+                                <CardActionArea className={"p_8 full_height"}>
+                                    <div className="full_height">
+                                        <Typography variant="h6">
+                                            {book.name}
+                                        </Typography>
+                                    </div>
+                                </CardActionArea>
+                            </Link>
+                        )}
+                        createForm={(
+                            <form onSubmit={submit}>
+                                <DialogContent>
+                                    <Box mb={1}>
+                                        <TextField
+                                            autoFocus
+                                            id="name"
+                                            label="Book name"
+                                            fullWidth
+                                            helperText={state.nameError + " "}
+                                            error={state.nameError !== ""}
+                                            value={state.name}
+                                            onChange={handleChange("name")}
+                                            autoComplete="off"
+                                            variant="outlined"
+                                        />
+                                    </Box>
+                                    {classPicker}
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={() => setCreateOpen(false)} color="default">
+                                        Cancel
+                                    </Button>
+                                    <LoadBtn label="Create" disabled={state.nameError !== "" || state.name === ""} loading={postLoading} />
+                                </DialogActions>
+                            </form>
+                        )}
+                    />
+                    <Dialog
+                        open={state.linkOpen}
+                        onClose={() => close("linkOpen")}
+                        aria-labelledby="form-dialog-title"
+                    >
+                        <form onSubmit={linkClass}>
+                            <DialogTitle id="form-dialog-title">Link class</DialogTitle>
+                                <DialogContent>
+                                    {classPicker}
+                                </DialogContent>
+                                <DialogActions>
+                                <Button onClick={() => setState({ ...state, linkOpen: false })} color="default">
+                                    Cancel
+                                </Button>
+                                <LoadBtn label="Link" disabled={state.className === "" && state.classLink === ""} loading={putLoading} />
+                            </DialogActions>
+                        </form>
+                    </Dialog>
+                    {ConfirmDialog}
+                </>
+            )}
         </>
     );
 };

@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import useRedirect from "../../hooks/useRedirect";
 import useTimetable from "../../hooks/useTimetable";
 import { defaultRedirect } from "../../lib/serverRedirect";
+import Title from "../../components/Title";
 
 
 export default function TimetableView() {
@@ -93,16 +94,21 @@ export default function TimetableView() {
         length.current = timetable?.periods?.length;
     }, []);
     const isLoggedIn = useRedirect();
-    return !isLoggedIn ? null : (
-        timetable && timetable.periods.length > 0 ?
-            <Timetable
-                type="edit"
-                onChange={handleChange}
-                onEnter={handleEnter}
-                timetable={timetable}
-                onBlur={onBlur}
-            />
-        : <Loader />
+    return (
+        <>
+            <Title title="Timetable" />
+            {!isLoggedIn ? null : (
+                timetable && timetable.periods.length > 0 ?
+                    <Timetable
+                        type="edit"
+                        onChange={handleChange}
+                        onEnter={handleEnter}
+                        timetable={timetable}
+                        onBlur={onBlur}
+                    />
+                : <Loader />
+            )}
+        </>
     );
 };
 export const getServerSideProps = defaultRedirect;

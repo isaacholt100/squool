@@ -25,6 +25,7 @@ import NProgressBar from "./NProgressBar";
 import { useRouter } from "next/router";
 import MoreActions from "./MoreActions";
 import useUserInfo from "../hooks/useUserInfo";
+import Image from "next/image";
 
 NProgress.configure({
     parent: "#nprogress-parent",
@@ -83,12 +84,16 @@ const
             marginBottom: 4,
         },
         logo: {
-            margin: -8,
             userSelect: "none",
             msUserSelect: "none",
             MozUserSelect: "none",
             WebkitUserSelect: "none",
         },
+        imgLink: {
+            "& div:first-child": {
+                margin: -8,
+            }
+        }
     }));
 const Nav = memo(() => {
     const
@@ -108,7 +113,7 @@ const Nav = memo(() => {
             "Reminders": mdiFormatListChecks,
             "Settings": mdiCog,
             "School": mdiSchool,
-            "Home": <img src="/icons/android-icon-48x48.png" height="40" width="40" draggable="false" className={classes.logo} />
+            "Home": <Image src="/icons/android-icon-48x48.png" layout="fixed" height={40} width={40} draggable="false" priority loading="eager" />
         },
         links = () => {
             switch (role) {
@@ -131,7 +136,7 @@ const Nav = memo(() => {
                                         button
                                         href={"/" + link.toLowerCase()}
                                         selected={link.toLowerCase() === router.pathname.slice(1) || (link === "Home" && router.pathname === "/")}
-                                        className={classes.navItem}
+                                        className={clsx(classes.navItem, link === "Home" && classes.imgLink)}
                                         onClick={() => setMobileOpen(false)}
                                     >
                                         {link === "Home" ? icons[link] : <Icon path={icons[link]} />}

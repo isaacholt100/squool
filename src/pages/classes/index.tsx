@@ -107,114 +107,118 @@ export default function Class() {
         }
     }, [years.length]);
     const isLoggedIn = useRedirect();
-    return !isLoggedIn ? null : (
+    return (
         <>
-            <ListView
-                name="Class"
-                height={104}
-                filtered={filtered}
-                tabs={years.map(y => "Year " + y)}
-                filter={activeYear}
-                setFilter={setActiveYear}
-                createOpen={createOpen}
-                setCreateOpen={setCreateOpen}
-                noCreate={role === "student"}
-                createFn={() => {
-                    getSchoolTeachers();
-                    setCreateOpen(true);
-                }}
-                Actions={(c: IClass) => [{
-                    label: "Delete",
-                    fn: () => confirm("delete this class?", deleteClass(c)),
-                    icon: <Icon path={mdiDelete} />
-                }]}
-                Item={c => (
-                    <Link href={`/classes/${c._id}`}>
-                        <CardActionArea className={"p_8 full_height"}>
-                            <div className="full_height">
-                                <Typography variant="h6" gutterBottom>
-                                    {c.name}
-                                </Typography>
-                            </div>
-                        </CardActionArea>
-                    </Link>
-                )}
-                createForm={(
-                    <form onSubmit={createClass}>
-                        <DialogContent>
-                            <TextField
-                                id="outlined-name"
-                                label="Name"
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                                margin="normal"
-                                variant="outlined"
-                                style={{ width: "calc(100% - 128px)" }}
-                                autoFocus
-                            />
-                            <TextField
-                                id="outlined-name"
-                                label="Year"
-                                value={yearGroup}
-                                onChange={e => setYearGroup(e.target.value)}
-                                margin="normal"
-                                variant="outlined"
-                                type="number"
-                                style={{ width: 120, marginLeft: 8 }}
-                                error={yearGroup !== "" && (+yearGroup > 13 || +yearGroup < 1)}
-                                inputProps={{
-                                    min: "1",
-                                    max: "13"
-                                }}
-                            />
-                            <Autocomplete
-                                options={options || []}
-                                value={teachers}
-                                multiple
-                                loading={options === null}
-                                filterSelectedOptions
-                                renderInput={params => (
+            {!isLoggedIn ? null : (
+                <>
+                    <ListView
+                        name="Class"
+                        height={104}
+                        filtered={filtered}
+                        tabs={years.map(y => "Year " + y)}
+                        filter={activeYear}
+                        setFilter={setActiveYear}
+                        createOpen={createOpen}
+                        setCreateOpen={setCreateOpen}
+                        noCreate={role === "student"}
+                        createFn={() => {
+                            getSchoolTeachers();
+                            setCreateOpen(true);
+                        }}
+                        Actions={(c: IClass) => [{
+                            label: "Delete",
+                            fn: () => confirm("delete this class?", deleteClass(c)),
+                            icon: <Icon path={mdiDelete} />
+                        }]}
+                        Item={c => (
+                            <Link href={`/classes/${c._id}`}>
+                                <CardActionArea className={"p_8 full_height"}>
+                                    <div className="full_height">
+                                        <Typography variant="h6" gutterBottom>
+                                            {c.name}
+                                        </Typography>
+                                    </div>
+                                </CardActionArea>
+                            </Link>
+                        )}
+                        createForm={(
+                            <form onSubmit={createClass}>
+                                <DialogContent>
                                     <TextField
-                                        {...params}
-                                        label="Other teachers"
+                                        id="outlined-name"
+                                        label="Name"
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
                                         margin="normal"
-                                        fullWidth
                                         variant="outlined"
-                                        InputProps={{
-                                            ...params.InputProps,
-                                            endAdornment: (
-                                                <>
-                                                    {options === null ? <CircularProgress color="inherit" size={20} /> : null}
-                                                    {params.InputProps.endAdornment}
-                                                </>
-                                            ),
+                                        style={{ width: "calc(100% - 128px)" }}
+                                        autoFocus
+                                    />
+                                    <TextField
+                                        id="outlined-name"
+                                        label="Year"
+                                        value={yearGroup}
+                                        onChange={e => setYearGroup(e.target.value)}
+                                        margin="normal"
+                                        variant="outlined"
+                                        type="number"
+                                        style={{ width: 120, marginLeft: 8 }}
+                                        error={yearGroup !== "" && (+yearGroup > 13 || +yearGroup < 1)}
+                                        inputProps={{
+                                            min: "1",
+                                            max: "13"
                                         }}
                                     />
-                                )}
-                                onChange={(e, newVal) => setTeachers(newVal)}
-                                getOptionLabel={option => option.email}
-                                filterOptions={(a, { inputValue }) => a.filter(x => (x.name.includes(inputValue) || x.email.includes(inputValue)) && x.email !== email)}
-                                renderOption={option => option.name + " - " + option.email}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <Button
-                                onClick={() => setCreateOpen(false)}
-                                color="default"
-                                disabled={postLoading}
-                            >
-                                cancel
-                            </Button>
-                            <LoadBtn
-                                disabled={disabled}
-                                label="Create"
-                                loading={postLoading}
-                            />
-                        </DialogActions>
-                    </form>
-                )}
-            />
-            {ConfirmDialog}
+                                    <Autocomplete
+                                        options={options || []}
+                                        value={teachers}
+                                        multiple
+                                        loading={options === null}
+                                        filterSelectedOptions
+                                        renderInput={params => (
+                                            <TextField
+                                                {...params}
+                                                label="Other teachers"
+                                                margin="normal"
+                                                fullWidth
+                                                variant="outlined"
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    endAdornment: (
+                                                        <>
+                                                            {options === null ? <CircularProgress color="inherit" size={20} /> : null}
+                                                            {params.InputProps.endAdornment}
+                                                        </>
+                                                    ),
+                                                }}
+                                            />
+                                        )}
+                                        onChange={(e, newVal) => setTeachers(newVal)}
+                                        getOptionLabel={option => option.email}
+                                        filterOptions={(a, { inputValue }) => a.filter(x => (x.name.includes(inputValue) || x.email.includes(inputValue)) && x.email !== email)}
+                                        renderOption={option => option.name + " - " + option.email}
+                                    />
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button
+                                        onClick={() => setCreateOpen(false)}
+                                        color="default"
+                                        disabled={postLoading}
+                                    >
+                                        cancel
+                                    </Button>
+                                    <LoadBtn
+                                        disabled={disabled}
+                                        label="Create"
+                                        loading={postLoading}
+                                    />
+                                </DialogActions>
+                            </form>
+                        )}
+                    />
+                    {ConfirmDialog}
+                </>
+            )}
         </>
     );
 };

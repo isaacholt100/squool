@@ -13,6 +13,7 @@ import { NextPageContext } from "next";
 import serverRedirect from "../lib/serverRedirect";
 import { ObjectId } from "mongodb";
 import getDB from "../server/getDB";
+import Title from "../components/Title";
 
 const PAGES = ["account", "profile", "theme"];
 
@@ -21,49 +22,54 @@ export default function Settings(props: { email: string, icon: string, firstName
         isLoggedIn = useRedirect(),
         [hashIndex, changeHash] = useUrlHashIndex(PAGES),
         [page, setPage] = useState(hashIndex);
-    return !isLoggedIn ? null : (
-        <div>
-            <Box>
-                <AppBar position="relative" color="default">
-                    <Tabs
-                        value={page}
-                        onChange={(e, p) => setPage(p)}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        aria-label="scrollable tabs"
-                    >
-                        {PAGES.map((tab, i) => (
-                            <Tab
-                                key={i}
-                                id={`tab-${i + 1}`}
-                                aria-controls={tab}
-                                label={tab}
-                                onClick={() => changeHash(tab)}
-                            />
-                        ))}
-                    </Tabs>
-                </AppBar>
-            </Box>
-            <Box component={Card} my={{ xs: "8px", lg: "16px", }}>
-                {page === 0 && (
-                    <>
-                        <Email email={props.email} />
-                        <Password />
-                        <School />
-                        <DeleteAccount />
-                    </>
-                )}
-                {page === 1 && (
-                    <>
-                        <Icon icon={props.icon} />
-                        <Name firstName={props.firstName} lastName={props.lastName} />
-                    </>
-                )}
-                {page === 2 && <Theme />}
-            </Box>
-        </div>
+    return (
+        <>
+            <Title title="Settings" />
+            {!isLoggedIn ? null : (
+                <div>
+                    <Box>
+                        <AppBar position="relative" color="default">
+                            <Tabs
+                                value={page}
+                                onChange={(e, p) => setPage(p)}
+                                indicatorColor="primary"
+                                textColor="primary"
+                                variant="scrollable"
+                                scrollButtons="auto"
+                                aria-label="scrollable tabs"
+                            >
+                                {PAGES.map((tab, i) => (
+                                    <Tab
+                                        key={i}
+                                        id={`tab-${i + 1}`}
+                                        aria-controls={tab}
+                                        label={tab}
+                                        onClick={() => changeHash(tab)}
+                                    />
+                                ))}
+                            </Tabs>
+                        </AppBar>
+                    </Box>
+                    <Box component={Card} my={{ xs: "8px", lg: "16px", }}>
+                        {page === 0 && (
+                            <>
+                                <Email email={props.email} />
+                                <Password />
+                                <School />
+                                <DeleteAccount />
+                            </>
+                        )}
+                        {page === 1 && (
+                            <>
+                                <Icon icon={props.icon} />
+                                <Name firstName={props.firstName} lastName={props.lastName} />
+                            </>
+                        )}
+                        {page === 2 && <Theme />}
+                    </Box>
+                </div>
+            )}
+        </>
     );
 };
 export async function getServerSideProps(ctx: NextPageContext) {

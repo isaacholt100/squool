@@ -20,11 +20,11 @@ import LoadBtn from "../components/LoadBtn";
 import clsx from "clsx";
 import { usePost } from "../hooks/useRequest";
 import Link from "next/link";
-import Head from "next/head";
 import jwtCookies from "../lib/jwtCookies";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import { useRouter } from "next/router";
 import isEmailValid from "../lib/isEmailValid";
+import Title from "../components/Title";
 
 interface IFields {
     firstName: string;
@@ -232,104 +232,106 @@ export default function Login() {
             });
         }
     }, []);
-    return isLoggedIn ? null : (
+    return (
         <>
-            <Head>
-                <title>Signup</title>
-            </Head>
-            <div>
-                <Box maxWidth={600} /*className={effects.fadeup}*/ mx="auto" component={Card}>
-                    <Typography variant="h5" gutterBottom>
-                        Sign up to Squool
-                    </Typography>
-                    <form noValidate autoComplete="off" onSubmit={signup}>
-                        <Typography>I am a...</Typography>
-                        <FormGroup row>
-                            <RadioGroup
-                                aria-label="Position"
-                                name="role"
-                                value={role}
-                                onChange={changePosition}
-                                row
-                            >
-                                <FormControlLabel
-                                    value="student"
-                                    control={<Radio />}
-                                    label="Student"
-                                />
-                                <FormControlLabel
-                                    value="teacher"
-                                    control={<Radio />}
-                                    label="Teacher"
-                                />
-                                <FormControlLabel
-                                    value="admin"
-                                    control={<Radio />}
-                                    label="Admin"
-                                />
-                            </RadioGroup>
-                        </FormGroup>
-                        {Object.keys(initialValues).map((field: keyof IFields, i) => (
-                            <TextField
-                                autoFocus={i === 0}
-                                key={field}
-                                id={field}
-                                required={field !== "schoolID" || role === "admin"}
-                                error={helpers[field] !== "" && (role !== "admin" ? field !== "schoolID" || helpers[field] === "School not found" : true)}
-                                autoComplete={`new-${field}`}
-                                variant="outlined"
-                                type={field.includes("assword") ? "password" : "text"}
-                                label={
-                                    field === "firstName" && role !== "student"
-                                        ? "Title"
-                                        : field === "schoolID" && role === "admin"
-                                            ? "Create School (Enter Name)"
-                                            : startCase(field)
-                                }
-                                value={values[field]}
-                                onChange={handleChange(field)}
-                                helperText={helpers[field] + " "}
-                                className={clsx(classes.input, classes[field])}
-                            />
-                        ))}
-                        <Box clone mt="-8px" mb="4px">
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={staySignedIn}
-                                        onChange={(e, checked) => setStaySignedIn(checked)}
-                                        value="Stay signed in"
-                                        color="primary"
+            <Title title="Sign Up" />
+            {isLoggedIn ? null : (
+                <>
+                    <div>
+                        <Box maxWidth={600} /*className={effects.fadeup}*/ mx="auto" component={Card}>
+                            <Typography variant="h5" gutterBottom>
+                                Sign up to Squool
+                            </Typography>
+                            <form noValidate autoComplete="off" onSubmit={signup}>
+                                <Typography>I am a...</Typography>
+                                <FormGroup row>
+                                    <RadioGroup
+                                        aria-label="Position"
+                                        name="role"
+                                        value={role}
+                                        onChange={changePosition}
+                                        row
+                                    >
+                                        <FormControlLabel
+                                            value="student"
+                                            control={<Radio />}
+                                            label="Student"
+                                        />
+                                        <FormControlLabel
+                                            value="teacher"
+                                            control={<Radio />}
+                                            label="Teacher"
+                                        />
+                                        <FormControlLabel
+                                            value="admin"
+                                            control={<Radio />}
+                                            label="Admin"
+                                        />
+                                    </RadioGroup>
+                                </FormGroup>
+                                {Object.keys(initialValues).map((field: keyof IFields, i) => (
+                                    <TextField
+                                        autoFocus={i === 0}
+                                        key={field}
+                                        id={field}
+                                        required={field !== "schoolID" || role === "admin"}
+                                        error={helpers[field] !== "" && (role !== "admin" ? field !== "schoolID" || helpers[field] === "School not found" : true)}
+                                        autoComplete={`new-${field}`}
+                                        variant="outlined"
+                                        type={field.includes("assword") ? "password" : "text"}
+                                        label={
+                                            field === "firstName" && role !== "student"
+                                                ? "Title"
+                                                : field === "schoolID" && role === "admin"
+                                                    ? "Create School (Enter Name)"
+                                                    : startCase(field)
+                                        }
+                                        value={values[field]}
+                                        onChange={handleChange(field)}
+                                        helperText={helpers[field] + " "}
+                                        className={clsx(classes.input, classes[field])}
                                     />
-                                }
-                                label="Stay signed in"
-                            />
+                                ))}
+                                <Box clone mt="-8px" mb="4px">
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={staySignedIn}
+                                                onChange={(e, checked) => setStaySignedIn(checked)}
+                                                value="Stay signed in"
+                                                color="primary"
+                                            />
+                                        }
+                                        label="Stay signed in"
+                                    />
+                                </Box>
+                                <Box display="flex" justifyContent="space-between">
+                                    <LoadBtn loading={loading} label="Sign Up" disabled={disabled} />
+                                    <Button
+                                        onClick={handleClear}
+                                        variant="outlined"
+                                        color="primary"
+                                    >
+                                        clear
+                                    </Button>
+                                </Box>
+                            </form>
+                            <Divider className={"my_8"} />
+                            <Typography variant="h6" gutterBottom>
+                                Already have an account?
+                            </Typography>
+                            <Link href="/login">
+                                <Button
+                                    color="secondary"
+                                    component="a"
+                                >
+                                    Login
+                                </Button>
+                            </Link>
                         </Box>
-                        <Box display="flex" justifyContent="space-between">
-                            <LoadBtn loading={loading} label="Sign Up" disabled={disabled} />
-                            <Button
-                                onClick={handleClear}
-                                variant="outlined"
-                                color="primary"
-                            >
-                                clear
-                            </Button>
-                        </Box>
-                    </form>
-                    <Divider className={"my_8"} />
-                    <Typography variant="h6" gutterBottom>
-                        Already have an account?
-                    </Typography>
-                    <Link href="/login">
-                        <Button
-                            color="secondary"
-                            component="a"
-                        >
-                            Login
-                        </Button>
-                    </Link>
-                </Box>
-            </div>
+                    </div>
+                </>
+            )}
         </>
     );
 };

@@ -30,9 +30,9 @@ import { mdiClose } from "@mdi/js";
 import { useRouter } from "next/router";
 import { TransitionProps } from "@material-ui/core/transitions";
 import { dispatch } from "../../redux/store";
-import Head from "next/head";
 import useRedirect from "../../hooks/useRedirect";
 import { defaultRedirect } from "../../lib/serverRedirect";
+import Title from "../../components/Title";
 
 const
     useStyles = makeStyles(theme => ({
@@ -152,124 +152,126 @@ export default function TimetableSearch() {
             });
         };
     const isLoggedIn = useRedirect();
-    return !isLoggedIn ? null : (
+    return (
         <>
-            <Head>
-                <title>Search Timetables</title>
-            </Head>
-            <div>
-                <Card>
-                    <Typography variant="h6" gutterBottom>Search timetable templates</Typography>
-                    <Autocomplete
-                        value={val}
-                        onChange={(e, newValue) => setVal(newValue)}
-                        classes={{
-                            paper: classes.autoComplete,
-                        }}
-                        //disableOpenOnFocus
-                        options={options.map(x => x.name)}
-                        renderInput={params => (
-                            <TextField
-                                {...params}
-                                label="Search your school name"
-                                margin="normal"
-                                fullWidth
-                                variant="outlined"
-                                onChange={handleChange}
-                            />
-                        )}
-                        renderOption={(option, { inputValue }) => {
-                            const
-                                matches = match(option, inputValue),
-                                parts = parse(option, matches);
-                            return (
-                                <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-                                    <div>
-                                        {parts.map((part, index) => (
-                                            <span key={index} className={part.highlight ? classes.highlight : undefined}>
-                                                {part.text}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <Button
-                                        color="secondary"
-                                        onClick={handleOpen(options[options.findIndex(x => x.name === option)])}
-                                        style={{marginLeft: "auto"}}
-                                    >
-                                        Preview
-                                    </Button>
-                                </div>
-                            );
-                        }}
-                    />
-                    <Dialog
-                        open={confirmOpen}
-                        onClose={() => setConfirmOpen(false)}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
-                    >
-                        <DialogTitle id="alert-dialog-title">Override existing timetable?</DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id="alert-dialog-description">
-                                You already have a timetable template. Choosing this one will mean you have to
-                                re-enter your subjects.
-                            </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={() => setConfirmOpen(false)} color="primary">
-                                Cancel
-                            </Button>
-                            <Button onClick={chooseTemplate} color="primary" autoFocus>
-                                Change
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                    <Dialog
-                        fullScreen
-                        open={open}
-                        onClose={handleClose}
-                        TransitionComponent={Transition}
-                        className={classes.dialog}
-                    >
-                        <AppBar className={classes.appBar}>
-                            <Box component={Toolbar} pl={"0px !important"} pr="4px !important">
-                                <Tooltip title="Close">
-                                    <IconButton
-                                        onClick={handleClose}
-                                        aria-label="close"
-                                        className={classes.iconBtn}
-                                    >
-                                        <Icon path={mdiClose} />
-                                    </IconButton>
-                                </Tooltip>
-                                <Typography
-                                    variant="h6"
-                                    className={classes.title}
-                                >
-                                    Timetable preview
-                                </Typography>
-                                <Button
-                                    color="primary"
-                                    onClick={() => confirm("override your existing timetable template? Data from your current one can't be transferred to a new one.", chooseTemplate)}
-                                >
-                                    choose
-                                </Button>
-                            </Box>
-                        </AppBar>
-                        {preview ?
-                            <Timetable
-                                mode="view"
-                                timetable={{
-                                    periods: preview.periods,
-                                    lessons: fillTable(preview.sat, preview.periods),
+            <Title title="Search Timetables" />
+            {!isLoggedIn ? null : (
+                <>
+                    <div>
+                        <Card>
+                            <Typography variant="h6" gutterBottom>Search timetable templates</Typography>
+                            <Autocomplete
+                                value={val}
+                                onChange={(e, newValue) => setVal(newValue)}
+                                classes={{
+                                    paper: classes.autoComplete,
+                                }}
+                                //disableOpenOnFocus
+                                options={options.map(x => x.name)}
+                                renderInput={params => (
+                                    <TextField
+                                        {...params}
+                                        label="Search your school name"
+                                        margin="normal"
+                                        fullWidth
+                                        variant="outlined"
+                                        onChange={handleChange}
+                                    />
+                                )}
+                                renderOption={(option, { inputValue }) => {
+                                    const
+                                        matches = match(option, inputValue),
+                                        parts = parse(option, matches);
+                                    return (
+                                        <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+                                            <div>
+                                                {parts.map((part, index) => (
+                                                    <span key={index} className={part.highlight ? classes.highlight : undefined}>
+                                                        {part.text}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                            <Button
+                                                color="secondary"
+                                                onClick={handleOpen(options[options.findIndex(x => x.name === option)])}
+                                                style={{marginLeft: "auto"}}
+                                            >
+                                                Preview
+                                            </Button>
+                                        </div>
+                                    );
                                 }}
                             />
-                            : <Loader />
-                        }
-                    </Dialog>
-                </Card>
-            </div>
-            {ConfirmDialog}
+                            <Dialog
+                                open={confirmOpen}
+                                onClose={() => setConfirmOpen(false)}
+                                aria-labelledby="alert-dialog-title"
+                                aria-describedby="alert-dialog-description"
+                            >
+                                <DialogTitle id="alert-dialog-title">Override existing timetable?</DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText id="alert-dialog-description">
+                                        You already have a timetable template. Choosing this one will mean you have to
+                                        re-enter your subjects.
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={() => setConfirmOpen(false)} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={chooseTemplate} color="primary" autoFocus>
+                                        Change
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+                            <Dialog
+                                fullScreen
+                                open={open}
+                                onClose={handleClose}
+                                TransitionComponent={Transition}
+                                className={classes.dialog}
+                            >
+                                <AppBar className={classes.appBar}>
+                                    <Box component={Toolbar} pl={"0px !important"} pr="4px !important">
+                                        <Tooltip title="Close">
+                                            <IconButton
+                                                onClick={handleClose}
+                                                aria-label="close"
+                                                className={classes.iconBtn}
+                                            >
+                                                <Icon path={mdiClose} />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Typography
+                                            variant="h6"
+                                            className={classes.title}
+                                        >
+                                            Timetable preview
+                                        </Typography>
+                                        <Button
+                                            color="primary"
+                                            onClick={() => confirm("override your existing timetable template? Data from your current one can't be transferred to a new one.", chooseTemplate)}
+                                        >
+                                            choose
+                                        </Button>
+                                    </Box>
+                                </AppBar>
+                                {preview ?
+                                    <Timetable
+                                        mode="view"
+                                        timetable={{
+                                            periods: preview.periods,
+                                            lessons: fillTable(preview.sat, preview.periods),
+                                        }}
+                                    />
+                                    : <Loader />
+                                }
+                            </Dialog>
+                        </Card>
+                    </div>
+                    {ConfirmDialog}
+                </>
+            )}
         </>
     );
 };

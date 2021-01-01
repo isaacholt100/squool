@@ -354,7 +354,7 @@ const useStyles = makeStyles(({ palette }) => ({
         maxWidth: 512,
         "& > div": {
             borderRadius: 8,
-            width: "100%",
+            //width: "100%",
             paddingLeft: 12,
             flexWrap: "initial !important",
         },
@@ -432,7 +432,7 @@ export default function App({ Component, pageProps }: AppProps) {
                                     horizontal: "right",
                                 }}
                                 preventDuplicate
-                                autoHideDuration={8192}
+                                autoHideDuration={810092}
                                 TransitionComponent={Grow as any}
                                 classes={{
                                     variantError: classes.error,

@@ -24,6 +24,7 @@ import Icon from "../../components/Icon";
 import { mdiBackspace, mdiHistory } from "@mdi/js";
 import MathField from "../../components/MathField";
 import { MQ } from "@edtr-io/mathquill";
+import Title from "../../components/Title";
 
 let replacements = {}, scope={};
 const
@@ -637,6 +638,7 @@ export default function Calculator() {
     }, [historyList]);
     return (
         <div className={classes.container}>
+            <Title title="Calculator" />
             <Card>
                 <form
                     onSubmit={handleSubmit(field)}

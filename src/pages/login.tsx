@@ -22,6 +22,7 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import jwtCookies from "../lib/jwtCookies";
+import Title from "../components/Title";
 
 const initialState = {
     email: "",
@@ -88,95 +89,100 @@ export default function Login() {
                 });
             }
         };
-    return isLoggedIn ? null : (
-        <div>
-            <Box maxWidth={600} mx="auto" /*className={effects.fadeup}*/ component={Card}>
-                <Typography variant="h5" gutterBottom>
-                    Login to Squool
-                </Typography>
-                <form onSubmit={handleSubmit}>
-                    <div className={"my_8"}>
-                        <TextField
-                            id="email"
-                            name="email"
-                            required
-                            error={state.emailError !== ""}
-                            variant="outlined"
-                            label="Email"
-                            value={state.email}
-                            onChange={handleChange("email")}
-                            autoComplete="new-email"
-                            helperText={state.emailError + " "}
-                            fullWidth
-                            autoFocus
-                        />
-                    </div>
-                    <div className={"my_8"}>
-                        <TextField
-                            name="password"
-                            id="password"
-                            required
-                            error={state.passwordError !== ""}
-                            variant="outlined"
-                            type={show ? "text" : "password"}
-                            label="Password"
-                            value={state.password}
-                            onChange={handleChange("password")}
-                            autoComplete="new-password"
-                            helperText={state.passwordError + " "}
-                            fullWidth
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <Tooltip title={(show ? "Hide" : "Show") + " Password"}>
-                                            <IconButton
-                                                aria-label="Toggle password visibility"
-                                                onClick={() => setShow(!show)}
-                                                onMouseDown={e => e.preventDefault()}
-                                            >
-                                                {show ? <Icon path={mdiEyeOff} /> : <Icon path={mdiEye} />}
-                                            </IconButton>
-                                        </Tooltip>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </div>
-                    <Box clone mt="-8px" mb="4px">
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={staySignedIn}
-                                    onChange={e => setStaySignedIn(e.target.checked)}
-                                    value="Stay signed in"
-                                    color="primary"
+    return (
+        <>
+            <Title title="Login" />
+            {isLoggedIn ? null : (
+                <div>
+                    <Box maxWidth={600} mx="auto" /*className={effects.fadeup}*/ component={Card}>
+                        <Typography variant="h5" gutterBottom>
+                            Login to Squool
+                        </Typography>
+                        <form onSubmit={handleSubmit}>
+                            <div className={"my_8"}>
+                                <TextField
+                                    id="email"
+                                    name="email"
+                                    required
+                                    error={state.emailError !== ""}
+                                    variant="outlined"
+                                    label="Email"
+                                    value={state.email}
+                                    onChange={handleChange("email")}
+                                    autoComplete="new-email"
+                                    helperText={state.emailError + " "}
+                                    fullWidth
+                                    autoFocus
                                 />
-                            }
-                            label="Stay signed in"
-                        />
+                            </div>
+                            <div className={"my_8"}>
+                                <TextField
+                                    name="password"
+                                    id="password"
+                                    required
+                                    error={state.passwordError !== ""}
+                                    variant="outlined"
+                                    type={show ? "text" : "password"}
+                                    label="Password"
+                                    value={state.password}
+                                    onChange={handleChange("password")}
+                                    autoComplete="new-password"
+                                    helperText={state.passwordError + " "}
+                                    fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <Tooltip title={(show ? "Hide" : "Show") + " Password"}>
+                                                    <IconButton
+                                                        aria-label="Toggle password visibility"
+                                                        onClick={() => setShow(!show)}
+                                                        onMouseDown={e => e.preventDefault()}
+                                                    >
+                                                        {show ? <Icon path={mdiEyeOff} /> : <Icon path={mdiEye} />}
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </div>
+                            <Box clone mt="-8px" mb="4px">
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={staySignedIn}
+                                            onChange={e => setStaySignedIn(e.target.checked)}
+                                            value="Stay signed in"
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Stay signed in"
+                                />
+                            </Box>
+                            <div className={"flex space_between"}>
+                                <LoadBtn loading={loading} label="Login" disabled={disabled} />
+                                <Button
+                                    onClick={() => setState(initialState)}
+                                    variant="outlined"
+                                    color="primary"
+                                >
+                                    clear
+                                </Button>
+                            </div>
+                        </form>
+                        <Divider className={"my_8"} />
+                        <Typography variant="h6" gutterBottom>Don't have an account yet?</Typography>
+                        <Link href="/signup">
+                            <Button
+                                color="secondary"
+                                component="a"
+                            >
+                                Sign up now
+                            </Button>
+                        </Link>
                     </Box>
-                    <div className={"flex space_between"}>
-                        <LoadBtn loading={loading} label="Login" disabled={disabled} />
-                        <Button
-                            onClick={() => setState(initialState)}
-                            variant="outlined"
-                            color="primary"
-                        >
-                            clear
-                        </Button>
-                    </div>
-                </form>
-                <Divider className={"my_8"} />
-                <Typography variant="h6" gutterBottom>Don't have an account yet?</Typography>
-                <Link href="/signup">
-                    <Button
-                        color="secondary"
-                        component="a"
-                    >
-                        Sign up now
-                    </Button>
-                </Link>
-            </Box>
-        </div>
+                </div>
+            )}
+        </>
     );
 };

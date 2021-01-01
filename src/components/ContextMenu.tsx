@@ -23,6 +23,7 @@ function ContextMenu({ items, mouse, close }: IProps) {
             }
             PaperProps={{
                 className: styles.contextMenu,
+                onContextMenu: e => e.preventDefault(),
             }}
             MenuListProps={{
                 className: "p_0"

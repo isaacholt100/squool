@@ -29,6 +29,8 @@ import IReminder from "../types/IReminder";
 import styles from "../css/loadBtn.module.css";
 import useReminders from "../hooks/useReminders";
 import { defaultRedirect } from "../lib/serverRedirect";
+import useIsLoggedIn from "../hooks/useIsLoggedIn";
+import Title from "../components/Title";
 
 const useStyles = makeStyles(theme => ({
     iconBtn: {
@@ -468,94 +470,100 @@ export default function Reminders() {
             }*/],
         });
     }, []);
+    const isLoggedIn = useIsLoggedIn();
     return (
         <>
-            <Dialog
-                open={dialogs.edit}
-                onClose={close("edit")}
-            >
-                {form(false)}
-            </Dialog>
-            <ListView
-                name="Reminder"
-                filtered={filtered}
-                tabs={["All", "Today", "Tomorrow", "This Week", "Late"]}
-                height={160}
-                filter={filter}
-                setFilter={setFilter}
-                createOpen={dialogs.newReminder}
-                setCreateOpen={close("newReminder")}
-                createFn={open("newReminder", null)}
-                rerender={pending.toString()}
-                Actions={(r: IReminder) => {
-                    const icons: IAction[] = [{
-                        label: "Delete",
-                        fn: () => confirm("delete this reminder?", deleteReminder(r._id)),
-                        icon: <Icon path={mdiDelete} />,
-                    }, {
-                        label: "Edit",
-                        fn: open("edit", r._id),
-                        icon: <Icon path={mdiPencil} />,
-                    }];
-                    if (r.repeat === 0) {
-                        icons.push({
-                            label: "Done",
-                            fn: reminderDone(r._id),
-                            disabled: pending.includes(r._id),
-                            icon: (
-                                <div className={classes.loadingContainer}>
-                                    <Icon path={mdiCheck} />
-                                    {pending.includes(r._id) && (
-                                        <CircularProgress disableShrink size={24} className={styles.progress} />
-                                    )}
-                                </div>
-                            ),
-                            /*custom: (
-                                <form onSubmit={reminderDone(r._id)}>
-                                    <LoadBtn component={IconButton} disabled={false} loading={pending.includes(r._id)} label={<Icon path={mdiCheck} />} />
-                                </form>
-                            )*/
-                        });
-                    }
-                    return icons;
-                }}
-                Item={r => (
-                    <Box p={"8px"}>
-                        <Typography
-                            variant="h6"
-                            //gutterBottom
-                            style={{ overflow: "hidden", /*textTruncate: "ellipsis",*/ whiteSpace: "nowrap" }}
-                            className={
-                                r.repeat === 0 && new Date().getTime() > new Date(r.date).getTime()
-                                    ? classes.late
-                                    : null
+            <Title title="Reminders" />
+            {!isLoggedIn ? null : (
+                <>
+                    <Dialog
+                        open={dialogs.edit}
+                        onClose={close("edit")}
+                    >
+                        {form(false)}
+                    </Dialog>
+                    <ListView
+                        name="Reminder"
+                        filtered={filtered}
+                        tabs={["All", "Today", "Tomorrow", "This Week", "Late"]}
+                        height={160}
+                        filter={filter}
+                        setFilter={setFilter}
+                        createOpen={dialogs.newReminder}
+                        setCreateOpen={close("newReminder")}
+                        createFn={open("newReminder", null)}
+                        rerender={pending.toString()}
+                        Actions={(r: IReminder) => {
+                            const icons: IAction[] = [{
+                                label: "Delete",
+                                fn: () => confirm("delete this reminder?", deleteReminder(r._id)),
+                                icon: <Icon path={mdiDelete} />,
+                            }, {
+                                label: "Edit",
+                                fn: open("edit", r._id),
+                                icon: <Icon path={mdiPencil} />,
+                            }];
+                            if (r.repeat === 0) {
+                                icons.push({
+                                    label: "Done",
+                                    fn: reminderDone(r._id),
+                                    disabled: pending.includes(r._id),
+                                    icon: (
+                                        <div className={classes.loadingContainer}>
+                                            <Icon path={mdiCheck} />
+                                            {pending.includes(r._id) && (
+                                                <CircularProgress disableShrink size={24} className={styles.progress} />
+                                            )}
+                                        </div>
+                                    ),
+                                    /*custom: (
+                                        <form onSubmit={reminderDone(r._id)}>
+                                            <LoadBtn component={IconButton} disabled={false} loading={pending.includes(r._id)} label={<Icon path={mdiCheck} />} />
+                                        </form>
+                                    )*/
+                                });
                             }
-                        >
-                            {r.name}
-                        </Typography>
-                    <Typography className={classes.date}>
-                        {new Date(r.date).toLocaleDateString() + " "}
-                        {r.allDay
-                            ? "All Day"
-                            : new Date(r.date)
-                                .toLocaleTimeString()
-                                .split(":")
-                                .slice(0, -1)
-                                .join(":")}
-                        {r.repeat === 0 && new Date().getTime() > new Date(r.date).getTime() && (
-                            <Typography component="span" className={classes.late}>
-                                {" "}
-                                <Icon path={mdiClipboardAlert} style={{ marginBottom: -4 }} /> Late
+                            return icons;
+                        }}
+                        Item={r => (
+                            <Box p={"8px"}>
+                                <Typography
+                                    variant="h6"
+                                    //gutterBottom
+                                    style={{ overflow: "hidden", /*textTruncate: "ellipsis",*/ whiteSpace: "nowrap" }}
+                                    className={
+                                        r.repeat === 0 && new Date().getTime() > new Date(r.date).getTime()
+                                            ? classes.late
+                                            : null
+                                    }
+                                >
+                                    {r.name}
+                                </Typography>
+                            <Typography className={classes.date}>
+                                {new Date(r.date).toLocaleDateString() + " "}
+                                {r.allDay
+                                    ? "All Day"
+                                    : new Date(r.date)
+                                        .toLocaleTimeString()
+                                        .split(":")
+                                        .slice(0, -1)
+                                        .join(":")}
+                                {r.repeat === 0 && new Date().getTime() > new Date(r.date).getTime() && (
+                                    <Typography component="span" className={classes.late}>
+                                        {" "}
+                                        <Icon path={mdiClipboardAlert} style={{ marginBottom: -4 }} /> Late
+                                    </Typography>
+                                )}
                             </Typography>
+                            <Typography style={{ height: 36, overflow: "hidden", /*textTruncate: "ellipsis",*/ whiteSpace: "nowrap" }}>{r.desc}</Typography>
+                            </Box>
                         )}
-                    </Typography>
-                    <Typography style={{ height: 36, overflow: "hidden", /*textTruncate: "ellipsis",*/ whiteSpace: "nowrap" }}>{r.desc}</Typography>
-                    </Box>
-                )}
-                createForm={form(true)}
-            />
-            {ConfirmDialog}
+                        createForm={form(true)}
+                    />
+                    {ConfirmDialog}
+                </>
+            )}
         </>
-    )
+    );
 };
 export const getServerSideProps = defaultRedirect;

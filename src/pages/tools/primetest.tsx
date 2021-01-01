@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextField, Typography, Card } from "@material-ui/core";
 import LoadBtn from "../../components/LoadBtn";
+import Title from "../../components/Title";
 
 const useStyles = makeStyles(theme => ({
     result: {
@@ -43,6 +44,7 @@ export default function PrimeTest() {
         };
     return (
         <div>
+            <Title title="Prime Test" />
             <Card>
                 <form onSubmit={prevent}>
                     <Typography variant="h5">Prime number test</Typography>
