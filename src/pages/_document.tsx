@@ -19,7 +19,6 @@ export default class MyDocument extends Document {
             <Html lang="en">
                 <Head>
                     <link rel="preconnect" href="https://fonts.gstatic.com" />
-                    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
                     {fontFamilyLink && <link rel="stylesheet" href={fontFamilyLink} />}
                     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png" />
                     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />

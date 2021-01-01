@@ -7,19 +7,22 @@ export default function IsOnline({ children }: { children: ReactChild }) {
     const snackbar = useSnackbar();
     const key = useRef<ReactText>();
     const [online, setState] = useRefState(process.browser ? navigator.onLine : true);
+    const unloading = useRef(false);
     function setOnline(o: boolean) {
-        if (o && !online.current) {
-            key.current && snackbar.close(key.current);
-            key.current = snackbar.open("Back online", {
-                variant: "success",
-            });
-        } else if (!o && online.current) {
-            key.current && snackbar.close(key.current);
-            key.current = snackbar.open("You're offline - some functionality may be disabled", {
-                variant: "warning",
-            });
+        if (!unloading.current) {
+            if (o && !online.current) {
+                key.current && snackbar.close(key.current);
+                key.current = snackbar.open("Back online", {
+                    variant: "success",
+                });
+            } else if (!o && online.current) {
+                key.current && snackbar.close(key.current);
+                key.current = snackbar.open("You're offline - some functionality may be disabled", {
+                    variant: "warning",
+                });
+            }
+            setState(o);
         }
-        setState(o);
     }
     useEffect(() => {
         window.addEventListener("online", () => {
@@ -27,6 +30,9 @@ export default function IsOnline({ children }: { children: ReactChild }) {
         });
         window.addEventListener("offline", () => {
             setOnline(false);
+        });
+        window.addEventListener("beforeunload", () => {
+            unloading.current = true;
         });
     }, []);
     return (

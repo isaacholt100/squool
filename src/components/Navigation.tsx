@@ -26,6 +26,7 @@ import { useRouter } from "next/router";
 import MoreActions from "./MoreActions";
 import useUserInfo from "../hooks/useUserInfo";
 import Image from "next/image";
+import usePathname from "../hooks/usePathname";
 
 NProgress.configure({
     parent: "#nprogress-parent",
@@ -256,5 +257,6 @@ const Nav = memo(() => {
 });
 export default function Navigation() {
     const loggedIn = useIsLoggedIn();
-    return loggedIn ? <Nav /> : null;
+    const pathname = usePathname();
+    return loggedIn && pathname !== "/" ? <Nav /> : null;
 }

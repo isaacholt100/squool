@@ -334,10 +334,7 @@ export default function Reminders() {
                         label="Name"
                         autoFocus
                         fullWidth
-                        style={{
-                            marginBottom: 16,
-                            marginTop: 8,
-                        }}
+                        className="my_8"
                     />
                     <TextField
                         onChange={handleChange("desc")}
@@ -345,9 +342,7 @@ export default function Reminders() {
                         variant="outlined"
                         label="Description"
                         fullWidth
-                        style={{
-                            marginBottom: 16,
-                        }}
+                        className="my_8"
                     />
                     <KeyboardDatePicker
                         clearable
@@ -364,6 +359,7 @@ export default function Reminders() {
                         disablePast
                         inputVariant="outlined"
                         label="Date"
+                        className="my_8"
                     />
                     <KeyboardTimePicker
                         label="Time"
@@ -372,17 +368,13 @@ export default function Reminders() {
                         value={selectedTime}
                         onChange={date => handleTimeChange(date)}
                         ampm={false}
-                        style={{
-                            marginTop: 16
-                        }}
+                        className="my_8"
                         disabled={allDay}
                         fullWidth
                         inputVariant="outlined"
                     />
                     <FormControlLabel
-                        style={{
-                            marginTop: 16
-                        }}
+                        className="my_8"
                         control={
                             <Switch
                                 checked={allDay}

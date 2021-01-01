@@ -19,8 +19,8 @@ import {
     CircularProgress,
     IconButtonProps,
     Paper,
+    Box,
 } from "@material-ui/core";
-import { Box } from "@material-ui/core";
 import isEqual from "react-fast-compare";
 //import useContextMenu from "../hooks/useContextMenu";
 import isHotkey from "is-hotkey";
@@ -68,6 +68,18 @@ const useStyles = makeStyles(theme => ({
     },
     errorColor: {
         color: theme.palette.error.main,
+    },
+    addCircle: {
+        backgroundColor: theme.palette.primary.contrastText,
+        borderRadius: "50%",
+        height: 36,
+        width: 36,
+        color: theme.palette.primary.main,
+    },
+    actions: {
+        position: "absolute",
+        bottom: 4,
+        right: 4,
     }
 }));
 
@@ -79,7 +91,7 @@ interface ITabProps {
 
 const TabList = memo((props: ITabProps) => props.tabs.length > 0 && (
     <Box clone mb={{ xs: "8px !important", lg: "16px !important" }}>
-        <AppBar position="static" color="default">
+        <AppBar position="relative" color="default">
             <Tabs
                 value={props.filter}
                 onChange={(e, newFilter) => props.setFilter(newFilter)}
@@ -113,22 +125,9 @@ const CreateBtn = memo((props: { createFn?: () => void, name: string }) => {
                 <Typography variant="h6" color="inherit" align="center" style={{marginTop: -4}}>
                     New {props.name}
                 </Typography>
-                <Box
-                    bgcolor="primary.contrastText"
-                    borderRadius="50%"
-                    //size="small"
-                    height={36}
-                    width={36}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    color="primary.main"
-                    margin="auto"
-                >
-                    <Box clone color="primary.main">
-                        <Icon path={mdiPlus} />
-                    </Box>
-                </Box>
+                <div className={clsx("flex justify_content_center align_items_center mx_auto", classes.addCircle)}>
+                    <Icon path={mdiPlus} />
+                </div>
             </div>
         </CardActionArea>
     );
@@ -208,13 +207,13 @@ const List = memo(function<T>(props: IListProps<T>) {
         <>
             {ContextMenu}
             {swipeable && !props.noCreate && (
-                <Box height={props.height} mb={1}>
+                <div style={{height: props.height}} className="mb_8">
                     <Paper
                         className={(props.animate ? classes.animate : classes.animated) + " full_height"}
                     >
                         <CreateBtn createFn={props.createFn} name={props.name} />
                     </Paper>
-                </Box>
+                </div>
             )}
             <div className={(swipeable && props.animate) ? classes.bounceUp : null}>
                 <Container {...containerProps()}>
@@ -244,7 +243,7 @@ const List = memo(function<T>(props: IListProps<T>) {
                                 {item === "create" ? <CreateBtn createFn={props.createFn} name={props.name} /> : (
                                     <>
                                         {props.Item(item)}
-                                        <Box display="flex" position="absolute" bottom={4} right={4}>
+                                        <div className={clsx("flex", classes.actions)}>
                                             {props.Actions && props.Actions(item).map(({ label, fn, icon, ...a }) => (
                                                 <Tooltip title={label} key={label}>
                                                     <IconButton
@@ -259,7 +258,7 @@ const List = memo(function<T>(props: IListProps<T>) {
                                                     </IconButton>
                                                 </Tooltip>
                                             ))}
-                                        </Box>
+                                        </div>
                                     </>
                                 )}
                             </Paper>
@@ -314,7 +313,7 @@ export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "anim
     }, []);
     return (
         props.filtered ? (
-            <Box display="flex" flexDirection="column" mx="auto">
+            <div className="flex flex_col mx_auto">
                 {<Form name={props.name} createOpen={props.createOpen} setCreateOpen={props.setCreateOpen} createForm={props.createForm} />}
                 <TabList filter={props.filter} setFilter={props.setFilter} tabs={props.tabs} />
                 <List
@@ -331,7 +330,7 @@ export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "anim
                     rerender={props.rerender}
                 />
                 {swipeable && props.filtered.length > 0 && <Stepper activeStep={activeStep} setActiveStep={setActiveStep} length={props.filtered.length} />}
-            </Box>
+            </div>
         ) : <CircularProgress disableShrink />
     );
 }

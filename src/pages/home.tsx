@@ -17,7 +17,7 @@ export default function Dashboard() {
     const isLoggedIn = useRedirect();
     return (
         <>
-            <Title title="Feedback" />
+            <Title title="Home" />
             {!isLoggedIn ? null : (
                 <div>Dashboard<Button onClick={handleLogout}>Logout</Button></div>
             )}
