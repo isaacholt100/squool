@@ -9,8 +9,7 @@ export default function useRedirect() {
         if (isLoggedIn as any === "") {
             router.replace("/");
         } else if (!isLoggedIn) {
-            router.replace("/login?to=" + router.pathname);
-            snackbar.error("Please login first");
+            router.replace("/login?to=" + encodeURIComponent(router.asPath));
         }
     });
     return isLoggedIn;

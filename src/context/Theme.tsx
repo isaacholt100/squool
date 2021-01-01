@@ -1,6 +1,7 @@
 import { createContext, ReactChild, useContext, useState } from "react";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import defaultTheme from "../json/defaultTheme.json";
+import Cookies from "js-cookie";
 
 interface ITheme {
     fontFamily: string;
@@ -10,14 +11,15 @@ interface ITheme {
 }
 
 const ThemeContext = createContext({});
+
 export default function Theme({ children }: { children: ReactChild }) {
     const
         isLoggedIn = useIsLoggedIn(),
         [theme, setTheme] = useState(typeof(localStorage) !== "undefined" && isLoggedIn ? {
-            primary: localStorage.getItem("theme-primary") || defaultTheme.primary,
-            secondary: localStorage.getItem("theme-secondary") || defaultTheme.secondary,
-            type: localStorage.getItem("theme-type") as "light" | "dark" || defaultTheme.type,
-            fontFamily: localStorage.getItem("theme-fontFamily") || defaultTheme.fontFamily,
+            primary: Cookies.get("theme_primary") || defaultTheme.primary,
+            secondary: Cookies.get("theme_secondary") || defaultTheme.secondary,
+            type: Cookies.get("theme_type") as "light" | "dark" || defaultTheme.type,
+            fontFamily: Cookies.get("theme_fontFamily") || defaultTheme.fontFamily,
         } : defaultTheme),
         dispatch = (t: Partial<ITheme>) => {
             const newTheme = t ? {
@@ -27,13 +29,13 @@ export default function Theme({ children }: { children: ReactChild }) {
             setTheme(newTheme);
             if (t) {
                 for (let key in t) {
-                    localStorage.setItem("theme-" + key, t[key]);
+                    Cookies.set("theme_" + key, t[key]);
                 }
             } else {
-                localStorage.removeItem("theme-primary");
-                localStorage.removeItem("theme-secondary");
-                localStorage.removeItem("theme-type");
-                localStorage.removeItem("theme-fontFamily");
+                Cookies.remove("theme_primary");
+                Cookies.remove("theme_secondary");
+                Cookies.remove("theme_type");
+                Cookies.remove("theme_fontFamily");
             }
         };
     return (

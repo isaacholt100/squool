@@ -101,6 +101,8 @@ export default function Login() {
                         refreshToken: data.refreshToken,
                         staySignedIn,
                         user_id: data.user_id,
+                        school_id: values.schoolID.trim() !== "" ? values.schoolID.trim() : undefined,
+                        role,
                     });
                     router.replace("/home");
                     dispatch({

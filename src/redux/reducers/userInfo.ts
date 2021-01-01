@@ -1,14 +1,15 @@
 import IAction from "../../types/action";
 import IUser from "../../types/IUser";
+import Cookies from "js-cookie";
 
 const INITIAL_STATE = {
     email: "",
     firstName: "",
     lastName: "",
-    icon: "",
-    _id: "",
-    role: null,
-    school_id: "",
+    icon: null,
+    _id: process.browser ? Cookies.get("user_id") : "",
+    role: process.browser ? Cookies.get("role") : "student",
+    school_id: process.browser ? Cookies.get("school_id") : "",
 };
 
 export default function userInfo(state: IUser & { school_id: string } = INITIAL_STATE, action: IAction): IUser & { school_id: string } {

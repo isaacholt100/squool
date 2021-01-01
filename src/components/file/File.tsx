@@ -94,7 +94,7 @@ const Viewer = memo(({ url, ext }: { url: string, ext: string }) => {
 
 export default function File({ url, ext }: { url: string, ext: string }) {
     return (
-        <div className="flex flex_col flex_1">
+        <div className="flex flex_col flex_1 full_height">
             <Actions url={url} />
             <div className="flex_1" style={{width: "100%", maxWidth: 1024, margin: "0 auto"}}>
                 <Viewer url={url} ext={ext} />

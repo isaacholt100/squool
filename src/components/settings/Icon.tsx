@@ -33,11 +33,11 @@ const useStyles = makeStyles(theme => ({
         border: 0,
     }
 }));
-export default memo(() => {
+export default memo(({ icon: initial }: { icon: string }) => {
     const
         classes = useStyles(),
         [put, loading] = usePut(),
-        { icon } = useUserInfo(),
+        icon = useUserInfo().icon ?? initial,
         [enlarged, setEnlarged] = useState(""),
         [open, setOpen] = useState(false),
         change = (e: React.FormEvent<HTMLFormElement>) => {

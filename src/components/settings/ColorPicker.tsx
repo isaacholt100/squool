@@ -1,10 +1,10 @@
-import React from "react";
+import React, { memo } from "react";
 import useContraxtText from "../../hooks/useContraxtText";
 import { Grid, Typography, Radio, Slider } from "@material-ui/core";
 import { hues, colors, shades } from "../../json/colors";
 import styles from "../../css/colorPicker.module.css";
 
-export default function ColorPicker({ intent, shade, hue, ...props }: {[key: string]: any}) {
+function ColorPicker({ intent, shade, hue, ...props }: {[key: string]: any}) {
     const contrastText = useContraxtText();
     return (
         <Grid item sm={12} md={6}>
@@ -43,3 +43,4 @@ export default function ColorPicker({ intent, shade, hue, ...props }: {[key: str
         </Grid>
     );
 };
+export default memo(ColorPicker, (prev, next) => prev.shade === next.shade && prev.hue === next.hue);

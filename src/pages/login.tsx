@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { usePost } from "../hooks/useRequest";
 import {
     Typography,
@@ -44,6 +44,7 @@ export default function Login() {
         //history = useHistory(),
         //socket = useSocket(),
         disabled = state.emailError !== "" || state.passwordError !== "" || state.email === "" || state.password === "",
+        toUrl = decodeURIComponent(router.query.to as string),
         handleChange = (name: "email" | "password") => (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
             setState({
                 ...state,
@@ -74,9 +75,10 @@ export default function Login() {
                             refreshToken: data.refreshToken,
                             staySignedIn,
                             user_id: data._id,
+                            school_id: data.school_id,
+                            role: data.role,
                         });
-                        const q = router.query.to as string;
-                        router.replace(q && q[0] === "/" ? q : "/home");
+                        router.replace(toUrl && toUrl[0] === "/" && toUrl.split("?")[0] !== "/login" ? toUrl : "/home");
                         //socket.connect(`http://${serverUrl.split(":5000")[0]}`);
                     },
                     errors: data => setState({

@@ -31,6 +31,7 @@ import { ObjectID } from "bson";
 import { getClassDB } from "../../lib/idb";
 import { useIsOnline } from "../../context/IsOnline";
 import useUserInfo from "../../hooks/useUserInfo";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 const sampleFiles: IFile[] = [{
     name: "file",
@@ -270,6 +271,4 @@ function Class() {
     );
 }
 export default memo(Class);
-export async function getServerSideProps(ctx: NextPageContext) {
-    return {props: {}};
-}
+export const getServerSideProps = defaultRedirect;

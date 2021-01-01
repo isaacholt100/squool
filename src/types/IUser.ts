@@ -2,7 +2,7 @@ export default interface IUser {
     _id: string;
     email: string;
     icon: string;
-    role: Role;
+    role: string;
     firstName: string;
     lastName: string;
 }

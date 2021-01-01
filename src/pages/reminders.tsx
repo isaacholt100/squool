@@ -28,6 +28,7 @@ import { useDelete, usePost, usePut } from "../hooks/useRequest";
 import IReminder from "../types/IReminder";
 import styles from "../css/loadBtn.module.css";
 import useReminders from "../hooks/useReminders";
+import { defaultRedirect } from "../lib/serverRedirect";
 
 const useStyles = makeStyles(theme => ({
     iconBtn: {
@@ -557,3 +558,4 @@ export default function Reminders() {
         </>
     )
 };
+export const getServerSideProps = defaultRedirect;

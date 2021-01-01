@@ -23,6 +23,7 @@ import useRedirect from "../../hooks/useRedirect";
 import IClass from "../../types/IClass";
 import useUserInfo from "../../hooks/useUserInfo";
 import useClasses from "../../hooks/useClasses";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 export default function Class() {
     const
@@ -217,3 +218,4 @@ export default function Class() {
         </>
     );
 };
+export const getServerSideProps = defaultRedirect;

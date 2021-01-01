@@ -9,10 +9,14 @@ import useRedirect from "../hooks/useRedirect";
 import Name from "../components/settings/Name";
 import Email from "../components/settings/Email";
 import useUrlHashIndex from "../hooks/useUrlHashIndex";
+import { NextPageContext } from "next";
+import serverRedirect from "../lib/serverRedirect";
+import { ObjectId } from "mongodb";
+import getDB from "../server/getDB";
 
 const PAGES = ["account", "profile", "theme"];
 
-export default function Settings() {
+export default function Settings(props: { email: string, icon: string, firstName: string, lastName: string }) {
     const
         isLoggedIn = useRedirect(),
         [hashIndex, changeHash] = useUrlHashIndex(PAGES),
@@ -45,17 +49,16 @@ export default function Settings() {
             <Box component={Card} my={{ xs: "8px", lg: "16px", }}>
                 {page === 0 && (
                     <>
-                        <Email />
+                        <Email email={props.email} />
                         <Password />
-                        {/*<Timetable />*/}
                         <School />
                         <DeleteAccount />
                     </>
                 )}
                 {page === 1 && (
                     <>
-                        <Icon />
-                        <Name />
+                        <Icon icon={props.icon} />
+                        <Name firstName={props.firstName} lastName={props.lastName} />
                     </>
                 )}
                 {page === 2 && <Theme />}
@@ -63,3 +66,14 @@ export default function Settings() {
         </div>
     );
 };
+export async function getServerSideProps(ctx: NextPageContext) {
+    return serverRedirect(ctx, async (cookies) => {
+        const user_id = new ObjectId(cookies.user_id);
+        const db = await getDB();
+        const users = db.collection("users");
+        const user = await users.findOne({ _id: user_id }, { projection: { firstName: 1, lastName: 1, email: 1, icon: 1, _id: 0} });
+        return {
+            props: user
+        }
+    });
+}

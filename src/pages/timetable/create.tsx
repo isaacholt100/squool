@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import LoadBtn from "../../components/LoadBtn";
 import useRedirect from "../../hooks/useRedirect";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 const
     useStyles = makeStyles(theme => ({
@@ -215,3 +216,4 @@ export default function TimetableCreate() {
         </div>
     );
 }
+export const getServerSideProps = defaultRedirect;

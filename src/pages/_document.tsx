@@ -3,6 +3,8 @@ import Document, {
     Html, Main, NextScript, Head
 } from "next/document";
 import { ServerStyleSheets } from "@material-ui/core/styles";
+import cookies from "next-cookies";
+import Cookies from "js-cookie";
 
 const
     APP_NAME = "Squool",
@@ -12,9 +14,21 @@ const
 
 export default class MyDocument extends Document {
     render() {
+        const fontFamilyLink = (this.props as any).fontFamily ? `https://fonts.googleapis.com/css?family=${(this.props as any).fontFamily.toLowerCase().split(" ").map((s: string) => s.charAt(0).toUpperCase() + s.substring(1)).join("+")}:300,400,500,700&display=swap` : undefined;
         return (
             <Html lang="en">
                 <Head>
+                    <link rel="preconnect" href="https://fonts.gstatic.com" />
+                    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+                    {fontFamilyLink && <link rel="stylesheet" href={fontFamilyLink} />}
+                    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png" />
+                    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+                    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+                    <link rel="manifest" href="/manifest.json" />
+                    <link rel="manifest" href="/site.webmanifest" />
+                    <link rel="mask-icon" href="/icons/apple-icon-180x180.png" color="#000000" />
+                    <link rel="shortcut icon" href="/icons/favicon.ico" />
+
                     <meta name="application-name" content={APP_NAME} />
                     <meta name="apple-mobile-web-app-capable" content="yes" />
                     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -24,17 +38,8 @@ export default class MyDocument extends Document {
                     <meta name="mobile-web-app-capable" content="yes" />
                     <meta name="msapplication-config" content="/browserconfig.xml" />
                     <meta name="msapplication-TileColor" content="#000000" />
-                    <meta name="msapplication-tap-highlight" content="no" />
+                    <meta name="msapplication-tap-highlight" content={APP_COLOR} />
                     <meta name="theme-color" content={APP_COLOR} />
-                            
-                    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-                    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png" />
-                    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
-                    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
-                    <link rel="manifest" href="/manifest.json" />
-                    <link rel="manifest" href="/site.webmanifest" />
-                    <link rel="mask-icon" href="/icons/apple-icon-180x180.png" color="#000000" />
-                    <link rel="shortcut icon" href="/icons/favicon.ico" />
 
                     <meta name="twitter:card" content="summary" />
                     <meta name="twitter:url" content={APP_URL} />
@@ -64,12 +69,12 @@ MyDocument.getInitialProps = async ctx => {
     const sheets = new ServerStyleSheets();
     const originalRenderPage = ctx.renderPage;
     ctx.renderPage = () => originalRenderPage({
-        enhanceApp: App => props => sheets.collect(<App {...props} {...{prop: "test"} as any} />),
+        enhanceApp: App => props => sheets.collect(<App {...props} />),
     });
     const initialProps = await Document.getInitialProps(ctx);
     return {
         ...initialProps,
         styles: [...React.Children.toArray(initialProps.styles), sheets.getStyleElement()],
-        pathname: ctx.pathname,
+        fontFamily: cookies(ctx).theme_fontFamily,
     };
 };

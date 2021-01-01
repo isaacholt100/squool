@@ -7,7 +7,7 @@ export default function Dashboard() {
     const logout = useLogout();
     const handleLogout = () => {
         del("/login", {
-            setLoading: true,
+            //setLoading: true,
             done: logout,
         });
     }

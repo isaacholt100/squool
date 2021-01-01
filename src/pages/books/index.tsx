@@ -31,6 +31,7 @@ import IBook from "../../types/IBook";
 import useUserInfo from "../../hooks/useUserInfo";
 import useClasses from "../../hooks/useClasses";
 import useBooks from "../../hooks/useBooks";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 export default function Books() {
     const
@@ -342,3 +343,4 @@ export default function Books() {
         </>
     );
 };
+export const getServerSideProps = defaultRedirect;

@@ -6,10 +6,10 @@ import isEmailValid from "../../lib/isEmailValid";
 import { dispatch } from "../../redux/store";
 import LoadBtn from "../LoadBtn";
 
-export default function Email() {
+export default function Email({ email: initial }: { email: string }) {
     const { email } = useUserInfo();
     const [put, loading] = usePut();
-    const [stateEmail, setStateEmail] = useState(email || "");
+    const [stateEmail, setStateEmail] = useState(email || initial);
     const error = !isEmailValid(stateEmail);
     const updateName = e => {
         e.preventDefault();

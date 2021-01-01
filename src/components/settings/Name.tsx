@@ -5,11 +5,11 @@ import useUserInfo from "../../hooks/useUserInfo";
 import { dispatch } from "../../redux/store";
 import LoadBtn from "../LoadBtn";
 
-export default function Name() {
+export default function Name(props: { firstName: string, lastName: string }) {
     const { firstName, lastName } = useUserInfo();
     const [put, loading] = usePut();
-    const [first, setFirst] = useState(firstName || "");
-    const [last, setLast] = useState(lastName || "");
+    const [first, setFirst] = useState(firstName || props.firstName);
+    const [last, setLast] = useState(lastName || props.lastName);
     const firstErr = first.length > 50;
     const lastErr = last.length > 50;
     const updateName = e => {

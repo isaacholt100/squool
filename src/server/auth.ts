@@ -7,8 +7,6 @@ export interface IUSer {
     role: "student" | "teacher" | "admin";
 }
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-    console.log(process.env.ACCESS_TOKEN_EXPIRY_TIME);
-    
     const accessHeader = req.headers["authorization"];
     let token: IUSer;
     if (!accessHeader) {

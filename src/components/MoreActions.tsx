@@ -58,7 +58,7 @@ export default memo(({ className }: { className: string }) => {
                 <Link href="/feedback">
                     <MenuItem onClick={() => setOpen(false)}>Feedback</MenuItem>
                 </Link>
-                <MenuItem onClick={exec(() => router.replace(router.asPath))}>
+                <MenuItem onClick={exec(() => {router.replace(router.asPath)})}>
                     Refresh Page
                 </MenuItem>
             </Menu>

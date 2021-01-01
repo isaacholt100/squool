@@ -22,6 +22,7 @@ import useContextMenu from "../../hooks/useContextMenu";
 import { ContextMenuItem } from "../../types/contextMenu";
 import File from "./File";
 import { useIsOnline } from "../../context/IsOnline";
+import download from "downloadjs";
 
 const MiniTag = ({ color, name }) => (
     <Tooltip title={name}>
@@ -240,14 +241,16 @@ const FileDialog = memo((props: { close(): void, currentFile?: IFile, tags: Tags
 const ViewDialog = memo((props: { url: string, ext: string, close(): void }) => {
     return (
         <div className="flex full_height flex_col">
-            <AppBar>
-                <Toolbar>
-                    <IconButton edge="start" color="inherit" onClick={props.close} aria-label="close">
+            <AppBar color="default" position="relative" className="br_0">
+                <Toolbar disableGutters={true}>
+                    <IconButton color="inherit" onClick={props.close} aria-label="close" className="ml_4">
                         <Icon path={mdiClose} />
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <File url={props.url} ext={props.ext} />
+            <div className="flex_1 p_8">
+                <File url={props.url} ext={props.ext} />
+            </div>
         </div>
     );
 }, (prev, next) => prev.url === next.url || next.url === null);
@@ -310,12 +313,14 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                 //done: props.setFiles,
             });
         },
-        openFile = (file: IFile) => () => {
+        getFileUrl = (file: IFile) => {
             if (file.blob) {
-                setViewFile([URL.createObjectURL(file.blob), file.extension]);
-            } else {
-                setViewFile([file.url, file.extension]);
+                return URL.createObjectURL(file.blob);
             }
+            return file.url;
+        },
+        openFile = (file: IFile) => () => {
+            setViewFile([getFileUrl(file), file.extension]);
         },
         toggleFilter = (tag: string) => {
             setFilterTags(filterTags.includes(tag) ? filterTags.filter(t => t !== tag) : [...filterTags, tag]);
@@ -389,8 +394,25 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             }, {
                 label: "Download",
                 icon: <Icon path={mdiDownload} />,
-                fn() {}
-            }, {
+                async fn() {
+                    try {
+                        snackbar.info("File '" + file.name + file.extension + "' downloading");
+                        if (file.blob) {
+                            download(file.blob, file.url, file.blob.type);
+                        } else {
+                            const res = await fetch(file.url);
+                            const blob = await res.blob();
+                            download(blob, file.url, blob.type);
+                        }
+                    } catch (err) {
+                        snackbar.error("There was an error downloading the file '" + file.name + file.extension + "'");
+                    }
+                },
+                /*component: "a",
+                download: file.name,
+                href: getFileUrl(file),
+                target: "_blank",*/
+            } as any, {
                 label: "Save to device",
                 icon: <Icon path={mdiContentSave} />,
                 fn() {

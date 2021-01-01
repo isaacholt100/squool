@@ -32,6 +32,7 @@ import { TransitionProps } from "@material-ui/core/transitions";
 import { dispatch } from "../../redux/store";
 import Head from "next/head";
 import useRedirect from "../../hooks/useRedirect";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 const
     useStyles = makeStyles(theme => ({
@@ -272,3 +273,4 @@ export default function TimetableSearch() {
         </>
     );
 };
+export const getServerSideProps = defaultRedirect;

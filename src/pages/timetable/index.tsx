@@ -8,6 +8,7 @@ import Timetable from "../../components/Timetable";
 import { useRouter } from "next/router";
 import useRedirect from "../../hooks/useRedirect";
 import useTimetable from "../../hooks/useTimetable";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 
 export default function TimetableView() {
@@ -104,3 +105,4 @@ export default function TimetableView() {
         : <Loader />
     );
 };
+export const getServerSideProps = defaultRedirect;

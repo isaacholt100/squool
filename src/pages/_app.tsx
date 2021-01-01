@@ -53,7 +53,7 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                         "html, body, body > #__next": {
                             width: "100vw",
                             height: "100vh",
-                            fontFamily: theme.fontFamily,
+                            fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
                         },
                     }
                 },
@@ -297,7 +297,7 @@ function Frame({ children }: { children: ReactChild }) {
     useEffect(getData, []);
     return (
         <div className={"flex flex_col full_screen"}>
-            {true && (
+            {false && (
                 <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} opacity={dataLoaded ? 0 : 1} />
             )}
             <Navigation />
@@ -334,12 +334,12 @@ const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
         },
         flex: 1,
         minHeight: 0,
-        "& ::selection": {
+        "& .MuiTypography-root::selection": {
             WebkitTextFillColor: palette.secondary.contrastText,
             color: palette.secondary.contrastText,
             backgroundColor: palette.secondary.main,
         },
-        "& ::moz-selection": {
+        "& .MuiTypography-root::moz-selection": {
             WebkitTextFillColor: palette.secondary.contrastText,
             color: palette.secondary.contrastText,
             backgroundColor: palette.secondary.main,

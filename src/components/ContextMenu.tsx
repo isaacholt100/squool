@@ -36,7 +36,7 @@ function ContextMenu({ items, mouse, close }: IProps) {
             }}
         >
             {items.map((item, i) => item === "divider" ? <Divider key={i} /> : (
-                <ListItem onClick={() => {item.fn(); close();}} key={i} button className={styles.listItem}>
+                <ListItem {...item as any} onClick={() => {item.fn(); close();}} key={i} button className={styles.listItem}>
                     <ListItemIcon className={styles.icon}>
                         {item.icon}
                     </ListItemIcon>
