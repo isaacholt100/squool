@@ -36,6 +36,8 @@ export default memo(() => {
                 [name + "Hue"]: e.target.value,
             });
             const payload = colors[e.target.value][themeState[`${name}Shade`]];
+            console.log("hello");
+            
             setTheme({ [name]: payload });
             put("/user/settings/theme", {
                 failedMsg: "updating the theme",
@@ -43,7 +45,9 @@ export default memo(() => {
                     path: `theme.${name}`,
                     val: payload,
                 },
-                done: () => {}//socket.emit("user message", "/theme", { [name]: payload }),
+                done: () => {
+                    console.log("theme updated");
+                }//socket.emit("user message", "/theme", { [name]: payload }),
             });
         },
         handleChangeShade = (name: Intent) => (e, shade) => {
@@ -78,7 +82,9 @@ export default memo(() => {
                     path: `theme`,
                     val: {},
                 },
-                done: () => {}//socket.emit("user message", "/theme/reset")
+                done: () => {
+
+                }//socket.emit("user message", "/theme/reset")
             });
         },
         changeCarouselView = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {

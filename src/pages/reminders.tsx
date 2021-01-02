@@ -332,7 +332,6 @@ export default function Reminders() {
                         value={values.name}
                         variant="outlined"
                         label="Name"
-                        autoFocus
                         fullWidth
                         className="my_8"
                     />

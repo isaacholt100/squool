@@ -20,6 +20,8 @@ import { useGet } from "../hooks/useRequest";
 import "../css/global.css";
 import IsOnline from "../context/IsOnline";
 import { AppProps } from "next/app";
+import Cookies from "js-cookie";
+import useLogout from "../hooks/useLogout";
 
 function ThemeWrapper({ children }: { children: ReactChild }) {
     const
@@ -55,6 +57,7 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                             height: "100vh",
                             fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
                         },
+
                     }
                 },
                 MuiMenu: {
@@ -79,7 +82,7 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 },
                 MuiTypography: {
                     root: {
-                        WebkitTouchCallout: "text",
+                        WebkitTouchCallout: "initial",
                         WebkitUserSelect: "text",
                         KhtmlUserSelect: "text",
                         MozUserSelect: "text",
@@ -96,6 +99,11 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     root: {
                         textTransform: "capitalize",
                     },
+                },
+                MuiInputBase: {
+                    input: {
+                        caretColor: theme.primary,
+                    }
                 },
                 MuiListItem: {
                     gutters: {
@@ -344,9 +352,6 @@ const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
             color: palette.secondary.contrastText,
             backgroundColor: palette.secondary.main,
         },
-        "& *": {
-            caretColor: palette.primary.main,
-        },
     },
 }));
 const useStyles = makeStyles(({ palette }) => ({
@@ -395,6 +400,7 @@ const useStyles = makeStyles(({ palette }) => ({
 export default function App({ Component, pageProps }: AppProps) {
     const snack: MutableRefObject<ProviderContext> = useRef();
     const classes = useStyles();
+    const logout = useLogout();
     useEffect(() => {
         const jssStyles = document.querySelector("#jss-server-side");
         if (jssStyles) {
@@ -410,6 +416,25 @@ export default function App({ Component, pageProps }: AppProps) {
                         snack.current.enqueueSnackbar("There was an error loading a request", {
                             variant: "error",
                         });
+                    },
+                    fetcher: async (url, options) => {
+                        const res = await fetch(url, {
+                            ...options,
+                            credentials: "include",
+                            headers: {
+                                "authorization": "Bearer " + Cookies.get("accessToken"),
+                                "authorization-refresh": "Bearer " + Cookies.get("refreshToken"),
+                                "Access-Control-Expose-Headers": "authorization",
+                                "Access-Control-Allow-Headers": "authorization",
+                            },
+                        });
+                        const header = res?.headers?.get("authorization");
+                        if (res?.status === 401) {
+                            logout();
+                        } else if (header) {
+                            Cookies.set("accessToken", header, { sameSite: "strict", ...(true ? { expires: 100 } : { expires: 100 }) });
+                        }
+                        return res.json();
                     }
                 }}
             >

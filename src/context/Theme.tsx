@@ -1,7 +1,8 @@
-import { createContext, ReactChild, useContext, useState } from "react";
+import { createContext, ReactChild, useContext, useEffect, useState } from "react";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import defaultTheme from "../json/defaultTheme.json";
 import Cookies from "js-cookie";
+import useSWR from "swr";
 
 interface ITheme {
     fontFamily: string;
@@ -10,12 +11,12 @@ interface ITheme {
     type: "light" | "dark";
 }
 
-const ThemeContext = createContext({});
+const ThemeContext = createContext([{}, () => {}]);
 
 export default function Theme({ children }: { children: ReactChild }) {
     const
         isLoggedIn = useIsLoggedIn(),
-        [theme, setTheme] = useState(typeof(localStorage) !== "undefined" && isLoggedIn ? {
+        [theme, setTheme] = useState(process.browser && isLoggedIn ? {
             primary: Cookies.get("theme_primary") || defaultTheme.primary,
             secondary: Cookies.get("theme_secondary") || defaultTheme.secondary,
             type: Cookies.get("theme_type") as "light" | "dark" || defaultTheme.type,
@@ -42,6 +43,6 @@ export default function Theme({ children }: { children: ReactChild }) {
         <ThemeContext.Provider value={[theme, dispatch]}>
             {children}
         </ThemeContext.Provider>
-    )
+    );
 }
 export const useTheme = (): [ITheme, (theme: Partial<ITheme>) => void] => useContext(ThemeContext) as any;
