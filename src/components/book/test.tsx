@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-restricted-globals */
 /* eslint-disable default-case */
 /* eslint-disable react-hooks/exhaustive-deps */
