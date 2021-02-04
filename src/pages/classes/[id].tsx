@@ -23,7 +23,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Loader from "../../components/Loader";
 import copyToClipboard from "../../lib/copyToClipboard";
-import { NextPageContext } from "next";
 import useUrlHashIndex from "../../hooks/useUrlHashIndex";
 import Files from "../../components/file/Files";
 import IFile, { Tags } from "../../types/IFile";
@@ -192,7 +191,7 @@ function Class() {
                 ))}
             </Tabs>
             </AppBar>
-            <Box component={Card} my={{ xs: "8px", lg: "16px", }}>
+            <Box component={Card} my={{ xs: "6px", lg: "12px", }}>
                 {activeTab === 0 && (
                     <>
                         <Typography variant="h5" gutterBottom>

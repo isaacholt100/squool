@@ -17,7 +17,7 @@ import {
 import { Box } from "@material-ui/core";
 import clsx from "clsx";
 import Icon from "./Icon";
-import { mdiAccountGroup, mdiBell, mdiBook, mdiCalendar, mdiChat, mdiCog, mdiFormatListChecks, mdiMenu, mdiSchool, mdiTimetable, mdiWrench } from "@mdi/js";
+import { mdiAccountGroup, mdiBell, mdiBook, mdiCalendar, mdiChat, mdiCog, mdiFormatListChecks, mdiHome, mdiMenu, mdiSchool, mdiTimetable, mdiWrench } from "@mdi/js";
 import Link from "next/link";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import NProgress from "nprogress";
@@ -36,21 +36,21 @@ const
     useStyles = makeStyles(theme => ({
         appBar: {
             [theme.breakpoints.up("md")]: {
-                width: `calc(100% - ${65}px)`,
-                marginLeft: 65,
+                width: `calc(100% - ${61}px)`,
+                marginLeft: 61,
             },
             backgroundColor: theme.palette.background.default,
             padding: 0,
             borderRadius: 0,
             zIndex: 1200,
-            height: 60,
+            height: 65,
         },
         navIconHide: {
             [theme.breakpoints.up("md")]: {
                 display: "none",
             },
-            marginLeft: 4,
-            marginRight: 4,
+            marginLeft: 6,
+            marginRight: 6,
         },
         drawerPaper: {
             position: "fixed",
@@ -63,14 +63,12 @@ const
             borderRadius: 0,
         },
         drawerLarge: {
-            width: 65,
+            width: 61,
         },
         navItem: {
             whiteSpace: "nowrap",
             textOverflow: "ellipsis",
             overflow: "hidden",
-            borderRadius: 8,
-            marginBottom: 8,
             height: "48px !important",
             paddingLeft: "12px !important",
             paddingRight: "12px !important",
@@ -81,8 +79,7 @@ const
             height: 4,
         },
         homeDivider: {
-            marginTop: -4,
-            marginBottom: 4,
+            marginBottom: 6,
         },
         logo: {
             userSelect: "none",
@@ -92,8 +89,14 @@ const
         },
         imgLink: {
             "& div:first-child": {
-                margin: -8,
+                margin: -6,
             }
+        },
+        linksContainer: {
+            padding: 6,
+            paddingBottom: 0,
+            overflow: "scroll",
+            WebkitOverflowScrolling: "touch",
         }
     }));
 const Nav = memo(() => {
@@ -114,7 +117,7 @@ const Nav = memo(() => {
             "Reminders": mdiFormatListChecks,
             "Settings": mdiCog,
             "School": mdiSchool,
-            "Home": <Image src="/icons/android-icon-48x48.png" layout="fixed" height={40} width={40} draggable="false" priority loading="eager" />
+            "Home": mdiHome,//<Image src="/icons/android-icon-48x48.png" layout="fixed" height={36} width={36} draggable="false" priority loading="eager" />
         },
         links = () => {
             switch (role) {
@@ -127,7 +130,7 @@ const Nav = memo(() => {
             }
         },
         DrawerItems = (small: boolean) => (
-            <Box p={"8px 8px 0px 8px"}>
+            <div className={clsx(classes.linksContainer, "no_scrollbar")}>
                 {links().map(link => (
                     <Fragment key={link}>
                         <Link href={"/" + link.toLowerCase()}>
@@ -138,11 +141,14 @@ const Nav = memo(() => {
                                         href={"/" + link.toLowerCase()}
                                         selected={link.toLowerCase() === router.pathname.slice(1) || (link === "Home" && router.pathname === "/")}
                                         className={clsx(classes.navItem, link === "Home" && classes.imgLink)}
-                                        onClick={() => setMobileOpen(false)}
+                                        onClick={() => {
+                                            setMobileOpen(false);
+                                            router.push("/" + link.toLowerCase());
+                                        }}
                                     >
-                                        {link === "Home" ? icons[link] : <Icon path={icons[link]} />}
+                                        {typeof(icons[link]) !== "string" ? icons[link] : <Icon path={icons[link]} />}
                                         {small && (
-                                            <ListItemText primary={link} className={"ml_16"} />
+                                            <ListItemText primary={link} className={"ml_12"} />
                                         )}
                                     </ListItem>
                                 </Tooltip>
@@ -153,7 +159,7 @@ const Nav = memo(() => {
                         )}
                     </Fragment>
                 ))}
-            </Box>
+            </div>
         );
     useEffect(() => {
         router.events.on("routeChangeStart", NProgress.start);
@@ -182,7 +188,7 @@ const Nav = memo(() => {
                     <div className={"ml_auto"}>
                         <Tooltip title="Notifications">
                             <IconButton
-                                className={"mr_4 ml_auto"}
+                                className={"mr_6 ml_auto"}
                                 onClick={() => setNotificationOpen(true)}
                                 color="inherit"
                             >
@@ -190,7 +196,7 @@ const Nav = memo(() => {
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="More Options">
-                            <MoreActions className={"mr_4"} />
+                            <MoreActions className={"mr_6"} />
                         </Tooltip>
                     </div>
                 </Toolbar>
@@ -216,7 +222,7 @@ const Nav = memo(() => {
                 minFlingVelocity={256}
                 disableBackdropTransition={!iOS}
             >
-                <div className={"flex flex_col p_8"}>
+                <div className={"flex flex_col p_6"}>
                     <Typography variant="h5">Notifications</Typography>
                 </div>
             </SwipeableDrawer>

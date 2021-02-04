@@ -43,4 +43,4 @@ function ColorPicker({ intent, shade, hue, ...props }: {[key: string]: any}) {
         </Grid>
     );
 };
-export default memo(ColorPicker, (prev, next) => prev.shade === next.shade && prev.hue === next.hue);
+export default ColorPicker;

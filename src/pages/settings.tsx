@@ -17,6 +17,25 @@ import Title from "../components/Title";
 
 const PAGES = ["account", "profile", "theme"];
 
+function AccountPage({ email }: { email: string }) {
+    return (
+        <>
+            <Email email={email} />
+            <Password />
+            <School />
+            <DeleteAccount />
+        </>
+    );
+}
+function ProfilePage(props: { icon: string; firstName: string; lastName: string; }) {
+    return (
+        <>
+            <Icon icon={props.icon} />
+            <Name firstName={props.firstName} lastName={props.lastName} />
+        </>
+    );
+}
+
 export default function Settings(props: { email: string, icon: string, firstName: string, lastName: string }) {
     const
         isLoggedIn = useRedirect(),
@@ -50,21 +69,9 @@ export default function Settings(props: { email: string, icon: string, firstName
                             </Tabs>
                         </AppBar>
                     </Box>
-                    <Box component={Card} my={{ xs: "8px", lg: "16px", }}>
-                        {page === 0 && (
-                            <>
-                                <Email email={props.email} />
-                                <Password />
-                                <School />
-                                <DeleteAccount />
-                            </>
-                        )}
-                        {page === 1 && (
-                            <>
-                                <Icon icon={props.icon} />
-                                <Name firstName={props.firstName} lastName={props.lastName} />
-                            </>
-                        )}
+                    <Box component={Card} my={{ xs: "6px", lg: "12px", }}>
+                        {page === 0 && <AccountPage email={props.email} />}
+                        {page === 1 && <ProfilePage icon={props.icon} firstName={props.firstName} lastName={props.lastName} />}
                         {page === 2 && <Theme />}
                     </Box>
                 </div>

@@ -20,14 +20,18 @@ import { useGet } from "../hooks/useRequest";
 import "../css/global.css";
 import IsOnline from "../context/IsOnline";
 import { AppProps } from "next/app";
+import Cookies from "js-cookie";
+import useLogout from "../hooks/useLogout";
+import useThemeType from "../hooks/useThemeType";
 
 function ThemeWrapper({ children }: { children: ReactChild }) {
     const
         //router = useRouter(),
         [theme] = useTheme(),
-        paperBg = theme.type === "light" ? "#f1f3f4" : "#424242",
-        defaultBg = theme.type === "light" ? "#fff" : "#121212",
-        level1Bg = theme.type === "light" ? "#ddd" : "#333",
+        themeType = useThemeType(),
+        paperBg = themeType === "light" ? "#f1f3f4" : "#424242",
+        defaultBg = themeType === "light" ? "#fff" : "#121212",
+        level1Bg = themeType === "light" ? "#ddd" : "#333",
         fontFamily = `https://fonts.googleapis.com/css?family=${theme.fontFamily.toLowerCase().split(" ").map((s: string) => s.charAt(0).toUpperCase() + s.substring(1)).join("+")}:300,400,500&display=swap`,
         muiTheme = createMuiTheme({
             palette: {
@@ -37,203 +41,21 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 secondary: {
                     main: theme.secondary,
                 },
-                type: theme.type as any,
+                type: themeType as any,
                 background: {
                     default: defaultBg,
                     paper: paperBg,
                     level1: level1Bg,
                 } as any,
             },
+            spacing: 6,
             typography: {
                 fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
             },
-            overrides: {
-                MuiCssBaseline: {
-                    "@global": {
-                        "html, body, body > #__next": {
-                            width: "100vw",
-                            height: "100vh",
-                            fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
-                        },
-                    }
-                },
-                MuiMenu: {
-                    list: {
-                        padding: 0,
-                    },
-                },
-                MuiPopover: {
-                    paper: {
-                        border: `2px solid gray`,
-                        "& li:first-child .MuiTouchRipple-root": {
-                            borderRadius: "14px 14px 0 0",
-                        },
-                        "& li:last-child .MuiTouchRipple-root": {
-                            borderRadius: "0 0 14px 14px",
-                        },
-                        "& li:only-child .MuiTouchRipple-root": {
-                            borderRadius: 14,
-                        },
-                        overflowX: "hidden !important" as any,
-                    },
-                },
-                MuiTypography: {
-                    root: {
-                        WebkitTouchCallout: "text",
-                        WebkitUserSelect: "text",
-                        KhtmlUserSelect: "text",
-                        MozUserSelect: "text",
-                        MsUserSelect: "text",
-                        userSelect: "text",
-                    },
-                },
-                MuiDivider: {
-                    root: {
-                        height: 2,
-                    },
-                },
-                MuiTab: {
-                    root: {
-                        textTransform: "capitalize",
-                    },
-                },
-                MuiListItem: {
-                    gutters: {
-                        paddingLeft: 8,
-                        paddingRight: 8,
-                    },
-                    dense: {
-                        paddingTop: 0,
-                        paddingBottom: 0,
-                    },
-                },
-                MuiButton: {
-                    root: {
-                        borderRadius: 8,
-                        textTransform: "capitalize",
-                    },
-                    outlined: {
-                        borderWidth: "2px !important",
-                        "& .MuiTouchRipple-root": {
-                            borderRadius: 6,
-                        }
-                    },
-                },
-                MuiButtonBase: {
-                    root: {
-                        "& *": {
-                            WebkitTouchCallout: "none !important",
-                            WebkitUserSelect: "none !important",
-                            KhtmlUserSelect: "none !important",
-                            MozUserSelect: "none !important",
-                            MsUserSelect: "none !important",
-                            userSelect: "none !important",
-                        }
-                    },
-                },
-                MuiAutocomplete: {
-                    paper: {
-                        border: `2px solid gray`,
-                        borderRadius: 8,
-                    },
-                    listbox: {
-                        padding: 0,
-                        maxHeight: 256,
-                    },
-                    option: {
-                        minHeight: 36,
-                    },
-                },
-                MuiOutlinedInput: {
-                    root: {
-                        borderRadius: 8,
-                    },
-                    notchedOutline: {
-                        borderWidth: 2,
-                    },
-                },
-                MuiCardActionArea: {
-                    root: {
-                        borderRadius: 16,
-                        overflow: "hidden",
-                    },
-                    focusHighlight: {
-                        borderRadius: 16,
-                    },
-                },
-                MuiMenuItem: {
-                    root: {
-                        minHeight: 36,
-                    },
-                },
-                MuiToolbar: {
-                    regular: {
-                        minHeight: "56px !important"
-                    },
-                },
-                MuiPaper: {
-                    root: {
-                        boxShadow: "none !important",
-                        borderRadius: 16,
-                    },
-                    rounded: {
-                        borderRadius: 16,
-                    },
-                },
-                MuiCard: {
-                    root: {
-                        padding: 16,
-                    },
-                },
-                MuiDialog: {
-                    paper: {
-                        borderRadius: 16,
-                        margin: 16,
-                        width: "100%",
-                    },
-                },
-                MuiSelect: {
-                    root: {
-                        borderRadius: "8px !important",
-                    },
-                },
-                MuiDialogContent: {
-                    root: {
-                        padding: "8px 16px",
-                    },
-                },
-                MuiAlert: {
-                    root: {
-                        borderRadius: "16px !important",
-                        width: "100%",
-                    },
-                },
-                MuiDialogActions: {
-                    root: {
-                        padding: 16,
-                    },
-                },
-                MuiTabs: {
-                    root: {
-                        borderRadius: 16,
-                    },
-                },
-                MuiAppBar: {
-                    root: {
-                        overflow: "hidden",
-                    },
-                    colorDefault: {
-                        backgroundColor: level1Bg,
-                    },
-                },
-                MuiDialogTitle: {
-                    root: {
-                        textTransform: "capitalize",
-                        borderBottom: `4px solid ${theme.primary}`,
-                    },
-                },
-            } as any,
             props: {
+                MuiButtonBase: {
+                    disableTouchRipple: true,
+                },
                 MuiButton: {
                     variant: "contained",
                     disableElevation: true,
@@ -245,8 +67,250 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 MuiFormControl: {
                     size: "small",
                 },
+                MuiMenuList: {
+                    dense: true,
+                }
             },
         });
+    muiTheme.overrides = {
+        MuiCssBaseline: {
+            "@global": {
+                "html, body, body > #__next": {
+                    width: "100vw",
+                    height: "100vh",
+                    fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
+                },
+                "*": {
+                    caretColor: theme.primary,
+                },
+                ".primary_contrast_text": {
+                    color: muiTheme.palette.primary.contrastText + " !important",
+                }
+            }
+        },
+        MuiTouchRipple: {
+            ripplePulsate: {
+                width: "100% !important",
+                borderRadius: 0,
+                left: "0 !important",
+                right: "0 !important",
+                //position: "static",
+                "& *": {
+                    borderRadius: "0 !important",
+                    animation: "none !important"
+                }
+            },
+        },
+        MuiMenu: {
+            list: {
+                padding: muiTheme.spacing(0.5) + "px !important",
+            },
+        },
+        MuiMenuItem: {
+            root: {
+                marginBottom: muiTheme.spacing(0.5),
+                "&:last-child": {
+                    marginBottom: 0,
+                },
+                minHeight: 36,
+            }
+        },
+        MuiPopover: {
+            paper: {
+                border: `2px solid gray`,
+                overflowX: "hidden !important" as any,
+            },
+        },
+        MuiTypography: {
+            root: {
+                WebkitTouchCallout: "initial",
+                WebkitUserSelect: "text",
+                KhtmlUserSelect: "text",
+                MozUserSelect: "text",
+                MsUserSelect: "text",
+                userSelect: "text",
+            },
+        },
+        MuiDivider: {
+            root: {
+                height: 2,
+            },
+        },
+        MuiInputBase: {
+            input: {
+                caretColor: theme.primary,
+            }
+        },
+        MuiList: {
+            root: {
+                padding: "0 !important",
+            }
+        },
+        MuiListItem: {
+            gutters: {
+                paddingLeft: 6,
+                paddingRight: 6,
+            },
+            selected: {
+                backgroundColor: theme.primary + " !important",
+                color: muiTheme.palette.primary.contrastText + " !important",
+            },
+            root: {
+                borderRadius: muiTheme.spacing(1),
+                marginBottom: muiTheme.spacing(1),
+            },
+            dense: {
+                paddingTop: 0,
+                paddingBottom: 0,
+                //"&:not(:last-child)": {
+                    marginBottom: muiTheme.spacing(0.5),
+                //}
+            }
+        },
+        MuiButton: {
+            root: {
+                borderRadius: 6,
+                textTransform: "capitalize",
+            },
+            outlined: {
+                borderWidth: "2px !important",
+                "& .MuiTouchRipple-root": {
+                    borderRadius: 6,
+                }
+            },
+        },
+        MuiButtonBase: {
+            root: {
+                "& *": {
+                    WebkitTouchCallout: "none !important",
+                    WebkitUserSelect: "none !important",
+                    KhtmlUserSelect: "none !important",
+                    MozUserSelect: "none !important",
+                    MsUserSelect: "none !important",
+                    userSelect: "none !important",
+                }
+            },
+        },
+        MuiAutocomplete: {
+            paper: {
+                border: `2px solid gray`,
+                borderRadius: 6,
+            },
+            listbox: {
+                padding: 0,
+                maxHeight: 256,
+            },
+            option: {
+                minHeight: 36,
+            },
+        },
+        MuiOutlinedInput: {
+            root: {
+                borderRadius: 6,
+            },
+            notchedOutline: {
+                borderWidth: 2,
+            },
+        },
+        MuiCardActionArea: {
+            root: {
+                borderRadius: 12,
+                overflow: "hidden",
+            },
+            focusHighlight: {
+                borderRadius: 12,
+            },
+        },
+        MuiToolbar: {
+            regular: {
+                minHeight: "60px !important"
+            },
+        },
+        MuiPaper: {
+            root: {
+                boxShadow: "none !important",
+                borderRadius: 12,
+            },
+            rounded: {
+                borderRadius: 12,
+            },
+        },
+        MuiCard: {
+            root: {
+                padding: 12,
+            },
+        },
+        MuiDialog: {
+            paper: {
+                borderRadius: 12,
+                margin: 12,
+                width: "100%",
+            },
+        },
+        MuiSelect: {
+            root: {
+                borderRadius: "6px !important",
+            },
+        },
+        MuiDialogContent: {
+            root: {
+                padding: "6px 12px",
+            },
+        },
+        MuiAlert: {
+            root: {
+                borderRadius: "16px !important",
+                width: "100%",
+            },
+        },
+        MuiDialogActions: {
+            root: {
+                padding: 12,
+            },
+        },
+        MuiTab: {
+            root: {
+                textTransform: "capitalize",
+                borderRadius: 6,
+                margin: 3,
+                minHeight: 36,
+            },
+        },
+        MuiTabs: {
+            root: {
+                borderRadius: 12,
+                padding: 3,
+            },
+            indicator: {
+                display: "none",
+            },
+        },
+        MuiAppBar: {
+            root: {
+                overflow: "hidden",
+            },
+            colorDefault: {
+                backgroundColor: level1Bg,
+            },
+        },
+        MuiDialogTitle: {
+            root: {
+                textTransform: "capitalize",
+                borderBottom: `4px solid ${theme.primary}`,
+                padding: "12px 16px",
+            },
+        },
+        MuiIconButton: {
+            sizeSmall: {
+                padding: 6,
+            }
+        },
+        MuiListItemSecondaryAction: {
+            root: {
+                right: 9,
+            }
+        }
+    } as any;
     return (
         <>
             <Head>
@@ -316,8 +380,8 @@ const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
         flexDirection: "column",
         alignItems: "flex-start",
         [breakpoints.up("md")]: {
-            marginLeft: props => (props as any) ? 65 : 0,
-            width: props => (props as any) ? "calc(100vw - 65px)" : "100vw",
+            marginLeft: props => (props as any) ? 60 : 0,
+            width: props => (props as any) ? "calc(100vw - 60px)" : "100vw",
         },
         "& > *": {
             width: "100%",
@@ -328,9 +392,9 @@ const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
             flex: 1,
             //height: "100%",
             [breakpoints.up("lg")]: {
-                padding: 16,
+                padding: 12,
             },
-            padding: 8,
+            padding: 6,
         },
         flex: 1,
         minHeight: 0,
@@ -344,16 +408,13 @@ const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
             color: palette.secondary.contrastText,
             backgroundColor: palette.secondary.main,
         },
-        "& *": {
-            caretColor: palette.primary.main,
-        },
     },
 }));
 const useStyles = makeStyles(({ palette }) => ({
     snackbarRoot: {
         maxWidth: 512,
         "& > div": {
-            borderRadius: 8,
+            borderRadius: 6,
             //width: "100%",
             paddingLeft: 12,
             flexWrap: "initial !important",
@@ -395,6 +456,7 @@ const useStyles = makeStyles(({ palette }) => ({
 export default function App({ Component, pageProps }: AppProps) {
     const snack: MutableRefObject<ProviderContext> = useRef();
     const classes = useStyles();
+    const logout = useLogout();
     useEffect(() => {
         const jssStyles = document.querySelector("#jss-server-side");
         if (jssStyles) {
@@ -410,6 +472,25 @@ export default function App({ Component, pageProps }: AppProps) {
                         snack.current.enqueueSnackbar("There was an error loading a request", {
                             variant: "error",
                         });
+                    },
+                    fetcher: async (url, options) => {
+                        const res = await fetch(url, {
+                            ...options,
+                            credentials: "include",
+                            headers: {
+                                "authorization": "Bearer " + Cookies.get("accessToken"),
+                                "authorization-refresh": "Bearer " + Cookies.get("refreshToken"),
+                                "Access-Control-Expose-Headers": "authorization",
+                                "Access-Control-Allow-Headers": "authorization",
+                            },
+                        });
+                        const header = res?.headers?.get("authorization");
+                        if (res?.status === 401) {
+                            logout();
+                        } else if (header) {
+                            Cookies.set("accessToken", header, { sameSite: "strict", ...(true ? { expires: 100 } : { expires: 100 }) });
+                        }
+                        return res.json();
                     }
                 }}
             >

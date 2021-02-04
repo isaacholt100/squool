@@ -57,8 +57,8 @@ const Slot = memo((props: any) => {
 }, (prev, next) => prev.r === next.r && prev.t === next.t && prev.s === next.s);
 const useStyles = makeStyles(theme => ({
     paper: {
-        padding: 8,
-        margin: 8,
+        padding: 6,
+        margin: 6,
         minWidth: 160,
         display: "flex",
         alignItems: "center",
@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
         opacity: 0,
         [theme.breakpoints.down("md")]: {
             margin: 0,
-            padding: 8,
+            padding: 6,
             borderRadius: 0,
             border: `1px solid ${theme.palette.divider}`
         },
@@ -121,7 +121,7 @@ const useStyles = makeStyles(theme => ({
     text: {
         fontSize: 16,
         display: "flex",
-        marginBottom: 8,
+        marginBottom: 6,
         width: "100%",
     },
     container: {
@@ -130,7 +130,6 @@ const useStyles = makeStyles(theme => ({
         flexDirection: "column",
         alignItems: "flex-start",
         justifyContent: "center",
-        overflow: "auto",
         width: "100%",
         "& p": {
             width: "100%",
@@ -149,7 +148,7 @@ const useStyles = makeStyles(theme => ({
     },
     field: {
         flex: 1,
-        marginLeft: 8,
+        marginLeft: 6,
         textTransform: "capitalize",
     },
     periodContainer: {
@@ -158,8 +157,6 @@ const useStyles = makeStyles(theme => ({
         minHeight: "100%",
     },
     paperContainer: {
-        overflowY: "auto",
-        overflowX: "hidden",
         flex: 1,
         display: "flex",
         flexDirection: "column",
@@ -168,8 +165,7 @@ const useStyles = makeStyles(theme => ({
         display: "flex",
         flexGrow: 1,
         minHeight: "100%",
-        overflowX: "auto",
-        overflowY: "hidden",
+        //overflowX: "scroll",
         "& > div": {
             display: "flex",
             flexDirection: "column",
@@ -196,7 +192,7 @@ export default memo((props: any) => {
         scrollDay = day => () => {
             for (let ref in refs) {
                 if (day !== ref && refs[ref].current) {
-                    refs[ref].current.scrollTop = refs[day].current.scrollTop;
+                    //refs[ref].current.scrollTop = refs[day].current.scrollTop;
                 }
             }
         };
@@ -206,7 +202,8 @@ export default memo((props: any) => {
             height={create ? "auto" : edit ? "100%" : "calc(100% - 72px)"}
             minHeight={create ? "auto" : edit ? "100%" : "calc(100% - 72px)"}
             flex={edit ? 1 : "initial"}
-            p={props.noPadding ? undefined : { lg: "8px !important" }}
+            p={props.noPadding ? undefined : { lg: "6px !important" }}
+            className="overflow_scroll no_scrollbar"
         >
             <div className={classes.periodContainer}>
                 <Paper className={`${classes.day} ${classes.paper} ${create ? classes.noAnimate : null}`}>

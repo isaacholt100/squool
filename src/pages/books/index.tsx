@@ -287,8 +287,8 @@ export default function Books() {
                             icon: !book.class_id ? <Icon path={mdiLink} /> : <Icon path={mdiLinkOff} />,
                         }]}
                         Item={book => (
-                            <Link href={`/book/${book._id}/edit`}>
-                                <CardActionArea className={"p_8 full_height"}>
+                            <Link href={`/books/${book._id}`}>
+                                <CardActionArea className={"p_6 full_height"}>
                                     <div className="full_height">
                                         <Typography variant="h6">
                                             {book.name}

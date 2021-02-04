@@ -401,14 +401,14 @@ export const VideoViewer = ({ url }: { url: string }) => {
                         <div className={clsx(classes.bar, classes.topBar)} style={{opacity: show ? 1 : 0}} onMouseOver={showControlsPermanent}>
                             {canPip && (
                                 <Tooltip title="Pop Out (p)">
-                                    <IconButton onClick={() => setPip(!pip)} color="inherit" className={clsx(pip && classes.activeBtn, "mr_4")} disabled={full}>
+                                    <IconButton onClick={() => setPip(!pip)} color="inherit" className={clsx(pip && classes.activeBtn, "mr_6")} disabled={full}>
                                         <Icon path={mdiPictureInPictureBottomRight} />
                                     </IconButton>
                                 </Tooltip>
                             )}
                             {screenfull.isEnabled && (
                                 <Tooltip title="Full Screen (f)">
-                                    <IconButton onClick={fullScreen} color="inherit" className="mr_4">
+                                    <IconButton onClick={fullScreen} color="inherit" className="mr_6">
                                         <Icon path={full ? mdiFullscreenExit : mdiFullscreen} />
                                     </IconButton>
                                 </Tooltip>

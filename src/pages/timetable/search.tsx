@@ -41,10 +41,10 @@ const
             fontWeight: "bold",
         },
         noOptions: {
-            borderRadius: 16,
+            borderRadius: 12,
             border: `2px solid ${theme.palette.divider}`,
             margin: 0,
-            marginTop: 8,
+            marginTop: 6,
             color: theme.palette.text.hint,
             "&:hover": {
                 backgroundColor: "initial",
@@ -61,7 +61,7 @@ const
             paddingRight: 4,
         },
         title: {
-            marginLeft: 8,
+            marginLeft: 6,
             flex: 1,
         },
         dialog: {
@@ -79,10 +79,10 @@ const
             "& ul": {
                 maxHeight: 240,
             },
-            borderRadius: 8,
+            borderRadius: 6,
             border: `2px solid gray`,
             margin: 0,
-            marginTop: 8,
+            marginTop: 6,
         },
     })),
     Transition = forwardRef((props: TransitionProps & { children?: React.ReactElement }, ref: React.Ref<unknown>) => <Slide direction="up" ref={ref} {...props} />);

@@ -243,12 +243,12 @@ const ViewDialog = memo((props: { url: string, ext: string, close(): void }) => 
         <div className="flex full_height flex_col">
             <AppBar color="default" position="relative" className="br_0">
                 <Toolbar disableGutters={true}>
-                    <IconButton color="inherit" onClick={props.close} aria-label="close" className="ml_4">
+                    <IconButton color="inherit" onClick={props.close} aria-label="close" className="ml_6">
                         <Icon path={mdiClose} />
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <div className="flex_1 p_8">
+            <div className="flex_1 p_6">
                 <File url={props.url} ext={props.ext} />
             </div>
         </div>
@@ -463,13 +463,13 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                 <FileDialog close={() => setCurrentFile(null)} currentFile={currentFile} tags={props.tags} name={name} setName={setName} deleteFiles={deleteFiles} fileTags={fileTags} setFileTags={setFileTags} />
             </Dialog>
             <UploadDialog open={uploadOpen} setOpen={setUploadOpen} tags={props.tags} />
-            <div className="flex mb_8">
+            <div className="flex mb_6">
                 <TextField
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     label="Search Files"
                     fullWidth
-                    className="flex_1 mr_8"
+                    className="flex_1 mr_6"
                     inputRef={searchField}
                     InputProps={{
                         endAdornment: (
@@ -490,19 +490,19 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             <div className="flex" style={{overflow: "auto"}}>
                 {props.files.every(f => selected.includes(f._id)) ? (
                     <Tooltip title="Clear Selection">
-                        <IconButton onClick={() => setSelected([])} className="mr_4">
+                        <IconButton onClick={() => setSelected([])} className="mr_6">
                             <Icon path={mdiClose} />
                         </IconButton>
                     </Tooltip>
                 ) : (
                     <Tooltip title="Select All">
-                        <IconButton onClick={selectAll} className="mr_4">
+                        <IconButton onClick={selectAll} className="mr_6">
                             <Icon path={mdiSelectAll} />
                         </IconButton>
                     </Tooltip>
                 )}
                 <Tooltip title="Sort By">
-                    <IconButton className="mr_4" onClick={e => setSortByAnchor(e.currentTarget)}>
+                    <IconButton className="mr_6" onClick={e => setSortByAnchor(e.currentTarget)}>
                         <Icon path={SORT_BY_ICONS[sortBy]} />
                     </IconButton>
                 </Tooltip>
@@ -527,7 +527,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                     ))}
                 </Menu>
                 <Tooltip title="Filter Tags">
-                    <IconButton className="mr_4" onClick={e => setFilterAnchor(e.currentTarget)}>
+                    <IconButton className="mr_6" onClick={e => setFilterAnchor(e.currentTarget)}>
                         <Icon path={mdiFilter} />
                     </IconButton>
                 </Tooltip>
@@ -548,7 +548,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                         {Object.keys(props.tags).map(tag => (
                             <ListItem key={tag} button selected={filterTags.includes(tag)} onClick={() => toggleFilter(tag)}>
                                 <Box height={24} width={24} bgcolor={props.tags[tag]} borderRadius={"50%"} mr="12px" />
-                                <ListItemText primary={tag} className="mr_8" />
+                                <ListItemText primary={tag} className="mr_6" />
                                 <ListItemSecondaryAction>
                                     <Checkbox
                                         edge="end"
@@ -560,14 +560,14 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                         ))}
                     </List>
                 </Popover>
-                <Divider orientation="vertical" className="ml_auto mr_4" flexItem />
+                <Divider orientation="vertical" className="ml_auto mr_6" flexItem />
                 <Tooltip title="Delete">
-                    <IconButton disabled={noneSelected || selected.some(_id => !props.files.find(file => file._id === _id)?.writer_ids?.includes(user_id))} className="mr_4" onClick={() => deleteFiles(selected)}>
+                    <IconButton disabled={noneSelected || selected.some(_id => !props.files.find(file => file._id === _id)?.writer_ids?.includes(user_id))} className="mr_6" onClick={() => deleteFiles(selected)}>
                         <Icon path={mdiDelete} />
                     </IconButton>
                 </Tooltip>
                 <Tooltip title="Download">
-                    <IconButton disabled={noneSelected} className="mr_4">
+                    <IconButton disabled={noneSelected} className="mr_6">
                         <Icon path={mdiDownload} />
                     </IconButton>
                 </Tooltip>
@@ -581,7 +581,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             </div>
             <Box component={List} overflow="auto" className="p_0">
                 {props.files.filter(f => f.name.toLowerCase().includes(search.toLowerCase()) && filterTags.some(t => f.tags.includes(t))).sort(sortFn).map(f => (
-                    <Box whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" borderRadius={8} mt="4px" key={f._id}>
+                    <Box whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" borderRadius={6} mt="4px" key={f._id}>
                         {b => <ListItem role={undefined} button dense {...b} onClick={openFile(f)} disableRipple /*selected={selected.includes(f._id)}*/ onContextMenu={onContextMenu(f)}>
                             <ListItemIcon>
                                 <Checkbox
@@ -599,7 +599,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                                 id={`file-${f.name}-${f._id}`}
                                 primary={f.name}
                                 secondary={(
-                                    <div className="flex mt_8">
+                                    <div className="flex mt_6">
                                         {f.tags.sort().map(t => (
                                             <MiniTag key={t} name={t} color={props.tags[t]} />
                                         ))}

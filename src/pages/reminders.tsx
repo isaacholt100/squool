@@ -1,22 +1,25 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
 import {
     TextField,
-    Box,
-    CircularProgress
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Switch,
+    MenuItem,
+    InputLabel,
+    FormControl,
+    FormControlLabel,
+    Select,
+    Button,
+    Typography,
+    makeStyles,
 } from "@material-ui/core";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Switch from "@material-ui/core/Switch";
 import { useDispatch } from "react-redux";
 import { KeyboardDatePicker, KeyboardTimePicker } from "@material-ui/pickers";
-import { MenuItem, InputLabel, FormControl, FormControlLabel, Select } from "@material-ui/core";
 import ListView, { IAction } from "../components/ListView";
 import compareWeek from "compare-week";
 import useConfirm from "../hooks/useConfirm";
@@ -31,21 +34,21 @@ import useReminders from "../hooks/useReminders";
 import { defaultRedirect } from "../lib/serverRedirect";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import Title from "../components/Title";
+import useUrlHashIndex from "../hooks/useUrlHashIndex";
+
+const TABS = ["All", "Today", "Tomorrow", "This Week", "Late"];
 
 const useStyles = makeStyles(theme => ({
     iconBtn: {
-        marginLeft: 8,
+        marginLeft: 6,
     },
     swiper: {
-        borderRadius: 16,
+        borderRadius: 12,
     },
     bounceUp: {
         animation: "bounce 0.5s forwards 0.5s",
         opacity: 0,
         height: "initial !important",
-    },
-    cardSwipe: {
-        borderRadius: 0,
     },
     late: {
         color: theme.palette.error.main,
@@ -97,7 +100,8 @@ export default function Reminders() {
         classes = useStyles(),
         [selectedDate, handleDateChange] = useState(new Date()),
         [selectedTime, handleTimeChange] = useState(new Date()),
-        [filter, setFilter] = useState(0),
+        [hashIndex, changeHash] = useUrlHashIndex(TABS),
+        [filter, setFilter] = useState(hashIndex),
         [allDay, setAllDay] = useState(false),
         reminders = useReminders(),
         [values, setValues] = useState({
@@ -332,9 +336,8 @@ export default function Reminders() {
                         value={values.name}
                         variant="outlined"
                         label="Name"
-                        autoFocus
                         fullWidth
-                        className="my_8"
+                        className="my_6"
                     />
                     <TextField
                         onChange={handleChange("desc")}
@@ -342,7 +345,7 @@ export default function Reminders() {
                         variant="outlined"
                         label="Description"
                         fullWidth
-                        className="my_8"
+                        className="my_6"
                     />
                     <KeyboardDatePicker
                         clearable
@@ -359,7 +362,7 @@ export default function Reminders() {
                         disablePast
                         inputVariant="outlined"
                         label="Date"
-                        className="my_8"
+                        className="my_6"
                     />
                     <KeyboardTimePicker
                         label="Time"
@@ -368,13 +371,13 @@ export default function Reminders() {
                         value={selectedTime}
                         onChange={date => handleTimeChange(date)}
                         ampm={false}
-                        className="my_8"
+                        className="my_6"
                         disabled={allDay}
                         fullWidth
                         inputVariant="outlined"
                     />
                     <FormControlLabel
-                        className="my_8"
+                        className="my_6"
                         control={
                             <Switch
                                 checked={allDay}
@@ -477,10 +480,11 @@ export default function Reminders() {
                     <ListView
                         name="Reminder"
                         filtered={filtered}
-                        tabs={["All", "Today", "Tomorrow", "This Week", "Late"]}
+                        tabs={TABS}
                         height={160}
                         filter={filter}
                         setFilter={setFilter}
+                        changeHash={changeHash}
                         createOpen={dialogs.newReminder}
                         setCreateOpen={close("newReminder")}
                         createFn={open("newReminder", null)}
@@ -518,7 +522,7 @@ export default function Reminders() {
                             return icons;
                         }}
                         Item={r => (
-                            <Box p={"8px"}>
+                            <div className="p_6">
                                 <Typography
                                     variant="h6"
                                     //gutterBottom
@@ -531,24 +535,26 @@ export default function Reminders() {
                                 >
                                     {r.name}
                                 </Typography>
-                            <Typography className={classes.date}>
-                                {new Date(r.date).toLocaleDateString() + " "}
-                                {r.allDay
-                                    ? "All Day"
-                                    : new Date(r.date)
-                                        .toLocaleTimeString()
-                                        .split(":")
-                                        .slice(0, -1)
-                                        .join(":")}
-                                {r.repeat === 0 && new Date().getTime() > new Date(r.date).getTime() && (
-                                    <Typography component="span" className={classes.late}>
-                                        {" "}
-                                        <Icon path={mdiClipboardAlert} style={{ marginBottom: -4 }} /> Late
-                                    </Typography>
-                                )}
-                            </Typography>
-                            <Typography style={{ height: 36, overflow: "hidden", /*textTruncate: "ellipsis",*/ whiteSpace: "nowrap" }}>{r.desc}</Typography>
-                            </Box>
+                                <Typography className={classes.date}>
+                                    {new Date(r.date).toLocaleDateString() + " "}
+                                    {r.allDay
+                                        ? "All Day"
+                                        : new Date(r.date)
+                                            .toLocaleTimeString()
+                                            .split(":")
+                                            .slice(0, -1)
+                                            .join(":")}
+                                    {r.repeat === 0 && new Date().getTime() > new Date(r.date).getTime() && (
+                                        <Typography component="span" className={classes.late}>
+                                            {" "}
+                                            <Icon path={mdiClipboardAlert} style={{ marginBottom: -4 }} /> Late
+                                        </Typography>
+                                    )}
+                                </Typography>
+                                <Typography style={{ height: 36, overflow: "hidden", /*textTruncate: "ellipsis",*/ whiteSpace: "nowrap" }}>
+                                    {r.desc}
+                                </Typography>
+                            </div>
                         )}
                         createForm={form(true)}
                     />

@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { usePost } from "../hooks/useRequest";
 import {
     Typography,
@@ -99,7 +99,7 @@ export default function Login() {
                             Login to Squool
                         </Typography>
                         <form onSubmit={handleSubmit}>
-                            <div className={"my_8"}>
+                            <div className={"my_6"}>
                                 <TextField
                                     id="email"
                                     name="email"
@@ -115,7 +115,7 @@ export default function Login() {
                                     autoFocus
                                 />
                             </div>
-                            <div className={"my_8"}>
+                            <div className={"my_6"}>
                                 <TextField
                                     name="password"
                                     id="password"
@@ -170,7 +170,7 @@ export default function Login() {
                                 </Button>
                             </div>
                         </form>
-                        <Divider className={"my_8"} />
+                        <Divider className={"my_6"} />
                         <Typography variant="h6" gutterBottom>Don't have an account yet?</Typography>
                         <Link href="/signup">
                             <Button

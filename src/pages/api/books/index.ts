@@ -50,11 +50,16 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             const { _id, role } = await auth(req, res);
             const db = await getDB();
             const books = db.collection("books");
-            const book = await books.findOne({ _id: new ObjectId(req.query._id as string), $or: [{owner_id: _id }, {teacher_ids: _id }] });
-            res.json(book ? {
-                ...book,
-                type: role,
-            } : null);
+            if (req.query._id) {
+                const book = await books.findOne({ _id: new ObjectId(req.query._id as string), $or: [{owner_id: _id }, {teacher_ids: _id }] });
+                res.json(book ? {
+                    ...book,
+                    type: role,
+                } : null);
+            } else {
+                const list = await books.find({ owner_id: _id }).toArray();
+                res.json(list);
+            }
             break;
         }
         default: {

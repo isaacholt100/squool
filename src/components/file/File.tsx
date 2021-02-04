@@ -45,14 +45,14 @@ const ImgViewer = memo(({ src }: { src: string }) => {
 const Actions = memo(({ url }: { url: string }) => (
     <>
         <div>
-            <IconButton component="a" href={url} download className="mr_4">
+            <IconButton component="a" href={url} download className="mr_6">
                 <Icon path={mdiDownload} />
             </IconButton>
             <IconButton component="a" href={"/file/view" + url} target="_blank">
                 <Icon path={mdiLaunch} />
             </IconButton>
         </div>
-        <Divider className="my_8" />
+        <Divider className="my_6" />
     </>
 ));
 

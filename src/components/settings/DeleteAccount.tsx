@@ -25,8 +25,8 @@ const useStyles = makeStyles(({ palette, breakpoints }) => ({
     },
     expansionPanel: {
         border: `2px solid ${palette.divider}`,
-        borderRadius: 16,
-        marginBottom: 8,
+        borderRadius: 12,
+        marginBottom: 6,
         "&::before": {
             display: "none",
         },

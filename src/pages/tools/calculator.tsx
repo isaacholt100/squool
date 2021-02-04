@@ -130,21 +130,21 @@ const useStyles = makeStyles(theme => ({
             overflow: "hidden",
             textOverflow: "ellipsis"
         },
-        borderRadius: 8,
+        borderRadius: 6,
         [theme.breakpoints.down(960)]: {
             maxHeight: 256,
         }
     },
     mathField: {
         width: "100%",
-        padding: 16,
-        borderRadius: 8,
+        padding: 12,
+        borderRadius: 6,
         outline: "none",
-        marginBottom: 8,
+        marginBottom: 6,
         "&:focus": {
             border: `2px solid ${theme.palette.primary.main} !important`,
             outline: "none",
-            borderRadius: 8,
+            borderRadius: 6,
         }
     },
     historyContainer: {
@@ -386,8 +386,8 @@ export default function Calculator() {
                             ? ""
                             : " = " + answer;
                     const newHistory = [
-                        {[f.latex()]: historyEntry},
                         ...historyRef.current,
+                        {[f.latex()]: historyEntry},
                     ];
                     f.latex(answer);
                     //const promise = new Promise(res => {
@@ -566,7 +566,7 @@ export default function Calculator() {
                 )}
                 ref={history as any}
             >
-                {historyList.map((key, index) => (
+                {historyList.reverse().map((key, index) => (
                     <ListItem
                         button
                         onClick={() => replaceExpression(keys(key)[0], index, field)}
@@ -577,7 +577,7 @@ export default function Calculator() {
                                 <span
                                     dangerouslySetInnerHTML={{
                                         __html: katex.renderToString(keys(key)[0], {
-                                            output: "mathml",
+                                            output: "html",
                                         })
                                     }}
                                 />
@@ -586,7 +586,7 @@ export default function Calculator() {
                             <span
                                 dangerouslySetInnerHTML={{
                                     __html: katex.renderToString(values(key)[0] as any, {
-                                        output: "mathml",
+                                        output: "html",
                                     })
                                 }}
                             />
@@ -651,7 +651,7 @@ export default function Calculator() {
                         <div style={{
                             width: isMedium ? "100%" : showHistory.showHistory ? "calc(75% - 8px)" : "100%",
                             height: "100%",
-                            marginRight: showHistory.showHistory ? 8 : 0,
+                            marginRight: showHistory.showHistory ? 6 : 0,
                             transition: "width 500ms",
                         }} ref={calcContainer}>
                             <FormControl fullWidth error={state.error}>
@@ -677,7 +677,7 @@ export default function Calculator() {
                                         }}
                                     />
                                 ), [])}
-                                <FormHelperText style={{margin: 0, marginBottom: 8,}}>{state.error ? "Error" : " "}</FormHelperText>
+                                <FormHelperText style={{margin: 0, marginBottom: 6,}}>{state.error ? "Error" : " "}</FormHelperText>
                             </FormControl>
                             <Grid container spacing={0} className={classes.font}>
                                 <Grid
@@ -849,7 +849,7 @@ export default function Calculator() {
                         </div>
                         {isMedium && (
                             <>
-                                <AnimateHeight duration={500} height={showHistory.height} style={{marginTop: 8,}}>
+                                <AnimateHeight duration={500} height={showHistory.height} style={{marginTop: 6,}}>
                                     {historyBox}
                                 </AnimateHeight>
                             </>

@@ -56,7 +56,7 @@ export default function Name(props: { firstName: string, lastName: string }) {
                     error={firstErr}
                     style={{
                         width: "calc(50% - 4px)",
-                        marginRight: 8,
+                        marginRight: 6,
                     }}
                 />
                 <TextField

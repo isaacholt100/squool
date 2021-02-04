@@ -27,13 +27,7 @@
     //"noUnusedParameters": true
   },
   "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "next.config.js",
-    "src/pages/404.js"
+    "node_modules",
+    "src/components/book"
   ]
 }

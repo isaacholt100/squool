@@ -28,7 +28,7 @@ export default function Tools() {
                 height={104}
                 Item={t => (
                     <Link href={"/tools" + t[2]}>
-                        <CardActionArea className={"flex full_height justify_content_start p_8 align_items_center"}>
+                        <CardActionArea className={"flex full_height justify_content_start p_6 align_items_center"}>
                             <Box display="flex">
                                 <Box
                                     borderRadius="50%"
