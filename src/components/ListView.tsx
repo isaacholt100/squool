@@ -57,10 +57,10 @@ const useStyles = makeStyles(theme => ({
         height: "initial !important",
     },
     swiper: {
-        marginRight: -8,
+        marginRight: -6,
     },
     cardSwipe: {
-        marginRight: 8,
+        marginRight: 6,
     },
     actionArea: {
         backgroundColor: theme.palette.primary.main,
@@ -78,19 +78,20 @@ const useStyles = makeStyles(theme => ({
     },
     actions: {
         position: "absolute",
-        bottom: 4,
-        right: 4,
+        bottom: 6,
+        right: 6,
     }
 }));
 
 interface ITabProps {
     tabs: string[];
     filter?: number;
-    setFilter?: (x: number) => void;
+    setFilter?(x: number): void;
+    changeHash?(h: string): void
 }
 
 const TabList = memo((props: ITabProps) => props.tabs.length > 0 && (
-    <Box clone mb={{ xs: "8px !important", lg: "16px !important" }}>
+    <Box clone mb={{ xs: "6px !important", lg: "12px !important" }}>
         <AppBar position="relative" color="default">
             <Tabs
                 value={props.filter}
@@ -98,7 +99,7 @@ const TabList = memo((props: ITabProps) => props.tabs.length > 0 && (
                 indicatorColor="primary"
                 textColor="primary"
                 variant="scrollable"
-                scrollButtons="auto"
+                scrollButtons="off"
                 aria-label="scrollable tabs"
             >
                 {props.tabs.map((tab, i) => (
@@ -107,6 +108,7 @@ const TabList = memo((props: ITabProps) => props.tabs.length > 0 && (
                         id={`scrollable-auto-tab-${i}`}
                         aria-controls={`scrollable-auto-tabpanel-${i}`}
                         label={tab}
+                        onClick={props.changeHash}
                     />
                 ))}
             </Tabs>
@@ -122,7 +124,7 @@ const CreateBtn = memo((props: { createFn?: () => void, name: string }) => {
             onClick={props.createFn}
         >
             <div>
-                <Typography variant="h6" color="inherit" align="center" style={{marginTop: -4}}>
+                <Typography variant="h6" color="inherit" align="center" style={{marginTop: -6}}>
                     New {props.name}
                 </Typography>
                 <div className={clsx("flex justify_content_center align_items_center mx_auto", classes.addCircle)}>
@@ -207,7 +209,7 @@ const List = memo(function<T>(props: IListProps<T>) {
         <>
             {ContextMenu}
             {swipeable && !props.noCreate && (
-                <div style={{height: props.height}} className="mb_8">
+                <div style={{height: props.height}} className="mb_6">
                     <Paper
                         className={(props.animate ? classes.animate : classes.animated) + " full_height"}
                     >
@@ -252,7 +254,7 @@ const List = memo(function<T>(props: IListProps<T>) {
                                                         onClick={fn}
                                                         color={props.color || (label === "Delete" ? undefined : "secondary")}
                                                         {...a}
-                                                        className={label === "Delete" ? clsx(classes.errorColor, "ml_8") : "ml_8"}
+                                                        className={label === "Delete" ? clsx(classes.errorColor, "ml_6") : "ml_6"}
                                                     >
                                                         {icon}
                                                     </IconButton>

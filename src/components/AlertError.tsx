@@ -13,9 +13,9 @@ export default function AlertError(props: IProps) {
             <Alert severity="error" className="fadein" variant="filled">
                 <AlertTitle>Uh oh!</AlertTitle>
                 {props.msg}
-                <div className={"mt_8"}>
+                <div className={"mt_6"}>
                     <Link href="/">
-                        <Button variant="outlined" component="a" className={"mr_8"} color="inherit">
+                        <Button variant="outlined" component="a" className={"mr_6"} color="inherit">
                             Go Home
                         </Button>
                     </Link>

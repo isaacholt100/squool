@@ -3,7 +3,7 @@ import React, { memo, useState, useEffect } from "react";
 import { usePut } from "../../hooks/useRequest";
 import { useDispatch } from "react-redux";
 //import socket from "../../api/socket";
-import { FormControlLabel, Switch, Grid, Button } from "@material-ui/core";
+import { FormControlLabel, Switch, Grid, Button, FormControl, FormLabel, RadioGroup, Radio } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
 import FontSettings from "./Font";
 import ColorPicker from "./ColorPicker";
@@ -11,8 +11,10 @@ import { shades, colors } from "../../json/colors";
 //import useSocket from "../../hooks/useSocket";
 import { useTheme } from "../../context/Theme";
 import useCarouselView from "../../hooks/useCarouselView";
+
 type Intent = "primary" | "secondary";
-export default memo(() => {
+
+export default function Theme() {
     const
         [put] = usePut(),
         //socket = useSocket(),
@@ -36,7 +38,7 @@ export default memo(() => {
                 [name + "Hue"]: e.target.value,
             });
             const payload = colors[e.target.value][themeState[`${name}Shade`]];
-            console.log("hello");
+            //console.log(theme);
             
             setTheme({ [name]: payload });
             put("/user/settings/theme", {
@@ -45,8 +47,8 @@ export default memo(() => {
                     path: `theme.${name}`,
                     val: payload,
                 },
-                done: () => {
-                    console.log("theme updated");
+                done() {
+                    //console.log("theme updated");
                 }//socket.emit("user message", "/theme", { [name]: payload }),
             });
         },
@@ -65,7 +67,7 @@ export default memo(() => {
                     path: `theme.${name}`,
                     val: payload,
                 },
-                done: () => {}//socket.emit("user message", "/theme", { [name]: payload }),
+                done() {}//socket.emit("user message", "/theme", { [name]: payload }),
             });
         },
         resetTheme = () => {
@@ -82,7 +84,7 @@ export default memo(() => {
                     path: `theme`,
                     val: {},
                 },
-                done: () => {
+                done() {
 
                 }//socket.emit("user message", "/theme/reset")
             });
@@ -97,55 +99,31 @@ export default memo(() => {
                 body: {
                     carouselView: checked,
                 },
-                done: () => {}//socket.emit("user message", "/user/carouselView", checked)
+                done() {}//socket.emit("user message", "/user/carouselView", checked)
             });
         },
-        handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-            const type = checked ? "dark" : "light";
-            setTheme({ type });
+        handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            setTheme({ type: e.target.value });
             put("/user/settings/theme", {
                 failedMsg: "updating the theme",
                 body: {
                     path: "theme.type",
-                    val: type,
+                    val: e.target.value,
                 },
-                done: () => {}//socket.emit("user message", "/theme", { type })
+                done() {}//socket.emit("user message", "/theme", { type })
             });
         };
-    useEffect(() => {
-        /*socket.on("/theme/reset", () => setThemeState({
-            primaryShade: "500",
-            secondaryShade: "500",
-            primaryHue: "indigo",
-            secondaryHue: "indigo",
-        }));
-        socket.on("/theme", obj => {
-            if (obj.primary) {
-                setThemeState({
-                    ...themeState,
-                    ...huesAndShades(obj.primary, "primary"),
-                });
-            }
-            if (obj.secondary) {
-                setThemeState({
-                    ...themeState,
-                    ...huesAndShades(obj.secondary, "secondary"),
-                });
-            }
-        });*/
-    }, []);
+        //console.log(theme);
     return (
         <>
-            <FormControlLabel
-                control={
-                    <Switch
-                        checked={theme.type === "dark"}
-                        onChange={handleTypeChange}
-                        value="Theme"
-                    />
-                }
-                label="Dark Theme"
-            />
+            <FormControl component="fieldset" fullWidth>
+                <FormLabel component="legend">Theme Type</FormLabel>
+                <RadioGroup row aria-label="theme-type" name="theme-type" value={theme.type} onChange={handleTypeChange}>
+                    <FormControlLabel value="light" control={<Radio />} label="Light" />
+                    <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+                    <FormControlLabel value="system" control={<Radio />} label="System" />
+                </RadioGroup>
+            </FormControl>
             <FormControlLabel
                 control={
                     <Switch
@@ -158,8 +136,22 @@ export default memo(() => {
             />
             <MarginDivider />
             <Grid container spacing={1}>
-                <ColorPicker intent="primary" shade={themeState.primaryShade} hue={themeState.primaryHue} handleChangeHue={handleChangeHue} handleChangeShade={handleChangeShade} endChangeShade={endChangeShade} />
-                <ColorPicker intent="secondary" shade={themeState.secondaryShade} hue={themeState.secondaryHue} handleChangeHue={handleChangeHue} handleChangeShade={handleChangeShade} endChangeShade={endChangeShade} />
+                <ColorPicker
+                    intent="primary"
+                    shade={themeState.primaryShade}
+                    hue={themeState.primaryHue}
+                    handleChangeHue={handleChangeHue}
+                    handleChangeShade={handleChangeShade}
+                    endChangeShade={endChangeShade}
+                />
+                <ColorPicker
+                    intent="secondary"
+                    shade={themeState.secondaryShade}
+                    hue={themeState.secondaryHue}
+                    handleChangeHue={handleChangeHue}
+                    handleChangeShade={handleChangeShade}
+                    endChangeShade={endChangeShade}
+                />
             </Grid>
             <MarginDivider />
             <FontSettings />
@@ -168,4 +160,4 @@ export default memo(() => {
             </Button>
         </>
     );
-});
+};

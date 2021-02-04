@@ -23,7 +23,7 @@ export default memo(() => {
         };
     return (
         <>
-            <div className={"full_width mb_8"}>
+            <div className={"full_width mb_6"}>
                 <FormControlLabel
                     //disabled={periodsLength === 0}
                     control={

@@ -4,7 +4,6 @@ import Document, {
 } from "next/document";
 import { ServerStyleSheets } from "@material-ui/core/styles";
 import cookies from "next-cookies";
-import Cookies from "js-cookie";
 
 const
     APP_NAME = "Squool",

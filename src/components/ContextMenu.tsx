@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo } from "react";
-import { Menu, Divider, ListItem, ListItemText, ListItemIcon } from "@material-ui/core";
+import { Menu, Divider, ListItem, ListItemText, ListItemIcon, MenuItem } from "@material-ui/core";
 import { ContextMenuItem } from "../types/contextMenu";
 import styles from "../css/contextMenu.module.css";
 
@@ -37,12 +37,14 @@ function ContextMenu({ items, mouse, close }: IProps) {
             }}
         >
             {items.map((item, i) => item === "divider" ? <Divider key={i} /> : (
-                <ListItem {...item as any} onClick={() => {item.fn(); close();}} key={i} button className={styles.listItem}>
-                    <ListItemIcon className={styles.icon}>
-                        {item.icon}
-                    </ListItemIcon>
+                <MenuItem {...item as any} onClick={() => {item.fn(); close();}} key={i} button className={styles.listItem}>
+                    {item.icon && (
+                        <ListItemIcon className={styles.icon}>
+                            {item.icon}
+                        </ListItemIcon>
+                    )}
                     <ListItemText primary={item.label} />
-                </ListItem>
+                </MenuItem>
             ))}
         </Menu>
     );

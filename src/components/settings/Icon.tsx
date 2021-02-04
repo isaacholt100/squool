@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.primary.contrastText + " !important",
         height: 64,
         width: 64,
-        marginRight: 16,
+        marginRight: 12,
     },
     iconOption: {
         borderColor: theme.palette.secondary.main,
@@ -45,6 +45,7 @@ export default memo(({ icon: initial }: { icon: string }) => {
             !loading && put("/user/settings/icon", {
                 setLoading: true,
                 failedMsg: "updating your profile icon",
+                doneMsg: "Profile icon updated",
                 body: { icon: enlarged },
                 done: () => {
                     setOpen(false);
@@ -105,7 +106,7 @@ export default memo(({ icon: initial }: { icon: string }) => {
                     <DialogActions>
                         <Button onClick={() => setOpen(false)} disabled={loading}>Cancel</Button>
                         <LoadBtn
-                            label="Change"
+                            label="Update Icon"
                             disabled={icon === enlarged}
                             loading={loading}
                         />

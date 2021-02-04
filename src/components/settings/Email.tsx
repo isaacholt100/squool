@@ -49,7 +49,7 @@ export default function Email({ email: initial }: { email: string }) {
                 />
                 <LoadBtn label="Update" loading={loading} disabled={error} />
             </form>
-            <Divider className={"my_16"} />
+            <Divider className={"my_12"} />
         </>
     );
 }

@@ -14,9 +14,9 @@ interface IProps {
 
 const useStyles = makeStyles(theme => ({
     pre: {
-        padding: "8px 16px !important",
+        padding: "6px 12px !important",
         margin: "0px !important",
-        borderRadius: 16,
+        borderRadius: 12,
         backgroundColor: (theme.palette.background as any).paper,
         color: theme.palette.text.primary,
         overflow: "auto",

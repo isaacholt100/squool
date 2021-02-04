@@ -71,7 +71,7 @@ export default memo(() => {
                 helperText={state.helper + " "}
                 fullWidth
             />
-            <div className="flex mt_8">
+            <div className="flex mt_6">
                 <Button
                     color="secondary"
                     type="submit"

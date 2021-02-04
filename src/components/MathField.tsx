@@ -14,7 +14,7 @@ const styles = (theme: Theme) => {
     return {
         "@global": {
             ".mq-math-mode": {
-                borderRadius: "8px !important",
+                borderRadius: "6px !important",
                 padding: "8.5px 14px !important",
                 "&:hover": {
                     borderColor: theme.palette.text.primary + " !important",

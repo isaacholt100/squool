@@ -16,9 +16,9 @@ import Title from "../../components/Title";
 const
     useStyles = makeStyles(theme => ({
         add: {
-            width:  160,
-            margin: 8,
-            borderRadius: 16,
+            width: 160,
+            margin: 6,
+            borderRadius: 12,
             "&:focus, &:active": {
                 boxShadow: "none"
             },

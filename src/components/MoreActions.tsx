@@ -7,6 +7,7 @@ import Link from "next/link";
 import { mdiDotsHorizontal } from "@mdi/js";
 import Icon from "./Icon";
 import { RootState } from "../redux/store";
+
 const Actions = memo(({ actions }: any) => actions.map(a => (
     <MenuItem key={a.label} onClick={a.fn}>
         {a.label}

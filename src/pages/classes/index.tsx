@@ -132,7 +132,7 @@ export default function Class() {
                         }]}
                         Item={c => (
                             <Link href={`/classes/${c._id}`}>
-                                <CardActionArea className={"p_8 full_height"}>
+                                <CardActionArea className={"p_6 full_height"}>
                                     <div className="full_height">
                                         <Typography variant="h6" gutterBottom>
                                             {c.name}
@@ -162,7 +162,7 @@ export default function Class() {
                                         margin="normal"
                                         variant="outlined"
                                         type="number"
-                                        style={{ width: 120, marginLeft: 8 }}
+                                        style={{ width: 120, marginLeft: 6 }}
                                         error={yearGroup !== "" && (+yearGroup > 13 || +yearGroup < 1)}
                                         inputProps={{
                                             min: "1",

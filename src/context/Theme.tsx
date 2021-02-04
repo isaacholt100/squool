@@ -1,4 +1,4 @@
-import { createContext, ReactChild, useContext, useEffect, useState } from "react";
+import { createContext, ReactChild, useContext, useEffect, useRef, useState } from "react";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import defaultTheme from "../json/defaultTheme.json";
 import Cookies from "js-cookie";
@@ -8,28 +8,32 @@ interface ITheme {
     fontFamily: string;
     primary: string;
     secondary: string;
-    type: "light" | "dark";
+    type: string;
 }
 
 const ThemeContext = createContext([{}, () => {}]);
 
 export default function Theme({ children }: { children: ReactChild }) {
     const
+        { data } = useSWR("/api/user/settings/theme"),
         isLoggedIn = useIsLoggedIn(),
-        [theme, setTheme] = useState(process.browser && isLoggedIn ? {
+        [theme, setTheme] = useState<ITheme>(process.browser && isLoggedIn ? {
             primary: Cookies.get("theme_primary") || defaultTheme.primary,
             secondary: Cookies.get("theme_secondary") || defaultTheme.secondary,
-            type: Cookies.get("theme_type") as "light" | "dark" || defaultTheme.type,
+            type: Cookies.get("theme_type") || defaultTheme.type,
             fontFamily: Cookies.get("theme_fontFamily") || defaultTheme.fontFamily,
         } : defaultTheme),
+        //ref = useRef(theme),
         dispatch = (t: Partial<ITheme>) => {
             const newTheme = t ? {
                 ...theme,
                 ...t,
             } : defaultTheme;
+            //ref.current = newTheme;
+            //console.log(newTheme);
             setTheme(newTheme);
             if (t) {
-                for (let key in t) {
+                for (const key in t) {
                     Cookies.set("theme_" + key, t[key]);
                 }
             } else {
@@ -39,6 +43,11 @@ export default function Theme({ children }: { children: ReactChild }) {
                 Cookies.remove("theme_fontFamily");
             }
         };
+    useEffect(() => {
+        if (data) {
+            console.log(data);
+        }
+    }, [data]);
     return (
         <ThemeContext.Provider value={[theme, dispatch]}>
             {children}
