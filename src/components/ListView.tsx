@@ -249,7 +249,6 @@ const List = memo(function<T>(props: IListProps<T>) {
                                             {props.Actions && props.Actions(item).map(({ label, fn, icon, ...a }) => (
                                                 <Tooltip title={label} key={label}>
                                                     <IconButton
-                                                        component={IconButton}
                                                         aria-label={label}
                                                         onClick={fn}
                                                         color={props.color || (label === "Delete" ? undefined : "secondary")}

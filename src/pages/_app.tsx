@@ -70,7 +70,10 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 },
                 MuiMenuList: {
                     dense: true,
-                }
+                },
+                MuiTooltip: {
+                    arrow: true,
+                },
             },
         });
     muiTheme.overrides = {
@@ -93,7 +96,17 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     "&:hover": {
                         backgroundColor: muiTheme.palette.error.dark + " !important",
                     },
-                }
+                },
+                "::selection": {
+                    WebkitTextFillColor: muiTheme.palette.secondary.contrastText,
+                    color: muiTheme.palette.secondary.contrastText,
+                    backgroundColor: muiTheme.palette.secondary.main,
+                },
+                "::moz-selection": {
+                    WebkitTextFillColor: muiTheme.palette.secondary.contrastText,
+                    color: muiTheme.palette.secondary.contrastText,
+                    backgroundColor: muiTheme.palette.secondary.main,
+                },
             }
         },
         MuiTouchRipple: {
@@ -321,6 +334,16 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 },
                 outline: "none !important",
             }
+        },
+        MuiTooltip: {
+            tooltip: {
+                backgroundColor: muiTheme.palette.text.primary,
+                color: defaultBg,
+                fontSize: 14,
+            },
+            arrow: {
+                color: muiTheme.palette.text.primary,
+            }
         }
     } as any;
     return (
@@ -411,16 +434,6 @@ const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
         },
         flex: 1,
         minHeight: 0,
-        "& .MuiTypography-root::selection": {
-            WebkitTextFillColor: palette.secondary.contrastText,
-            color: palette.secondary.contrastText,
-            backgroundColor: palette.secondary.main,
-        },
-        "& .MuiTypography-root::moz-selection": {
-            WebkitTextFillColor: palette.secondary.contrastText,
-            color: palette.secondary.contrastText,
-            backgroundColor: palette.secondary.main,
-        },
     },
 }));
 const useStyles = makeStyles(({ palette }) => ({
