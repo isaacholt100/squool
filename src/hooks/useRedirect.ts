@@ -1,16 +1,15 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import useIsLoggedIn from "./useIsLoggedIn"
-import useSnackbar from "./useSnackbar";
+import useIsLoggedIn from "./useIsLoggedIn";
 
 export default function useRedirect() {
-    const isLoggedIn = useIsLoggedIn(), snackbar = useSnackbar(), router = useRouter();
+    const isLoggedIn = useIsLoggedIn(), router = useRouter();
     useEffect(() => {
         if (isLoggedIn as any === "") {
             router.replace("/");
-        } else if (!isLoggedIn) {
+        } else if (isLoggedIn === false) {
             router.replace("/login?to=" + encodeURIComponent(router.asPath));
         }
-    });
+    }, [isLoggedIn]);
     return isLoggedIn;
 }

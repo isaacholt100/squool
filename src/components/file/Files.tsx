@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useRef, useState } from "react";
-import { List, ListItem, Checkbox, ListItemText, ListItemSecondaryAction, IconButton, Box, Tooltip, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Chip, Typography, Divider, ListItemIcon, InputAdornment, Menu, MenuItem, Popover, AppBar, Toolbar } from "@material-ui/core";
+import { List, ListItem, Checkbox, ListItemText, ListItemSecondaryAction, IconButton, Box, Tooltip, Button, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Chip, Typography, Divider, ListItemIcon, InputAdornment, Menu, MenuItem, AppBar, Toolbar } from "@material-ui/core";
 import { useEffect } from "react";
-import useRequest, { useDelete, usePost } from "../../hooks/useRequest";
+import { useDelete, usePost, usePut } from "../../hooks/useRequest";
 import useContrastText from "../../hooks/useContraxtText";
 import { Autocomplete } from "@material-ui/lab";
 import isHotkey from "is-hotkey";
@@ -37,7 +37,7 @@ const TagField = ({ tagsVal, setTags, disabled, tags }: { tagsVal: string[]; set
         <Autocomplete
             value={tagsVal}
             multiple
-            onChange={(e, n) => setTags(n)}
+            onChange={(_e, n) => setTags(n)}
             id="tags"
             options={tagsList}
             disabled={disabled}
@@ -236,7 +236,7 @@ const FileDialog = memo((props: { close(): void, currentFile?: IFile, tags: Tags
             </DialogActions>
         </>
     );
-}, (prev, next) => next.currentFile === null);
+}, (_prev, next) => next.currentFile === null);
 
 const ViewDialog = memo((props: { url: string, ext: string, close(): void }) => {
     return (
@@ -260,14 +260,14 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
         [ContextMenu, openContextMenu] = useContextMenu(),
         user_id = useUserInfo()._id,
         [del, delLoading] = useDelete(),
-        request = useRequest(),
+        [put] = usePut(),
         [selected, setSelected] = useState<string[]>([]),
         [currentFile, setCurrentFile] = useState<IFile>(null),
         [name, setName] = useState(""),
         [fileTags, setFileTags] = useState<string[]>(),
         [search, setSearch] = useState(""),
         [sortBy, setSortBy] = useState(0),
-        [filterTags, setFilterTags] = useState(Object.keys(props.tags)),
+        [filterTags, setFilterTags] = useState([]),
         [uploadOpen, setUploadOpen] = useState(false),
         noneSelected = selected.length === 0,
         searchField = useRef(),
@@ -302,7 +302,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
             });
         },
         updateFile = () => {
-            request.put("/files", {
+            put("/files", {
                 setLoading: true,
                 failedMsg: "updating this file",
                 body: {
@@ -373,7 +373,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                 if (e.data) {
                     fn && fn();
                     snackbar.success(files.length + " file" + (files.length !== 1 ? "s" : "") + " saved and " + (files.length !== 1 ? "are" : "is") + " now available offline");
-                    const test = await getDB(props.db_id);
+                    //const test = await getDB(props.db_id);
                 } else {
                     snackbar.error("There was an error saving these files");
                 }
@@ -474,7 +474,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <IconButton size="small" aria-label="clear search field" onMouseDown={e => e.preventDefault()} onClick={() => setSearch("")}>
+                                <IconButton size="small" aria-label="clear search field" className="p_3" onMouseDown={e => e.preventDefault()} onClick={() => setSearch("")}>
                                     <Icon path={mdiClose} />
                                 </IconButton>
                             </InputAdornment>
@@ -487,7 +487,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                     </Button>
                 </Tooltip>
             </div>
-            <div className="flex" style={{overflow: "auto"}}>
+            <div className="flex overflow_scroll">
                 {props.files.every(f => selected.includes(f._id)) ? (
                     <Tooltip title="Clear Selection">
                         <IconButton onClick={() => setSelected([])} className="mr_6">
@@ -531,35 +531,29 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                         <Icon path={mdiFilter} />
                     </IconButton>
                 </Tooltip>
-                <Popover
+                <Menu
                     id="filter-menu"
                     anchorEl={filterAnchor}
                     keepMounted
                     open={Boolean(filterAnchor)}
                     onClose={() => setFilterAnchor(null)}
+                    variant="menu"
                     PaperProps={{
                         style: {
                             maxHeight: 256
                         }
                     }}
                 >
-                    <List disablePadding>
-                        <MenuItem onClick={() => setFilterTags(Object.keys(props.tags))}>Reset</MenuItem>
-                        {Object.keys(props.tags).map(tag => (
-                            <ListItem key={tag} button selected={filterTags.includes(tag)} onClick={() => toggleFilter(tag)}>
-                                <Box height={24} width={24} bgcolor={props.tags[tag]} borderRadius={"50%"} mr="12px" />
-                                <ListItemText primary={tag} className="mr_6" />
-                                <ListItemSecondaryAction>
-                                    <Checkbox
-                                        edge="end"
-                                        onChange={() => toggleFilter(tag)}
-                                        checked={filterTags.includes(tag)}
-                                    />
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Popover>
+                    <MenuItem selected={false} onClick={() => setFilterTags([])}>Reset</MenuItem>
+                    {Object.keys(props.tags).map(tag => (
+                        <MenuItem key={tag} button selected={filterTags.includes(tag)} onClick={() => toggleFilter(tag)}>
+                            <Box height={20} width={20} bgcolor={props.tags[tag]} borderRadius={"50%"} mr="12px" />
+                            <Typography>
+                                {tag}
+                            </Typography>
+                        </MenuItem>
+                    ))}
+                </Menu>
                 <Divider orientation="vertical" className="ml_auto mr_6" flexItem />
                 <Tooltip title="Delete">
                     <IconButton disabled={noneSelected || selected.some(_id => !props.files.find(file => file._id === _id)?.writer_ids?.includes(user_id))} className="mr_6" onClick={() => deleteFiles(selected)}>
@@ -580,41 +574,39 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
                 </Tooltip>
             </div>
             <Box component={List} overflow="auto" className="p_0">
-                {props.files.filter(f => f.name.toLowerCase().includes(search.toLowerCase()) && filterTags.some(t => f.tags.includes(t))).sort(sortFn).map(f => (
-                    <Box whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" borderRadius={6} mt="4px" key={f._id}>
-                        {b => <ListItem role={undefined} button dense {...b} onClick={openFile(f)} disableRipple /*selected={selected.includes(f._id)}*/ onContextMenu={onContextMenu(f)}>
-                            <ListItemIcon>
-                                <Checkbox
-                                    checked={selected.includes(f._id)}
-                                    inputProps={{ "aria-labelledby": `file-${f.name}-${f._id}` }}
-                                    tabIndex={-1}
-                                    color="secondary"
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        toggleSelected(f._id);
-                                    }}
-                                />
-                            </ListItemIcon>
-                            <ListItemText
-                                id={`file-${f.name}-${f._id}`}
-                                primary={f.name}
-                                secondary={(
-                                    <div className="flex mt_6">
-                                        {f.tags.sort().map(t => (
-                                            <MiniTag key={t} name={t} color={props.tags[t]} />
-                                        ))}
-                                    </div>
-                                )}
+                {props.files.filter(f => f.name.toLowerCase().includes(search.toLowerCase()) && filterTags.every(t => f.tags.includes(t))).sort(sortFn).map(f => (
+                    <ListItem role={undefined} button dense onClick={openFile(f)} disableRipple /*selected={selected.includes(f._id)}*/ onContextMenu={onContextMenu(f)} className="mt_6 m_0" key={f._id}>
+                        <ListItemIcon>
+                            <Checkbox
+                                checked={selected.includes(f._id)}
+                                inputProps={{ "aria-labelledby": `file-${f.name}-${f._id}` }}
+                                tabIndex={-1}
+                                color="secondary"
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    toggleSelected(f._id);
+                                }}
                             />
-                            <ListItemSecondaryAction>
-                                <Tooltip title="File Info">
-                                    <IconButton edge="end" aria-label="info" onClick={fileInfo(f)}>
-                                        <Icon path={mdiInformation} />
-                                    </IconButton>
-                                </Tooltip>
-                            </ListItemSecondaryAction>
-                        </ListItem>}
-                    </Box>
+                        </ListItemIcon>
+                        <ListItemText
+                            id={`file-${f.name}-${f._id}`}
+                            primary={f.name}
+                            secondary={(
+                                <div className="flex mt_6">
+                                    {f.tags.sort().map(t => (
+                                        <MiniTag key={t} name={t} color={props.tags[t]} />
+                                    ))}
+                                </div>
+                            )}
+                        />
+                        <ListItemSecondaryAction>
+                            <Tooltip title="File Info">
+                                <IconButton edge="end" aria-label="info" onClick={fileInfo(f)}>
+                                    <Icon path={mdiInformation} />
+                                </IconButton>
+                            </Tooltip>
+                        </ListItemSecondaryAction>
+                    </ListItem>
                 ))}
             </Box>
         </>

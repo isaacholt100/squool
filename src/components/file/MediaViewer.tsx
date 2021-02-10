@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useRef, memo, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import screenfull, { Screenfull } from "screenfull";
 import ReactPlayer from "react-player/lazy";
 import { IconButton, Slider, Typography, Tooltip, makeStyles, FormControl, MenuItem, Select } from "@material-ui/core";
@@ -110,7 +110,7 @@ const useStyles = makeStyles({
         left: 0,
         right: 0,
         zIndex: 99,
-    }
+    },
 });
 
 interface IBasePlayerProps {
@@ -139,11 +139,24 @@ export function YoutubePlayer({ url }: { url: string }) {
     const classes = useStyles();
     return (
         <div className={classes.videoContainer}>
-            <YTPlayer style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                    }} url={url}  height="100%" width="100%" config={{playerVars: {controls: 1, disablekb: 0, modestbranding: 1, color: "white"}}} />
+            <YTPlayer
+                style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                }}
+                url={url}
+                height="100%"
+                width="100%"
+                config={{
+                    playerVars: {
+                        controls: 1,
+                        disablekb: 0,
+                        modestbranding: 1,
+                        color: "white"
+                    }
+                }}
+            />
         </div>
     );
 }
@@ -160,7 +173,7 @@ function BasePlayer(props: IBasePlayerProps) {
         [volOpen, setVolOpen] = useState(false),
         player = useRef<ReactPlayer>(),
         volume = useRef(),
-        seek = (e, s: number) => {
+        seek = (_e, s: number) => {
             props.setSeeking(false);
             player.current.seekTo(s);
         },
@@ -267,7 +280,7 @@ function BasePlayer(props: IBasePlayerProps) {
                                     value={muted.current ? 0 : vol.current}
                                     max={1}
                                     step={0.05}
-                                    onChange={(e, v: number) => {
+                                    onChange={(_e, v: number) => {
                                         !props.dragging && props.setDragging && props.setDragging(true);
                                         setMuted(v === 0);
                                         setVol(v);
@@ -293,7 +306,7 @@ function BasePlayer(props: IBasePlayerProps) {
                             onMouseDown={() => props.setSeeking(true)}
                             onTouchStart={() => props.setSeeking(true)}
                             onChangeCommitted={seek}
-                            onChange={(e, p) => setPlayed(p as number)}
+                            onChange={(_e, p) => setPlayed(p as number)}
                             aria-labelledby="seek"
                             className={clsx(classes.slider)}
                             classes={{

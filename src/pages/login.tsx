@@ -12,6 +12,7 @@ import {
     Box,
     Card,
     Tooltip,
+    Link as ButtonLink
 } from "@material-ui/core";
 import Icon from "../components/Icon";
 import { mdiEye, mdiEyeOff } from "@mdi/js";
@@ -33,16 +34,14 @@ const initialState = {
 
 export default function Login() {
     const
-        isLoggedIn = useAuthRedirect(),
+        [isLoggedIn, setIsRedirecting] = useAuthRedirect(),
         router = useRouter(),
         [post, loading] = usePost(),
-        //request = useRequest(),
         [, setTheme] = useTheme(),
         [show, setShow] = useState(false),
         [staySignedIn, setStaySignedIn] = useState(true),
         [state, setState] = useState(initialState),
         dispatch = useDispatch(),
-        //history = useHistory(),
         //socket = useSocket(),
         disabled = state.emailError !== "" || state.passwordError !== "" || state.email === "" || state.password === "",
         toUrl = decodeURIComponent(router.query.to as string),
@@ -66,6 +65,7 @@ export default function Login() {
                         staySignedIn,
                     },
                     done(data: any) {
+                        setIsRedirecting(true);
                         setTheme(data.theme);
                         dispatch({
                             type: "UPLOAD_DATA",
@@ -82,10 +82,12 @@ export default function Login() {
                         router.replace(toUrl && toUrl[0] === "/" && toUrl.split("?")[0] !== "/login" ? toUrl : "/home");
                         //socket.connect(`http://${serverUrl.split(":5000")[0]}`);
                     },
-                    errors: data => setState({
-                        ...state,
-                        ...(data as any).errors,
-                    })
+                    errors(data) {
+                        setState({
+                            ...state,
+                            ...(data as any).errors,
+                        });
+                    }
                 });
             }
         };
@@ -96,7 +98,12 @@ export default function Login() {
                 <div>
                     <Box maxWidth={600} mx="auto" /*className={effects.fadeup}*/ component={Card}>
                         <Typography variant="h5" gutterBottom>
-                            Login to Squool
+                            Login to{" "}
+                            <Link href="/">
+                                <ButtonLink component="button">
+                                    <Typography variant="h5">Squool</Typography>
+                                </ButtonLink>
+                            </Link>
                         </Typography>
                         <form onSubmit={handleSubmit}>
                             <div className={"my_6"}>
@@ -109,7 +116,7 @@ export default function Login() {
                                     label="Email"
                                     value={state.email}
                                     onChange={handleChange("email")}
-                                    autoComplete="new-email"
+                                    autoComplete="email"
                                     helperText={state.emailError + " "}
                                     fullWidth
                                     autoFocus
@@ -126,7 +133,7 @@ export default function Login() {
                                     label="Password"
                                     value={state.password}
                                     onChange={handleChange("password")}
-                                    autoComplete="new-password"
+                                    autoComplete="current-password"
                                     helperText={state.passwordError + " "}
                                     fullWidth
                                     InputProps={{
@@ -137,6 +144,7 @@ export default function Login() {
                                                         aria-label="Toggle password visibility"
                                                         onClick={() => setShow(!show)}
                                                         onMouseDown={e => e.preventDefault()}
+                                                        className="p_3"
                                                     >
                                                         {show ? <Icon path={mdiEyeOff} /> : <Icon path={mdiEye} />}
                                                     </IconButton>

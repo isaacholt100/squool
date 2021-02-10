@@ -31,6 +31,7 @@ import { getClassDB } from "../../lib/idb";
 import { useIsOnline } from "../../context/IsOnline";
 import useUserInfo from "../../hooks/useUserInfo";
 import { defaultRedirect } from "../../lib/serverRedirect";
+import useRedirect from "../../hooks/useRedirect";
 
 const sampleFiles: IFile[] = [{
     name: "file",
@@ -171,15 +172,15 @@ function Class() {
         }
     }, [isOnline]);
     useEffect(() => {
-        console.log("effect");
         files !== null && isOnline && user_id && syncOfflineFiles();
     }, [files, user_id]);
-    return !classInfo ? <Loader /> : (
+    const isLoggedIn = useRedirect();
+    return !isLoggedIn ? null : !classInfo ? <Loader /> : (
         <div className="fadeup">
             <AppBar position="relative" color="default">
                 <Tabs
                     value={activeTab}
-                    onChange={(e, p) => setActiveTab(p)}
+                    onChange={(_e, p) => setActiveTab(p)}
                     indicatorColor="primary"
                     textColor="primary"
                     variant="scrollable"

@@ -41,6 +41,8 @@ export default function Settings(props: { email: string, icon: string, firstName
         isLoggedIn = useRedirect(),
         [hashIndex, changeHash] = useUrlHashIndex(PAGES),
         [page, setPage] = useState(hashIndex);
+        console.log(page);
+        
     return (
         <>
             <Title title="Settings" />
@@ -50,7 +52,7 @@ export default function Settings(props: { email: string, icon: string, firstName
                         <AppBar position="relative" color="default">
                             <Tabs
                                 value={page}
-                                onChange={(e, p) => setPage(p)}
+                                onChange={(_e, p) => setPage(p)}
                                 indicatorColor="primary"
                                 textColor="primary"
                                 variant="scrollable"

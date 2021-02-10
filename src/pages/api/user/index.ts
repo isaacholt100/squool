@@ -12,6 +12,7 @@ import getUser from "../../../server/getUser";
 import { setRefreshToken } from "../../../server/cookies";
 import getSession from "../../../server/getSession";
 import isEmailValid from "../../../lib/isEmailValid";
+import { serialize } from "cookie";
 
 const saltRounds = 12;
 export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
@@ -196,6 +197,11 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
             })).password);
             if (valid) {
                 const r = await users.deleteOne({_id: user._id});
+                res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {
+                    maxAge: -1,
+                    httpOnly: true,
+                    sameSite: "strict",
+                }));
                 didUpdate(res, r.deletedCount);
             } else {
                 errors(res, "Incorrect Password");

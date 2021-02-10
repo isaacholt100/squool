@@ -95,7 +95,7 @@ const TabList = memo((props: ITabProps) => props.tabs.length > 0 && (
         <AppBar position="relative" color="default">
             <Tabs
                 value={props.filter}
-                onChange={(e, newFilter) => props.setFilter(newFilter)}
+                onChange={(_e, newFilter) => props.setFilter(newFilter)}
                 indicatorColor="primary"
                 textColor="primary"
                 variant="scrollable"
@@ -133,7 +133,7 @@ const CreateBtn = memo((props: { createFn?: () => void, name: string }) => {
             </div>
         </CardActionArea>
     );
-}, (prev, next) => true);
+}, (_prev, _next) => true);
 
 const Stepper = memo((props: { length: number, activeStep: number, setActiveStep: (x: number) => void, }) => (
     <MobileStepper

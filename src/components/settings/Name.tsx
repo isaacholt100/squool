@@ -6,35 +6,37 @@ import { dispatch } from "../../redux/store";
 import LoadBtn from "../LoadBtn";
 
 export default function Name(props: { firstName: string, lastName: string }) {
-    const { firstName, lastName } = useUserInfo();
-    const [put, loading] = usePut();
-    const [first, setFirst] = useState(firstName || props.firstName);
-    const [last, setLast] = useState(lastName || props.lastName);
-    const firstErr = first.length > 50;
-    const lastErr = last.length > 50;
-    const updateName = e => {
-        e.preventDefault();
-        if (!loading) {
-            put("/user/name", {
-                setLoading: true,
-                body: {
-                    firstName: first,
-                    lastName: last,
-                },
-                doneMsg: "Name updated",
-                failedMsg: "updating your name",
-                done() {
-                    dispatch({
-                        type: "/user/info/update",
-                        payload: {
-                            firstName: first,
-                            lastName: last,
-                        }
-                    });
-                }
-            });
-        }
-    }
+    const
+        { firstName, lastName, role } = useUserInfo(),
+        [put, loading] = usePut(),
+        [first, setFirst] = useState(firstName || props.firstName),
+        [last, setLast] = useState(lastName || props.lastName),
+        firstErr = first.length > 50,
+        lastErr = last.length > 50,
+        disabled = firstErr || lastErr || first === "" || last === "",
+        updateName = e => {
+            e.preventDefault();
+            if (!loading && !disabled) {
+                put("/user/name", {
+                    setLoading: true,
+                    body: {
+                        firstName: first,
+                        lastName: last,
+                    },
+                    doneMsg: "Name updated",
+                    failedMsg: "updating your name",
+                    done() {
+                        dispatch({
+                            type: "/user/info/update",
+                            payload: {
+                                firstName: first,
+                                lastName: last,
+                            }
+                        });
+                    }
+                });
+            }
+        };
     useEffect(() => {
         firstName && setFirst(firstName);
     }, [firstName]);
@@ -50,7 +52,7 @@ export default function Name(props: { firstName: string, lastName: string }) {
                 <TextField
                     value={first}
                     onChange={e => setFirst(e.target.value)}
-                    label={"First Name"}
+                    label={role === "student" ? "First Name" : "Title"}
                     fullWidth
                     helperText={firstErr ? "Name too long" : " "}
                     error={firstErr}
@@ -70,7 +72,7 @@ export default function Name(props: { firstName: string, lastName: string }) {
                         width: "calc(50% - 4px)",
                     }}
                 />
-                <LoadBtn label="Update Name" loading={loading} disabled={firstErr || lastErr} />
+                <LoadBtn label="Update Name" color="secondary" loading={loading} disabled={disabled} />
             </form>
         </>
     );

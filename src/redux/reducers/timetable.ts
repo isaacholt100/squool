@@ -20,7 +20,7 @@ export default function timetable(state: ITimetable = null, action: IAction): IT
                         t: "",
                         r: ""
                     })]
-                    : state.lessons.filter((x, i) => i < 5),
+                    : state.lessons.filter((_x, i) => i < 5),
             }
         case "/timetable/update":
             return {

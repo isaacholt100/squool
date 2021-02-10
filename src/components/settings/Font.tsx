@@ -34,7 +34,7 @@ export default memo(() => {
             <Autocomplete
                 options={fonts}
                 value={fontFamily}
-                onChange={(e, newValue) => updateFontFamily(newValue || "")}
+                onChange={(_e, newValue) => updateFontFamily(newValue || "")}
                 filterOptions={createFilterOptions({
                     limit: 16,
                     trim: true,
@@ -46,9 +46,8 @@ export default memo(() => {
                         variant="outlined"
                         label="Font family"
                         placeholder="Search for 900 fonts from Google Fonts (try: 'Roboto Slab')"
-                        margin="normal"
                         fullWidth
-                        onKeyDown={e => e.key === "Enter" && updateFontFamily((e.target as any).value)}
+                        onKeyDown={e => e.key === "Enter" && (e.target as any).blur()}
                         onBlur={e => updateFontFamily(e.target.value)}
                     />
                 )}

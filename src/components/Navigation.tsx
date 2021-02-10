@@ -22,15 +22,17 @@ import Link from "next/link";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import NProgress from "nprogress";
 import NProgressBar from "./NProgressBar";
-import { useRouter } from "next/router";
+import { useRouter, Router } from "next/router";
 import MoreActions from "./MoreActions";
 import useUserInfo from "../hooks/useUserInfo";
-import Image from "next/image";
 import usePathname from "../hooks/usePathname";
 
 NProgress.configure({
     parent: "#nprogress-parent",
 });
+        Router.events.on("routeChangeStart", (e) => {
+            console.log("route change: ", e)
+        })
 
 const
     useStyles = makeStyles(theme => ({
@@ -141,8 +143,9 @@ const Nav = memo(() => {
                                         href={"/" + link.toLowerCase()}
                                         selected={link.toLowerCase() === router.pathname.slice(1) || (link === "Home" && router.pathname === "/")}
                                         className={clsx(classes.navItem, link === "Home" && classes.imgLink)}
-                                        onClick={() => {
+                                        onClick={(e) => {
                                             setMobileOpen(false);
+                                            e.stopPropagation();
                                             router.push("/" + link.toLowerCase());
                                         }}
                                     >
@@ -262,7 +265,7 @@ const Nav = memo(() => {
     );
 });
 export default function Navigation() {
-    const loggedIn = useIsLoggedIn();
+    const isLoggedIn = useIsLoggedIn();
     const pathname = usePathname();
-    return loggedIn && pathname !== "/" ? <Nav /> : null;
+    return isLoggedIn && pathname !== "/" ? <Nav /> : null;
 }

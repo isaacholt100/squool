@@ -35,12 +35,14 @@ export default memo(() => {
                         oldPassword: state.oldPassword,
                     },
                     doneMsg: "Password updated",
-                    done: data => setState({
-                        ...state,
-                        newPassword: "",
-                        repeatPassword: "",
-                        oldPassword: "",
-                    }),
+                    done() {
+                        setState({
+                            ...state,
+                            newPassword: "",
+                            repeatPassword: "",
+                            oldPassword: "",
+                        });
+                    },
                     errors: data => setState({
                         ...state,
                         ...data.errors as Partial<IFields>,
@@ -122,13 +124,18 @@ export default memo(() => {
                             required
                             error={state[`${p}PasswordError`] !== ""}
                             helperText={state[`${p}PasswordError`] + " "}
-                            autoComplete="false"
+                            autoComplete={(
+                                p === "old"
+                                    ? "current-password"
+                                    : "new-password"
+                            )}
                         />
                     </Grid>
                 ))}
             </Grid>
             <LoadBtn
                 label="Change"
+                color="secondary"
                 disabled={!enabled}
                 loading={loading}
             />

@@ -29,5 +29,10 @@
   "exclude": [
     "node_modules",
     "src/components/book"
-  ]
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+, "src/pages/socketio.jsx"  ]
 }

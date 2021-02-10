@@ -1,4 +1,3 @@
-import { deleteDB } from "idb";
 import { getDB } from "../lib/idb";
 import IFile from "../types/IFile";
 

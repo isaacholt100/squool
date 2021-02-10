@@ -13,16 +13,6 @@ import { mdiDownload, mdiLaunch } from "@mdi/js";
 import { canPlay, AUDIO_EXTENSIONS, MATCH_URL_SOUNDCLOUD } from "react-player/lazy/patterns";
 import useSWR from "swr";
 
-const getExtension = (name: string) => {
-    const
-        basename = name.split(/[\\/]/).pop(),
-        pos = basename.lastIndexOf(".");
-    if (basename === "" || pos < 1) {
-        return "txt";
-    }
-    return basename.slice(pos + 1).toLowerCase();
-}
-
 const CodeViewer = memo(({ ext, url }: { url: string; ext: string }) => {
     const { data, error } = useSWR(url, (url, opts) => fetch(url, opts).then(res => res.text()));
     return data === undefined ? <MediaLoader /> : (

@@ -39,7 +39,7 @@ export default function TimetableView() {
                 payload: obj,
             });
         },
-        onBlur = (day, period, key) => e => {
+        onBlur = (day, period, key) => () => {
             const value = timetable.lessons[day][period][key];
             const obj = {
                 value,
