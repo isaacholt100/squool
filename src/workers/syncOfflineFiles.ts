@@ -10,15 +10,12 @@ interface IData {
 }
 
 self.addEventListener("message", async ({ data }: { data: IData }) => {
-    console.log(Math.random());
-    
     try {
         const db = await getDB(data.db_id);
         //const tx = db.transaction("files", "readwrite");
         const all = await db.getAll("files");
         const l = all.length;
         console.log(l);
-        const updates = [];
         for (let i = 0; i < l; i++) {
             const oldFile: IFile = all[i];
             const currentFile = data.files.find(f => f._id === all[i]._id);

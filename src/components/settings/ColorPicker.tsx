@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import useContraxtText from "../../hooks/useContraxtText";
 import { Grid, Typography, Radio, Slider } from "@material-ui/core";
 import { hues, colors, shades } from "../../json/colors";
@@ -22,7 +22,8 @@ function ColorPicker({ intent, shade, hue, ...props }: {[key: string]: any}) {
                         style={{
                             backgroundColor,
                             color: contrastText(backgroundColor),
-                            margin: 2,
+                            margin: 3,
+                            borderRadius: 6,
                         }}
                     />
                 );
@@ -33,7 +34,7 @@ function ColorPicker({ intent, shade, hue, ...props }: {[key: string]: any}) {
             <Slider
                 value={shades.indexOf(shade)}
                 min={0}
-                max={13}
+                max={shades.length - 1}
                 color={intent}
                 step={1}
                 onChange={props.handleChangeShade(intent)}

@@ -15,9 +15,9 @@ import {
     Divider,
     Box,
     Card,
+    Link as ButtonLink
 } from "@material-ui/core";
 import LoadBtn from "../components/LoadBtn";
-import clsx from "clsx";
 import { usePost } from "../hooks/useRequest";
 import Link from "next/link";
 import jwtCookies from "../lib/jwtCookies";
@@ -44,11 +44,15 @@ const
         password: "",
         repeatPassword: "",
     },
-    useStyles = makeStyles(theme => ({
-        input: {
-            width: "100%",
-            margin: "4px 0",
-        },
+    autoCompleteNames = {
+        firstName: "given-name",
+        lastName: "family-name",
+        email: "email",
+        schoolID: "on",
+        password: "new-password",
+        repeatPassword: "new-password",
+    },
+    useStyles = makeStyles({
         firstName: {
             width: "calc(50% - 4px)",
             textTransform: "capitalize"
@@ -65,8 +69,8 @@ const
             width: "calc(50% - 4px)",
             marginLeft: 8,
         },
-    }));
-export default function Login() {
+    });
+export default function Signup() {
     const
         [post, loading] = usePost(),
         //socket = useSocket(),
@@ -96,6 +100,7 @@ export default function Login() {
                     staySignedIn,
                 },
                 done: (data: any) => {
+                    setIsRedirecting(true);
                     jwtCookies({
                         accessToken: data.accessToken,
                         refreshToken: data.refreshToken,
@@ -200,7 +205,7 @@ export default function Login() {
                 ...newState,
             });
         },
-        changePosition = (e: ChangeEvent<HTMLInputElement>, val: string) => {
+        changePosition = (_e: ChangeEvent<HTMLInputElement>, val: string) => {
             if (values.schoolID === "" && helpers.schoolID !== "") {
                 setHelpers({
                     ...helpers,
@@ -222,7 +227,7 @@ export default function Login() {
             values.firstName === "" ||
             values.lastName === "" ||
             (role === "admin" && values.schoolID === ""),
-        isLoggedIn = useAuthRedirect();
+        [isLoggedIn, setIsRedirecting] = useAuthRedirect();
     useEffect(() => {
         const id = window.location.search.split("id=")[1]?.split("&")[0];
         if (id) {
@@ -240,11 +245,16 @@ export default function Login() {
                     <div>
                         <Box maxWidth={600} /*className={effects.fadeup}*/ mx="auto" component={Card}>
                             <Typography variant="h5" gutterBottom>
-                                Sign up to Squool
+                                Sign up to{" "}
+                                <Link href="/">
+                                    <ButtonLink component="button">
+                                        <Typography variant="h5">Squool</Typography>
+                                    </ButtonLink>
+                                </Link>
                             </Typography>
-                            <form noValidate autoComplete="off" onSubmit={signup}>
+                            <form noValidate onSubmit={signup}>
                                 <Typography>I am a...</Typography>
-                                <FormGroup row>
+                                <FormGroup row className="mb_6">
                                     <RadioGroup
                                         aria-label="Position"
                                         name="role"
@@ -274,9 +284,10 @@ export default function Login() {
                                         autoFocus={i === 0}
                                         key={field}
                                         id={field}
+                                        name={field}
                                         required={field !== "schoolID" || role === "admin"}
                                         error={helpers[field] !== "" && (role !== "admin" ? field !== "schoolID" || helpers[field] === "School not found" : true)}
-                                        autoComplete={`new-${field}`}
+                                        autoComplete={autoCompleteNames[field]}
                                         variant="outlined"
                                         type={field.includes("assword") ? "password" : "text"}
                                         label={
@@ -289,7 +300,8 @@ export default function Login() {
                                         value={values[field]}
                                         onChange={handleChange(field)}
                                         helperText={helpers[field] + " "}
-                                        className={clsx(classes.input, classes[field])}
+                                        fullWidth
+                                        className={classes[field]}
                                     />
                                 ))}
                                 <Box clone mt="-8px" mb="4px">
@@ -297,7 +309,7 @@ export default function Login() {
                                         control={
                                             <Checkbox
                                                 checked={staySignedIn}
-                                                onChange={(e, checked) => setStaySignedIn(checked)}
+                                                onChange={(_e, checked) => setStaySignedIn(checked)}
                                                 value="Stay signed in"
                                                 color="primary"
                                             />

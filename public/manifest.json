@@ -5,7 +5,7 @@
     "short_name": "Squool",
     "scope": "/",
     "display": "standalone",
-    "start_url": "/",
+    "start_url": "/home",
     "background_color": "#000000",
     "theme_color": "#000000",
     "description": "<Description>",

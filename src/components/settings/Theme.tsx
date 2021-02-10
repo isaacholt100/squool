@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useState, useEffect } from "react";
+import React, { useState } from "react";
 import { usePut } from "../../hooks/useRequest";
 import { useDispatch } from "react-redux";
 //import socket from "../../api/socket";
@@ -11,6 +11,7 @@ import { shades, colors } from "../../json/colors";
 //import useSocket from "../../hooks/useSocket";
 import { useTheme } from "../../context/Theme";
 import useCarouselView from "../../hooks/useCarouselView";
+import {io} from 'socket.io-client'
 
 type Intent = "primary" | "secondary";
 
@@ -52,13 +53,13 @@ export default function Theme() {
                 }//socket.emit("user message", "/theme", { [name]: payload }),
             });
         },
-        handleChangeShade = (name: Intent) => (e, shade) => {
+        handleChangeShade = (name: Intent) => (_e, shade) => {
             setThemeState({
                 ...themeState,
                 [`${name}Shade`]: shades[shade],
             });
         },
-        endChangeShade = (name: Intent) => (e, shade: number) => {
+        endChangeShade = (name: Intent) => (_e, shade: number) => {
             const payload = colors[themeState[name + "Hue"]][shades[shade]];
             setTheme({ [name]: payload });
             put("/user/settings/theme", {
@@ -89,7 +90,7 @@ export default function Theme() {
                 }//socket.emit("user message", "/theme/reset")
             });
         },
-        changeCarouselView = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+        changeCarouselView = (_e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
             dispatch({
                 type: "/user/carouselView",
                 payload: checked,
@@ -103,6 +104,7 @@ export default function Theme() {
             });
         },
         handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const socket = io();
             setTheme({ type: e.target.value });
             put("/user/settings/theme", {
                 failedMsg: "updating the theme",
@@ -110,7 +112,9 @@ export default function Theme() {
                     path: "theme.type",
                     val: e.target.value,
                 },
-                done() {}//socket.emit("user message", "/theme", { type })
+                done() {
+                    socket.emit("user message", "/theme", { type: e.target.value });
+                }
             });
         };
         //console.log(theme);
@@ -155,7 +159,7 @@ export default function Theme() {
             </Grid>
             <MarginDivider />
             <FontSettings />
-            <Button color="secondary" onClick={resetTheme}>
+            <Button color="default" onClick={resetTheme}>
                 Reset Theme
             </Button>
         </>

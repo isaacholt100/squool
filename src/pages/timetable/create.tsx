@@ -71,7 +71,7 @@ export default function TimetableCreate() {
         deletePeriod = i => {
             let newTimetable = timetable;
             newTimetable.periods.splice(i, 1);
-            newTimetable.lessons.forEach((item, index) => {
+            newTimetable.lessons.forEach((_item, index) => {
                 newTimetable.lessons[index].splice(i, 1);
             });
             setTimetable(newTimetable);
@@ -92,7 +92,7 @@ export default function TimetableCreate() {
                     newTimetable.periods[periodEdited] = startTime + " - " + endTime;
                 } else {
                     newTimetable.periods.push(startTime + " - " + endTime)
-                    newTimetable.lessons.forEach((item, i) => {
+                    newTimetable.lessons.forEach((_item, i) => {
                         newTimetable.lessons[i].push({
                             s: "[Subject]",
                             t: "[Teacher]",
@@ -132,7 +132,7 @@ export default function TimetableCreate() {
                                         ...timetable,
                                         lessons: e.target.checked
                                             ? [...timetable.lessons, []]
-                                            : timetable.lessons.filter((x, i) => i < 5)
+                                            : timetable.lessons.filter((_, i) => i < 5)
                                     })
                                 }}
                                 value="checked"

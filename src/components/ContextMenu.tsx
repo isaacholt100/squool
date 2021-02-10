@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo } from "react";
-import { Menu, Divider, ListItem, ListItemText, ListItemIcon, MenuItem } from "@material-ui/core";
+import { Menu, Divider, ListItemText, ListItemIcon, MenuItem } from "@material-ui/core";
 import { ContextMenuItem } from "../types/contextMenu";
 import styles from "../css/contextMenu.module.css";
 

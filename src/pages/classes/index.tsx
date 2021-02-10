@@ -193,7 +193,7 @@ export default function Class() {
                                                 }}
                                             />
                                         )}
-                                        onChange={(e, newVal) => setTeachers(newVal)}
+                                        onChange={(_e, newVal) => setTeachers(newVal)}
                                         getOptionLabel={option => option.email}
                                         filterOptions={(a, { inputValue }) => a.filter(x => (x.name.includes(inputValue) || x.email.includes(inputValue)) && x.email !== email)}
                                         renderOption={option => option.name + " - " + option.email}

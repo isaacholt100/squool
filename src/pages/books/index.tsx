@@ -191,7 +191,7 @@ export default function Books() {
                     },
                     doneMsg: "Book linked to class",
                     failedMsg: "linking this book",
-                    done(data) {
+                    done() {
                         /*dispatchEmit("/book/update", {
                             _id,
                             class_id,

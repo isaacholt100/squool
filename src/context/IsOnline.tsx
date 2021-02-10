@@ -2,7 +2,7 @@ import { createContext, ReactChild, ReactText, useContext, useEffect, useRef } f
 import useRefState from "../hooks/useRefState";
 import useSnackbar from "../hooks/useSnackbar";
 
-const IsOnlineContext = createContext<[boolean, (online: boolean) => void]>([true, (online: boolean) => {}]);
+const IsOnlineContext = createContext<[boolean, (online: boolean) => void]>([true, (_online: boolean) => {}]);
 export default function IsOnline({ children }: { children: ReactChild }) {
     const snackbar = useSnackbar();
     const key = useRef<ReactText>();

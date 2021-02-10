@@ -22,9 +22,7 @@ export default memo(() => {
                 failedMsg: "updating your school",
                 body: { school_id: state._id },
                 setLoading: true,
-                done(data) {
-                    logout();
-                },
+                done: logout,
                 errors(data) {
                     close();
                     setState({
@@ -39,9 +37,7 @@ export default memo(() => {
                 failedMsg: "leaving your school",
                 body: { school_id: state._id },
                 setLoading: true,
-                done(data) {
-                    logout();
-                }
+                done: logout,
             });
         },
         submit = e => {

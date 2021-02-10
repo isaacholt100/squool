@@ -23,6 +23,7 @@ import { AppProps } from "next/app";
 import Cookies from "js-cookie";
 import useLogout from "../hooks/useLogout";
 import useThemeType from "../hooks/useThemeType";
+import usePathname from "../hooks/usePathname";
 
 function ThemeWrapper({ children }: { children: ReactChild }) {
     const
@@ -85,6 +86,13 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 },
                 ".primary_contrast_text": {
                     color: muiTheme.palette.primary.contrastText + " !important",
+                },
+                ".error_color_btn:not(.Mui-disabled)": {
+                    backgroundColor: muiTheme.palette.error.main + " !important",
+                    color: muiTheme.palette.error.contrastText + " !important",
+                    "&:hover": {
+                        backgroundColor: muiTheme.palette.error.dark + " !important",
+                    },
                 }
             }
         },
@@ -94,10 +102,11 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 borderRadius: 0,
                 left: "0 !important",
                 right: "0 !important",
+                animation: "none !important",
                 //position: "static",
                 "& *": {
                     borderRadius: "0 !important",
-                    animation: "none !important"
+                    animation: "none !important",
                 }
             },
         },
@@ -272,14 +281,14 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
             root: {
                 textTransform: "capitalize",
                 borderRadius: 6,
-                margin: 3,
+                marginRight: 6,
                 minHeight: 36,
             },
         },
         MuiTabs: {
             root: {
                 borderRadius: 12,
-                padding: 3,
+                padding: 6,
             },
             indicator: {
                 display: "none",
@@ -305,9 +314,12 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 padding: 6,
             }
         },
-        MuiListItemSecondaryAction: {
+        MuiLink: {
             root: {
-                right: 9,
+                "&:focus": {
+                    textDecoration: "underline",
+                },
+                outline: "none !important",
             }
         }
     } as any;
@@ -325,10 +337,11 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
 function Frame({ children }: { children: ReactChild }) {
     const
         isLoggedIn = useIsLoggedIn(),
+        pathname = usePathname(),
         dispatch = useDispatch(),
         [get] = useGet(),
         [dataLoaded, setDataLoaded] = useState(false),
-        classes = useContainerStyles(isLoggedIn),
+        classes = useContainerStyles(isLoggedIn && pathname !== "/"),
         [, setTheme] = useTheme(),
         getData = () => {
             if (!dataLoaded && isLoggedIn) {
@@ -467,7 +480,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Redux store={store}>
             <SWRConfig
                 value={{
-                    onError: (err, key, config) => {
+                    onError: (err, _key, _config) => {
                         console.error(err);
                         snack.current.enqueueSnackbar("There was an error loading a request", {
                             variant: "error",

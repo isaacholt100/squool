@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import useRequest from "../../hooks/useRequest";
+import { usePut } from "../../hooks/useRequest";
 //import { dispatchEmit } from "../../api/socketDispatch";
 import { FormControlLabel, Switch, Button } from "@material-ui/core";
 import MarginDivider from "../MarginDivider";
@@ -7,12 +7,12 @@ import Link from "next/link";
 import useTimetable from "../../hooks/useTimetable";
 export default memo(() => {
     const
-        request = useRequest(),
+        [put] = usePut(),
         timetable = useTimetable(),
         periodsLength = timetable.periods.length,
         sat = timetable.lessons.length === 6,
-        change = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-            request.put("/timetable/sat", {
+        changeSat = (_e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+            put("/timetable/sat", {
                 failedMsg: "updating your timetable",
                 body: {
                     sat: checked,
@@ -29,7 +29,7 @@ export default memo(() => {
                     control={
                         <Switch
                             checked={sat}
-                            onChange={change}
+                            onChange={changeSat}
                             value="checked"
                         />
                     }

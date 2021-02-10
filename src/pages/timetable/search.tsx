@@ -162,7 +162,7 @@ export default function TimetableSearch() {
                             <Typography variant="h6" gutterBottom>Search timetable templates</Typography>
                             <Autocomplete
                                 value={val}
-                                onChange={(e, newValue) => setVal(newValue)}
+                                onChange={(_e, newValue) => setVal(newValue)}
                                 classes={{
                                     paper: classes.autoComplete,
                                 }}

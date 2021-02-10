@@ -1,49 +1,14 @@
 import React, { memo, useState, useRef, useEffect } from "react";
-import useRequest, { useDelete } from "../../hooks/useRequest";
+import { useDelete } from "../../hooks/useRequest";
 import useConfirm from "../../hooks/useConfirm";
 //import socket from "../../api/socket";
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, makeStyles } from "@material-ui/core";
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from "@material-ui/core";
 import LoadBtn from "../LoadBtn";
 import useLogout from "../../hooks/useLogout";
 
-const useStyles = makeStyles(({ palette, breakpoints }) => ({
-    highlighted: {
-        color: palette.secondary.main,
-        fontWeight: 700,
-    },
-    tab: {
-        borderRadius: 0
-    },
-    tabs: {
-        marginBottom: 0,
-        borderRadius: "16px 16px 0px 0px",
-        boxShadow: "none",
-        padding: 0,
-    },
-    txt: {
-        color: palette.text.primary,
-    },
-    expansionPanel: {
-        border: `2px solid ${palette.divider}`,
-        borderRadius: 12,
-        marginBottom: 6,
-        "&::before": {
-            display: "none",
-        },
-    },
-    deleteAccount: {
-        backgroundColor: palette.error.main,
-        color: palette.error.contrastText,
-        "&:hover": {
-            backgroundColor: palette.error.dark,
-        },
-        marginLeft: "auto",
-    },
-}));
 
 export default memo(() => {
     const
-        request = useRequest(),
         [del, loading] = useDelete(),
         logoutDone = useLogout(),
         [ConfirmDialog, confirm] = useConfirm(loading),
@@ -55,14 +20,11 @@ export default memo(() => {
             deleteDialogOpen: false,
             deleteDisabled: true,
         }),
-        classes = useStyles(),
         timer = useRef<NodeJS.Timeout>(),
         logout = () => {
             del("/login", {
                 setLoading: true,
-                done() {
-                    logoutDone();
-                }
+                done: logoutDone,
             });
         },
         openDeleteDialog = () => {
@@ -99,7 +61,7 @@ export default memo(() => {
         deleteAccount = (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
             if (!state.deleteDisabled && passwordState.confirmPassword !== "") {
-                request.delete("/user", {
+                del("/user", {
                     setLoading: true,
                     failedMsg: "deleting your account",
                     body: { password: passwordState.confirmPassword },
@@ -119,14 +81,14 @@ export default memo(() => {
             <div className={"flex"}>
                 <Button
                     variant="contained"
-                    color="primary"
+                    color="default"
                     onClick={() => confirm("logout?", logout)}
                 >
                     Log out
                 </Button>
                 <Button
                     variant="contained"
-                    className={"ml_auto bg_error"}
+                    className={"ml_auto error_color_btn"}
                     onClick={openDeleteDialog}
                 >
                     Delete Account
@@ -164,7 +126,7 @@ export default memo(() => {
                         <LoadBtn
                             label="Delete Account"
                             disabled={state.deleteDisabled || passwordState.confirmPassword === "" || passwordState.confirmPasswordError !== ""}
-                            className={classes.deleteAccount}
+                            className={"error_color_btn"}
                             loading={loading}
                         />
                     </DialogActions>
