@@ -6,7 +6,6 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, TextFiel
 import LoadBtn from "../LoadBtn";
 import useLogout from "../../hooks/useLogout";
 
-
 export default memo(() => {
     const
         [del, loading] = useDelete(),
