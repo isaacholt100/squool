@@ -7,6 +7,7 @@ import Link from "next/link";
 import { mdiDotsHorizontal } from "@mdi/js";
 import Icon from "./Icon";
 import { RootState } from "../redux/store";
+import MarginDivider from "./MarginDivider";
 
 const Actions = memo(({ actions }: any) => actions.map(a => (
     <MenuItem key={a.label} onClick={a.fn}>
@@ -51,17 +52,16 @@ export default memo(({ className }: { className: string }) => {
                     vertical: "top",
                     horizontal: "right",
                 }}
+                //autoFocus={false}
             >
-                <Actions actions={moreActions.actions.map(a => ({ ...a, fn: exec(a.fn) }))} />
-                <MenuItem onClick={process.browser ? exec(router.back) : undefined}>Back</MenuItem>
-                <MenuItem onClick={process.browser ? exec(window.history.forward) : undefined}>Forward</MenuItem>
                 <MenuItem onClick={openHelp}>Help</MenuItem>
                 <Link href="/feedback">
                     <MenuItem onClick={() => setOpen(false)}>Feedback</MenuItem>
                 </Link>
-                <MenuItem onClick={exec(() => {router.replace(router.asPath)})}>
-                    Refresh Page
-                </MenuItem>
+                {moreActions.actions.length > 0 && (
+                    <MarginDivider dense />
+                )}
+                <Actions actions={moreActions.actions.map(a => ({ ...a, fn: exec(a.fn) }))} />
             </Menu>
         </>
     );

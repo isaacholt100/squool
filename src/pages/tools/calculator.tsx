@@ -25,6 +25,7 @@ import { mdiBackspace, mdiHistory } from "@mdi/js";
 import MathField from "../../components/MathField";
 import { MQ } from "@edtr-io/mathquill";
 import Title from "../../components/Title";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 let replacements = {}, scope={};
 const
@@ -870,3 +871,4 @@ export default function Calculator() {
         </div>
     );
 };
+export const getServerSideProps = defaultRedirect;

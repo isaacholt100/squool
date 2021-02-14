@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { TextField, Typography, Card } from "@material-ui/core";
 import LoadBtn from "../../components/LoadBtn";
 import Title from "../../components/Title";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 const useStyles = makeStyles(theme => ({
     result: {
@@ -71,3 +72,5 @@ export default function PrimeTest() {
         </div>
     );
 };
+
+export const getServerSideProps = defaultRedirect;

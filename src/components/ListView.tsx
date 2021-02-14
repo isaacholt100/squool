@@ -302,8 +302,9 @@ export default function ListView<T>(props: ITabProps & Omit<IListProps<T>, "anim
     }, [props.filtered]);
     useEffect(() => {
         const keyDown = e => {
-            if (isHotkey("shift+n", e) && props.createFn) {
+            if (isHotkey("shift+n", e) && props.createFn && !props.createOpen) {
                 e.preventDefault();
+                e.stopPropagation();
                 props.createFn();
             }
         }

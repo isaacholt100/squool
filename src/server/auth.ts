@@ -1,10 +1,12 @@
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Role } from "../types/IUser";
+
 export interface IUSer {
     _id: ObjectId;
     school_id: ObjectId;
-    role: "student" | "teacher" | "admin";
+    role: Role;
 }
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     const accessHeader = req.headers["authorization"];

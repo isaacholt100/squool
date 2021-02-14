@@ -87,6 +87,9 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 "*": {
                     caretColor: theme.primary,
                 },
+                ".primary_bg": {
+                    backgroundColor: muiTheme.palette.primary.main + " !important",
+                },
                 ".primary_contrast_text": {
                     color: muiTheme.palette.primary.contrastText + " !important",
                 },
@@ -306,6 +309,9 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
             indicator: {
                 display: "none",
             },
+            scroller: {
+                borderRadius: 6,
+            }
         },
         MuiAppBar: {
             root: {
@@ -343,6 +349,12 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
             },
             arrow: {
                 color: muiTheme.palette.text.primary,
+            }
+        },
+        MuiPickersModal: {
+            dialogRoot: {
+                width: "auto",
+                minWidth: "auto",
             }
         }
     } as any;
@@ -408,7 +420,7 @@ function Frame({ children }: { children: ReactChild }) {
         </div>
     );
 }
-const useContainerStyles = makeStyles(({ breakpoints, palette }) => ({
+const useContainerStyles = makeStyles(({ breakpoints }) => ({
     appContainer: {
         width: "100vw",
         //marginTop: props => (props as any) ? 60 : 0,
@@ -524,7 +536,7 @@ export default function App({ Component, pageProps }: AppProps) {
                     <title>Squool</title>
                     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5" />
                 </Head>
-                <Theme>
+                <Theme initialTheme={pageProps.initialTheme}>
                     <Pickers utils={DateUtils}>
                         <ThemeWrapper>
                             <Snackbar
@@ -539,7 +551,7 @@ export default function App({ Component, pageProps }: AppProps) {
                                     horizontal: "right",
                                 }}
                                 preventDuplicate
-                                autoHideDuration={810092}
+                                autoHideDuration={6000}
                                 TransitionComponent={Grow as any}
                                 classes={{
                                     variantError: classes.error,

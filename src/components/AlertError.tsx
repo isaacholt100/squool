@@ -1,6 +1,6 @@
 import React, { ReactChild } from "react";
 import { Alert, AlertTitle } from "@material-ui/lab";
-import { Button } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 import Link from "next/link";
 
 interface IProps {
@@ -12,7 +12,7 @@ export default function AlertError(props: IProps) {
         <div>
             <Alert severity="error" className="fadein" variant="filled">
                 <AlertTitle>Uh oh!</AlertTitle>
-                {props.msg}
+                <Typography>{props.msg}</Typography>
                 <div className={"mt_6"}>
                     <Link href="/">
                         <Button variant="outlined" component="a" className={"mr_6"} color="inherit">

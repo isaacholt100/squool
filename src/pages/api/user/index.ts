@@ -14,8 +14,15 @@ import getSession from "../../../server/getSession";
 import isEmailValid from "../../../lib/isEmailValid";
 import { serialize } from "cookie";
 
+const DEFAULT_PERMISSIONS = {
+    changeName: 1,
+    changeRoles: 1,
+    createClasses: 2,
+    removeUsers: 1,
+};
+
 const saltRounds = 12;
-export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
+export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
         case "POST": {
             type Errors = Partial<Record<"schoolID" | "repeatPassword" | "password" | "firstName" | "lastName" | "email", string>>;
@@ -69,7 +76,15 @@ export default(req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async
                         const hash = await bcrypt.hash(password, saltRounds);
                         const user_id = new ObjectId();
                         const r1 = admin
-                        ? await schools.insertOne({ admin_id: user_id, name: schoolID }, { session })
+                        ? await schools.insertOne(
+                            {
+                                admin_id: user_id,
+                                name: schoolID,
+                                permissions: DEFAULT_PERMISSIONS,
+                                roles: {}
+                            },
+                            { session }
+                        )
                         : {
                             insertedCount: 1,
                             insertedId: new ObjectId(schoolID)

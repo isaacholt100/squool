@@ -184,7 +184,7 @@ function Class() {
                     indicatorColor="primary"
                     textColor="primary"
                     variant="scrollable"
-                    scrollButtons="auto"
+                    scrollButtons="off"
                     aria-label="class tabs"
                 >
                 {pages.map(p => (
@@ -218,7 +218,7 @@ function Class() {
                     </>
                 )}
                 {activeTab === 1 && (
-                    <List className="p_0">
+                    <List>
                         {classInfo.members ? classInfo.members.split(",").filter(x => x !== " ").map(member => (
                             <Box clone p={"0 !important"} my={"4px"}>
                             <ListItem

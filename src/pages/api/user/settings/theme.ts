@@ -12,8 +12,6 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                 await updateSettings(req, res, {
                     [req.body.path]: req.body.val,
                 });
-                console.log("done");
-                
             } else {
                 throw new Error("Invalid theme path");
             }

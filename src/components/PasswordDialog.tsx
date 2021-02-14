@@ -12,7 +12,7 @@ export default function ConfirmDialog({ loading, fn, close }: { loading: boolean
             aria-labelledby="confirm-action"
             aria-describedby="confirm-description"
         >
-            <DialogTitle id="confirm-action">Confirm Action</DialogTitle>
+            <DialogTitle id="confirm-action">Authentication Required</DialogTitle>
             <form
                 onSubmit={e => {
                     e.preventDefault();

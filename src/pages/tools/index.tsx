@@ -10,6 +10,7 @@ import Icon from "../../components/Icon";
 import { mdiApps, mdiBook, mdiCalculatorVariant, mdiHelp } from "@mdi/js";
 import Link from "next/link";
 import Title from "../../components/Title";
+import { defaultRedirect } from "../../lib/serverRedirect";
 
 export default function Tools() {
     const tools = [
@@ -53,3 +54,4 @@ export default function Tools() {
         </>
     );
 }
+export const getServerSideProps = defaultRedirect;

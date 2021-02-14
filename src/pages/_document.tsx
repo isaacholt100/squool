@@ -4,6 +4,7 @@ import Document, {
 } from "next/document";
 import { ServerStyleSheets } from "@material-ui/core/styles";
 import cookies from "next-cookies";
+import { DEFAULT_THEME_ROUTES } from "../context/Theme";
 
 const
     APP_NAME = "Squool",
@@ -66,13 +67,22 @@ export default class MyDocument extends Document {
 MyDocument.getInitialProps = async ctx => {
     const sheets = new ServerStyleSheets();
     const originalRenderPage = ctx.renderPage;
+    const cookiesObj = cookies(ctx);
     ctx.renderPage = () => originalRenderPage({
-        enhanceApp: App => props => sheets.collect(<App {...props} />),
+        enhanceApp: App => props => {
+            const initialTheme = DEFAULT_THEME_ROUTES.includes(props.router.route) ? {} : {
+                fontFamily: cookiesObj.theme_fontFamily,
+                primary: cookiesObj.theme_primary,
+                secondary: cookiesObj.theme_secondary,
+                type: cookiesObj.theme_type,
+            };
+            props.pageProps.initialTheme = initialTheme;
+            return sheets.collect(<App {...props} />);
+        },
     });
     const initialProps = await Document.getInitialProps(ctx);
     return {
         ...initialProps,
         styles: [...React.Children.toArray(initialProps.styles), sheets.getStyleElement()],
-        fontFamily: cookies(ctx).theme_fontFamily,
     };
 };

@@ -35,6 +35,7 @@ function ContextMenu({ items, mouse, close }: IProps) {
                 invisible: true,
                 onContextMenu: close,
             }}
+            autoFocus={false}
         >
             {items.map((item, i) => item === "divider" ? <Divider key={i} /> : (
                 <MenuItem {...item as any} onClick={() => {item.fn(); close();}} key={i} button className={styles.listItem}>

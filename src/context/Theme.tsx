@@ -4,6 +4,7 @@ import defaultTheme from "../json/defaultTheme.json";
 import Cookies from "js-cookie";
 import useRefState from "../hooks/useRefState";
 import { io } from "socket.io-client";
+import { useRouter } from "next/router";
 
 interface ITheme {
     fontFamily: string;
@@ -12,19 +13,25 @@ interface ITheme {
     type: string;
 }
 
+export const DEFAULT_THEME_ROUTES = ["/"];
+
 const ThemeContext = createContext([{}, () => {}]);
 
-export default function Theme({ children }: { children: ReactChild }) {
+export default function Theme({ children, initialTheme }: { children: ReactChild, initialTheme: Partial<ITheme> }) {
     
     const
         //{ data } = useSWR("/api/user/settings/theme"),
+        router = useRouter(),
         isLoggedIn = useIsLoggedIn(),
-        [theme, setTheme] = useRefState<ITheme>(process.browser ? {
-            primary: Cookies.get("theme_primary") || defaultTheme.primary,
-            secondary: Cookies.get("theme_secondary") || defaultTheme.secondary,
-            type: Cookies.get("theme_type") || defaultTheme.type,
-            fontFamily: Cookies.get("theme_fontFamily") || defaultTheme.fontFamily,
-        } : defaultTheme),
+        [theme, setTheme] = useRefState<ITheme>({
+            ...(process.browser ? {
+                primary: Cookies.get("theme_primary") || defaultTheme.primary,
+                secondary: Cookies.get("theme_secondary") || defaultTheme.secondary,
+                type: Cookies.get("theme_type") || defaultTheme.type,
+                fontFamily: Cookies.get("theme_fontFamily") || defaultTheme.fontFamily,
+            } : defaultTheme),
+            ...initialTheme,
+        }),
         dispatch = (t: Partial<ITheme>) => {
             const newTheme = t ? {
                 ...theme.current,
@@ -71,7 +78,7 @@ export default function Theme({ children }: { children: ReactChild }) {
         })
       }, []);
     return (
-        <ThemeContext.Provider value={[isLoggedIn ? theme.current : defaultTheme, dispatch]}>
+        <ThemeContext.Provider value={[isLoggedIn && !DEFAULT_THEME_ROUTES.includes(router.route) ? theme.current : defaultTheme, dispatch]}>
             {children}
         </ThemeContext.Provider>
     );

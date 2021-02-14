@@ -229,11 +229,10 @@ export default function Signup() {
             (role === "admin" && values.schoolID === ""),
         [isLoggedIn, setIsRedirecting] = useAuthRedirect();
     useEffect(() => {
-        const id = window.location.search.split("id=")[1]?.split("&")[0];
-        if (id) {
+        if (router.query.id) {
             setValues({
                 ...values,
-                schoolID: id,
+                schoolID: router.query.id + "",
             });
         }
     }, []);

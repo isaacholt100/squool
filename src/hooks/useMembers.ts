@@ -9,6 +9,6 @@ export default function useMembers(): IUser[] {
 }
 export function useMember(_id: string): IUser {
     const members = useMembers();
-    const user = useUserInfo();
+    //const user = useUserInfo();
     return members.find(m => m._id === _id);
 }

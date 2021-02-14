@@ -10,6 +10,7 @@ import Icon from "../Icon";
 import clsx from "clsx";
 import { dispatch } from "../../redux/store";
 import useUserInfo from "../../hooks/useUserInfo";
+import LargeAvatar from "../LargeAvatar";
 
 const useStyles = makeStyles(theme => ({
     avatar: {
@@ -67,9 +68,7 @@ export default memo(({ icon: initial }: { icon: string }) => {
                 Profile Icon
             </Typography>
             <div className={"flex align_items_center"}>
-                <Avatar className={classes.avatar}>
-                    <Icon path={profileIcons[icon] || mdiAccount} size="48px" />
-                </Avatar>
+                <LargeAvatar icon={icon} className={"mr_12"} />
                 <Button
                     color="secondary"
                     onClick={() => {

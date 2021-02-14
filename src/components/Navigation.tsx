@@ -30,9 +30,6 @@ import usePathname from "../hooks/usePathname";
 NProgress.configure({
     parent: "#nprogress-parent",
 });
-        Router.events.on("routeChangeStart", (e) => {
-            console.log("route change: ", e)
-        })
 
 const
     useStyles = makeStyles(theme => ({
@@ -124,9 +121,9 @@ const Nav = memo(() => {
         links = () => {
             switch (role) {
                 case "student":
-                    return ["Home", "Books", "Classes", "Chats", "Timetable", "Calendar", "Tools", "Reminders", "Settings"];
+                    return ["Home", "School", "Books", "Classes", "Chats", "Timetable", "Calendar", "Tools", "Reminders", "Settings"];
                 case "teacher":
-                    return ["Home", "Classes", "Chats", "Timetable", "Calendar", "Tools", "Reminders", "Settings"];
+                    return ["Home", "School", "Classes", "Chats", "Timetable", "Calendar", "Tools", "Reminders", "Settings"];
                 default:
                     return ["Home", "School", "Chats", "Calendar", "Tools", "Reminders", "Settings"];
             }

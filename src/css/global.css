@@ -39,6 +39,12 @@
     margin-top: 6px !important;
     margin-bottom: 6px !important;
 }
+.mb_-3 {
+    margin-bottom: -3px !important;
+}
+.mr_12 {
+    margin-right: 12px !important;
+}
 .p_0 {
     padding: 0 !important;
 }
@@ -63,13 +69,13 @@
     display: flex !important;
 }
 .flex_col {
-    flex-direction: column;
+    flex-direction: column !important;
 }
 .flex_wrap {
-    flex-wrap: wrap;
+    flex-wrap: wrap !important;
 }
 .space_between {
-    justify-content: space-between;
+    justify-content: space-between !important;
 }
 .align_items_center {
     align-items: center !important;
@@ -106,7 +112,7 @@
     background-color: #d32f2f !important;
 }
 .color_error {
-    color: #f44336;
+    color: #f44336 !important;
 }
 .br_0 {
     border-radius: 0px !important;

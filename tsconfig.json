@@ -34,5 +34,5 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/pages/socketio.jsx"  ]
+, "src/pages/socketio.jsx", "public/json/script.js"  ]
 }
