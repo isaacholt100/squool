@@ -1,5 +1,5 @@
 import IAction from "../../types/action";
-import IUser from "../../types/IUser";
+import IUser, { Role } from "../../types/IUser";
 import Cookies from "js-cookie";
 
 const INITIAL_STATE = {
@@ -8,7 +8,7 @@ const INITIAL_STATE = {
     lastName: "",
     icon: null,
     _id: process.browser ? Cookies.get("user_id") : "",
-    role: process.browser ? Cookies.get("role") : "student",
+    role: (process.browser ? Cookies.get("role") : "student") as Role,
     school_id: process.browser ? Cookies.get("school_id") : "",
 };
 
