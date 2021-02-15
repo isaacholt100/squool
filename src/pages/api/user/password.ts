@@ -24,6 +24,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     const r = await users.updateOne({ _id }, {
                         $set: {
                             password: await bcrypt.hash(newPassword, SALT_ROUNDS),
+                            accountModifiedTimestamp: new Date().getTime(),
                         },
                     });
                     didUpdate(res, r.modifiedCount);

@@ -1,8 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Fragment, useEffect, useState } from "react";
-import { useDelete, useGet, usePut } from "../../hooks/useRequest";
-import { useDispatch } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
+import { useDelete, usePut } from "../../hooks/useRequest";
 import {
     Typography,
     List,
@@ -23,11 +21,7 @@ import {
 import useConfirm from "../../hooks/useConfirm";
 import Icon from "../../components/Icon";
 import { mdiDelete, mdiPencil, mdiPlus } from "@mdi/js";
-import { useRouter } from "next/router";
 import useUrlHashIndex from "../../hooks/useUrlHashIndex";
-import IFile from "../../types/IFile";
-import { ObjectID } from "bson";
-import { useIsOnline } from "../../context/IsOnline";
 import useUserInfo from "../../hooks/useUserInfo";
 import { defaultRedirect } from "../../lib/serverRedirect";
 import useRedirect from "../../hooks/useRedirect";
@@ -38,40 +32,11 @@ import LoadBtn from "../../components/LoadBtn";
 import UserItem from "../../components/UserItem";
 import { startCase } from "lodash";
 import MembersAutocomplete from "../../components/MembersAutocomplete";
-import IUser from "../../types/IUser";
-
-const schoolInfo = {
-    name: "CRGS",
-    roles: {
-        "Headmaster": "whgodf90gdjfdjfg",
-        "Assistant": "whgodf90gdjfdjfg",
-    },
-    permissions: {
-        changeName: 1,
-        changeRoles: 1,
-        createClasses: 2,
-        removeUsers: 1,
-    }
-}
-
-const
-    useStyles = makeStyles(theme => ({
-        kickout: {
-            color: theme.palette.error.main,
-        },
-        messageBtn: {
-            marginLeft: "auto",
-        },
-        classname: {
-            color: theme.palette.primary.main,
-        },
-        yearGroup: {
-            color: theme.palette.secondary.main,
-        },
-        classid: {
-            color: theme.palette.text.hint,
-        },
-    }));
+import Title from "../../components/Title";
+import useSWR, { mutate } from "swr";
+import ISchool from "../../types/ISchool";
+import Loader from "../../components/Loader";
+import useMembers from "../../hooks/useMembers";
 
 function InvitePage() {
     const
@@ -125,6 +90,12 @@ function ChangeSchoolNameDialog(props: { initial: string, open: boolean, close()
                     name,
                 },
                 done() {
+                    mutate("/api/school", (current: ISchool) => {
+                        return {
+                            ...current,
+                            name,
+                        };
+                    }, false);
                     props.close();
                 },
                 doneMsg: "School name updated",
@@ -163,21 +134,29 @@ function ChangeSchoolNameDialog(props: { initial: string, open: boolean, close()
     );
 }
 
-function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): void, initialTitle: string, initialUserId: string }) {
+function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): void, initialTitle: string, initialUserId: string, roles: Record<string, string> }) {
     const
         [put, loading] = usePut(),
         [roleTitle, setRoleTitle] = useState(() => props.initialTitle),
         [userId, setUserId] = useState(() => props.initialUserId),
-        titleHelper = roleTitle.length > 40 ? "Title too long" : " ",
+        titleHelper = roleTitle.length > 40 ? "Title too long" : ((props.mode === "create" || props.initialTitle !== roleTitle) && props.roles[roleTitle]) ? "Role already exists" : " ",
         submit = (e) => {
             e.preventDefault();
             put("/school/roles", {
                 setLoading: true,
                 body: {
                     roleTitle,
-                    user_id: new ObjectID().toHexString(),
+                    user_id: userId,
+                    oldTitle: (props.initialTitle === roleTitle) ? undefined : props.initialTitle,
                 },
-                done: props.close,
+                done() {
+                    mutate("/api/school", (current: ISchool) => {
+                        delete current.roles[props.initialTitle];
+                        current.roles[roleTitle] = userId;
+                        return current;
+                    }, false);
+                    props.close();
+                },
                 doneMsg: props.mode === "edit" ? "Role updated" : "Role created",
                 failedMsg: (props.mode === "edit" ? "editing" : "creating") + " this role"
             });
@@ -202,6 +181,7 @@ function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): vo
                         onChange={e => setRoleTitle(e.target.value)}
                         error={titleHelper !== " "}
                         helperText={titleHelper}
+                        className="mb_6"
                     />
                     <MembersAutocomplete
                         value={userId}
@@ -211,7 +191,7 @@ function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): vo
                             email: "email@domain.tld",
                             firstName: "Mrs",
                             lastName: "Someone",
-                            _id: "whgodf90gdjfdjfg",
+                            _id: "5ed7edf6b556eb28e51d597d",
                             role: "admin",
                             icon: "",
                         }]}
@@ -223,7 +203,7 @@ function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): vo
                     </Button>
                     <LoadBtn
                         label="Change"
-                        disabled={roleTitle === "" || titleHelper !== " "}
+                        disabled={roleTitle === "" || titleHelper !== " " || !userId}
                         loading={loading}
                     />
                 </DialogActions>
@@ -232,7 +212,7 @@ function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): vo
     );
 }
 
-function InfoPage() {
+function InfoPage({ schoolInfo }: { schoolInfo: ISchool }) {
     const
         userInfo = useUserInfo(),
         canChangeRoles = roleHasPermission(userInfo.role, schoolInfo.permissions.changeRoles),
@@ -257,14 +237,20 @@ function InfoPage() {
                 },
                 failedMsg: "deleting this role",
                 doneMsg: "Role deleted",
-                done: closeConfirm,
+                done() {
+                    mutate("/api/school", (current: ISchool) => {
+                        delete current.roles[title];
+                        return current;
+                    }, false);
+                    closeConfirm();
+                },
             });
         };
     return (
         <>
             {ConfirmDialog}
             <ChangeSchoolNameDialog open={nameOpen} close={() => setNameOpen(false)} initial={schoolInfo.name} />
-            <RoleDialog open={roleOpen} close={() => setRoleOpen(false)} initialTitle={currentRole === null ? "" : currentRole[0]} initialUserId={currentRole === null ? null : currentRole[1]} mode={currentRole === null ? "create" : "edit"} />
+            <RoleDialog open={roleOpen} close={() => setRoleOpen(false)} initialTitle={currentRole === null ? "" : currentRole[0]} initialUserId={currentRole === null ? null : currentRole[1]} mode={currentRole === null ? "create" : "edit"} roles={schoolInfo.roles} />
             <div className="flex">
                 <Typography variant="h4" className="flex_1" color="primary">
                     {schoolInfo.name}    
@@ -319,7 +305,7 @@ function InfoPage() {
                                 email: "email@domain.tld",
                                 firstName: "Mrs",
                                 lastName: "Someone",
-                                _id: "whgodf90gdjfdjfg",
+                                _id: "5ed7edf6b556eb28e51d597d",
                                 role: "admin",
                                 icon: "",
                             }}
@@ -333,50 +319,46 @@ function InfoPage() {
 
 const pages = ["info", "invite", "students", "teachers", "admins", "classes"];
 export default function School() {
+    const members = useMembers();
+    console.log(members);
+    
     const
-        [isOnline] = useIsOnline(),
-        [del, delLoading] = useDelete(),
-        [files, setFiles] = useState<IFile[]>(null),
-        [get] = useGet(),
-        [ConfirmDialog, confirm] = useConfirm(delLoading),
-        dispatch = useDispatch(),
-        classes = useStyles(),
-        router = useRouter(),
         [hashIndex, changeHash] = useUrlHashIndex(pages),
         [activeTab, setActiveTab] = useState(hashIndex),
-        userInfo = useUserInfo();
-        
-    useEffect(() => {
-    }, []);
+        { data: schoolInfo } = useSWR("/api/school");
     const isLoggedIn = useRedirect();
-    return !isLoggedIn ? null : (
-        <div className="fadeup">
-            <AppBar position="relative" color="default">
-                <Tabs
-                    value={activeTab}
-                    onChange={(_e, p) => setActiveTab(p)}
-                    indicatorColor="primary"
-                    textColor="primary"
-                    variant="scrollable"
-                    scrollButtons="off"
-                    aria-label="school tabs"
-                >
-                {pages.map(p => (
-                    <Tab label={p} key={p} onClick={() => changeHash(p)} />
-                ))}
-            </Tabs>
-            </AppBar>
-            <Box component={Card} my={{ xs: "6px", lg: "12px", }}>
-                {activeTab === 0 && <InfoPage />}
-                {activeTab === 1 && <InvitePage />}
-                {activeTab === 2 && (
-                    <>
+    return (
+        <>
+            <Title title="School" />
+            {!isLoggedIn ? null : !schoolInfo ? <Loader /> : (
+                <div>
+                    <AppBar position="relative" color="default">
+                        <Tabs
+                            value={activeTab}
+                            onChange={(_e, p) => setActiveTab(p)}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            variant="scrollable"
+                            scrollButtons="off"
+                            aria-label="school tabs"
+                        >
+                        {pages.map(p => (
+                            <Tab label={p} key={p} onClick={() => changeHash(p)} />
+                        ))}
+                    </Tabs>
+                    </AppBar>
+                    <Box component={Card} my={{ xs: "6px", lg: "12px", }}>
+                        {activeTab === 0 && <InfoPage schoolInfo={schoolInfo} />}
+                        {activeTab === 1 && <InvitePage />}
+                        {activeTab === 2 && (
+                            <>
 
-                    </>
-                )}
-            </Box>
-            {ConfirmDialog}
-        </div>
+                            </>
+                        )}
+                    </Box>
+                </div>
+            )}
+        </>
     );
 }
 export const getServerSideProps = defaultRedirect;

@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { roleHasPermission } from "../../../lib/role";
 import auth from "../../../server/auth";
 import getDB from "../../../server/getDB";
-import { done, errors, notAllowed } from "../../../server/helpers";
+import { done, notAllowed } from "../../../server/helpers";
 import tryCatch from "../../../server/tryCatch";
 
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
@@ -23,6 +23,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     role: 1,
                     firstName: 1,
                     lastName: 1,
+                    _id: 1,
                 }
             });
             res.json(await list.toArray());

@@ -20,6 +20,7 @@ export default memo(() => {
         change = () => {
             put("/user/school", {
                 failedMsg: "updating your school",
+                doneMsg: "School changed",
                 body: { school_id: state._id },
                 setLoading: true,
                 done: logout,
@@ -35,6 +36,7 @@ export default memo(() => {
         leave = () => {
             del("/user/school", {
                 failedMsg: "leaving your school",
+                doneMsg: "School left",
                 body: { school_id: state._id },
                 setLoading: true,
                 done: logout,
@@ -55,8 +57,11 @@ export default memo(() => {
         };
     return (
         <form onSubmit={submit}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6">
                 School
+            </Typography>
+            <Typography className="my_12" color="textSecondary">
+                Changing or leaving your school will sign you out of all devices you've logged in to.
             </Typography>
             <TextField
                 value={state._id}

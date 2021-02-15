@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 import useSWR from "swr";
 import { useIsOnline } from "../context/IsOnline";
+import { clearStorage } from "./useLogout";
 
 export default function useIsLoggedIn() {
     const [, setOnline] = useIsOnline();
@@ -30,6 +31,9 @@ export default function useIsLoggedIn() {
         //refreshWhenHidden: true,
     });
     if (!error) {
+        if (!data && Cookies.get("refreshToken")) {
+            clearStorage();
+        }
         return data as boolean;
     }
     return l;

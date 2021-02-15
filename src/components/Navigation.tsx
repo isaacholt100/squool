@@ -22,7 +22,7 @@ import Link from "next/link";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import NProgress from "nprogress";
 import NProgressBar from "./NProgressBar";
-import { useRouter, Router } from "next/router";
+import { useRouter } from "next/router";
 import MoreActions from "./MoreActions";
 import useUserInfo from "../hooks/useUserInfo";
 import usePathname from "../hooks/usePathname";

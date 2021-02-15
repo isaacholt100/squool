@@ -1,4 +1,4 @@
-import { TextField, Typography } from "@material-ui/core";
+import { Button, TextField, Typography } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { usePut } from "../../hooks/useRequest";
 import useUserInfo from "../../hooks/useUserInfo";
@@ -36,6 +36,10 @@ export default function Name(props: { firstName: string, lastName: string }) {
                     }
                 });
             }
+        },
+        revertFields = () => {
+            setFirst(firstName);
+            setLast(lastName);
         };
     useEffect(() => {
         firstName && setFirst(firstName);
@@ -57,9 +61,10 @@ export default function Name(props: { firstName: string, lastName: string }) {
                     helperText={firstErr ? "Name too long" : " "}
                     error={firstErr}
                     style={{
-                        width: "calc(50% - 4px)",
+                        width: "calc(50% - 3px)",
                         marginRight: 6,
                     }}
+                    autoComplete={role === "student" ? "given-name" : "honorific-prefix"}
                 />
                 <TextField
                     value={last}
@@ -69,10 +74,14 @@ export default function Name(props: { firstName: string, lastName: string }) {
                     helperText={lastErr ? "Name too long" : " "}
                     error={lastErr}
                     style={{
-                        width: "calc(50% - 4px)",
+                        width: "calc(50% - 3px)",
                     }}
+                    autoComplete="family-name"
                 />
-                <LoadBtn label="Update Name" color="secondary" loading={loading} disabled={disabled} />
+                <div className="flex space_between">
+                    <LoadBtn label="Update Name" color="secondary" loading={loading} disabled={disabled} />
+                    <Button disabled={first === firstName && last === lastName} onClick={revertFields}>Revert</Button>
+                </div>
             </form>
         </>
     );

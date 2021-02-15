@@ -120,6 +120,7 @@ export default function Login() {
                                     helperText={state.emailError + " "}
                                     fullWidth
                                     autoFocus
+                                    type="email"
                                 />
                             </div>
                             <div className={"my_6"}>
@@ -136,6 +137,7 @@ export default function Login() {
                                     autoComplete="current-password"
                                     helperText={state.passwordError + " "}
                                     fullWidth
+                                    onLoad={() => console.log("helo")}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">

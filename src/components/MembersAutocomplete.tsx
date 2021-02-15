@@ -36,6 +36,9 @@ export default function MembersAutocomplete<T extends boolean>(props: IProps<T>)
                     {getFullName(option)}
                 </>
             )}
+            filterOptions={(options, state) => {
+                return options.filter(option => getFullName(option).toLocaleLowerCase().includes(state.inputValue.toLocaleLowerCase()))
+            }}
         />
     );
 }

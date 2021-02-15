@@ -64,7 +64,7 @@ export default memo(() => {
                     setLoading: true,
                     failedMsg: "deleting your account",
                     body: { password: passwordState.confirmPassword },
-                    done: logout,
+                    done: logoutDone,
                     errors: data => setPasswordState({
                         ...passwordState,
                         confirmPasswordError: data.errors as string,

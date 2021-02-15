@@ -1,4 +1,4 @@
-import { Divider, TextField, Typography } from "@material-ui/core";
+import { Button, Divider, TextField, Typography } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { usePut } from "../../hooks/useRequest";
 import useUserInfo from "../../hooks/useUserInfo";
@@ -46,8 +46,13 @@ export default function Email({ email: initial }: { email: string }) {
                     helperText={error ? "Email invalid" : " "}
                     error={error}
                     fullWidth
+                    type="email"
+                    autoComplete="email"
                 />
-                <LoadBtn color="secondary" label="Update" loading={loading} disabled={error} />
+                <div className="flex space_between">
+                    <LoadBtn color="secondary" label="Update" loading={loading} disabled={error} />
+                    <Button disabled={email === stateEmail} onClick={() => setStateEmail(email)}>Revert</Button>
+                </div>
             </form>
             <Divider className={"my_12"} />
         </>

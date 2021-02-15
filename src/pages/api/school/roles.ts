@@ -13,12 +13,8 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             const db = await getDB();
             const users = db.collection("users");
             const user_id = new ObjectId(req.body.user_id);
-            const other_school_id = (await users.findOne({ _id: user_id }, {
-                projection: {
-                    school_id: 1,
-                }
-            })).school_id;
-            if (other_school_id !== school_id || typeof(req.body.roleTitle) !== "string" || req.body.roleTitle) {
+            const isValid = (await users.countDocuments({ _id: user_id, school_id })) === 1;
+            if (!isValid || typeof(req.body.roleTitle) !== "string" || !req.body.roleTitle) {
                 throw new Error("400");
             }
             const schools = db.collection("schools");
@@ -31,7 +27,12 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                 await schools.updateOne({ _id: school_id }, {
                     $set: {
                         ["roles." + req.body.roleTitle]: user_id,
-                    }
+                    },
+                    ...(req.body.oldTitle ? {
+                        $unset: {
+                            ["roles." + req.body.oldTitle]: null,
+                        }
+                    } : {}),
                 });
                 done(res);
             } else {

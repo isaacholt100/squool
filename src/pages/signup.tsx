@@ -44,14 +44,6 @@ const
         password: "",
         repeatPassword: "",
     },
-    autoCompleteNames = {
-        firstName: "given-name",
-        lastName: "family-name",
-        email: "email",
-        schoolID: "on",
-        password: "new-password",
-        repeatPassword: "new-password",
-    },
     useStyles = makeStyles({
         firstName: {
             width: "calc(50% - 4px)",
@@ -82,6 +74,14 @@ export default function Signup() {
         [staySignedIn, setStaySignedIn] = useState(true),
         dispatch = useDispatch(),
         classes = useStyles(),
+        autoCompleteNames = {
+            firstName: role === "student" ? "given-name" : "honorific-prefix",
+            lastName: "family-name",
+            email: "email",
+            schoolID: "on",
+            password: "new-password",
+            repeatPassword: "new-password",
+        },
         //history = useHistory(),
         signup = (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();

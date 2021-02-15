@@ -7,12 +7,16 @@ export default function useLogout() {
     const [, setTheme] = useTheme();
     const router = useRouter();
     return () => {
-        Cookies.remove("refreshToken");
-        Cookies.remove("accessToken");
-        Cookies.remove("user_id");
-        router.push("/");
+        clearStorage();
+        router.push("/login");
         mutate("/api/login", "", false);
-        localStorage.clear();
         setTheme(null);
     }
+}
+export function clearStorage() {
+    Cookies.remove("refreshToken");
+    Cookies.remove("accessToken");
+    Cookies.remove("user_id");
+    Cookies.remove("loginTimestamp");
+    localStorage.clear();
 }

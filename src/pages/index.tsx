@@ -8,14 +8,14 @@ export default function LandingPage() {
             <Title title="Squool" />
             <Card>
                 <Typography variant="h3" gutterBottom>Landing Page</Typography>
+                <Link href="/home">
+                    <Button variant="outlined" color="primary" component="a">
+                        Open Squool
+                    </Button>
+                </Link>
                 <Link href="/signup">
                     <Button color="primary" component="a">
                         Sign up
-                    </Button>
-                </Link>
-                <Link href="/login">
-                    <Button variant="outlined" color="primary" component="a">
-                        Login
                     </Button>
                 </Link>
             </Card>

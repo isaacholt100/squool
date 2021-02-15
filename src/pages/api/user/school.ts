@@ -18,6 +18,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                 await users.updateOne({ _id }, {
                     $set: {
                         school_id: new ObjectId(req.body.school_id),
+                        accountModifiedTimestamp: new Date().getTime(),
                     },
                 });
                 res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {
@@ -38,6 +39,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             await users.updateOne({ _id }, {
                 $set: {
                     school_id: null,
+                    accountModifiedTimestamp: new Date().getTime(),
                 },
             });
             res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {

@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
 import { IUSer } from "../../server/auth";
 import { setRefreshToken } from "../../server/cookies";
+import { ObjectId } from "mongodb";
 
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
@@ -49,7 +50,19 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             break;
         }
         case "GET": {
-            res.json(Boolean(req.cookies.refreshToken && req.cookies.httpRefreshToken && req.cookies.accessToken));
+            if (!ObjectId.isValid(req.cookies.user_id)) {
+                return res.json(false);
+            }
+            const db = await getDB();
+            const users = db.collection("users");
+            const user = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, {
+                projection: {
+                    _id: 1,
+                    accountModifiedTimestamp: 1,
+                },
+            });
+            const isLoggedIn = req.cookies.refreshToken && req.cookies.httpRefreshToken && req.cookies.accessToken && req.cookies.loginTimestamp && (user.accountModifiedTimestamp === undefined || +req.cookies.loginTimestamp > user.accountModifiedTimestamp);
+            res.json(isLoggedIn);
             break;
         }
         case "DELETE": {

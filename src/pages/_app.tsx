@@ -24,6 +24,8 @@ import Cookies from "js-cookie";
 import useLogout from "../hooks/useLogout";
 import useThemeType from "../hooks/useThemeType";
 import usePathname from "../hooks/usePathname";
+import useIsMobile from "../hooks/useIsMobile";
+
 
 function ThemeWrapper({ children }: { children: ReactChild }) {
     const
@@ -33,6 +35,7 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
         paperBg = themeType === "light" ? "#f1f3f4" : "#424242",
         defaultBg = themeType === "light" ? "#fff" : "#121212",
         level1Bg = themeType === "light" ? "#ddd" : "#333",
+        isMobile = useIsMobile(),
         fontFamily = `https://fonts.googleapis.com/css?family=${theme.fontFamily.toLowerCase().split(" ").map((s: string) => s.charAt(0).toUpperCase() + s.substring(1)).join("+")}:300,400,500&display=swap`,
         muiTheme = createMuiTheme({
             palette: {
@@ -74,6 +77,14 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 MuiTooltip: {
                     arrow: true,
                 },
+                MuiInputBase: {
+                    onFocus(e) {
+                        (e.target as HTMLElement).classList.add("allow_select");
+                    },
+                    onBlur(e) {
+                        (e.target as HTMLElement).classList.remove("allow_select");
+                    },
+                }
             },
         });
     muiTheme.overrides = {
@@ -110,6 +121,16 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     color: muiTheme.palette.secondary.contrastText,
                     backgroundColor: muiTheme.palette.secondary.main,
                 },
+                ...(isMobile ? {
+                    "*": {
+                        WebkitTouchCallout: "none !important",
+                        WebkitUserSelect: "none !important",
+                        KhtmlUserSelect: "none !important",
+                        MozUserSelect: "none !important",
+                        MsUserSelect: "none !important",
+                        userSelect: "none !important",
+                    },
+                } : {}),
             }
         },
         MuiTouchRipple: {

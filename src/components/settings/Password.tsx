@@ -1,9 +1,10 @@
 import React, { memo, useState } from "react";
 import { usePut } from "../../hooks/useRequest";
-import { Typography, Grid, TextField } from "@material-ui/core";
+import { Typography, Grid, TextField, Button } from "@material-ui/core";
 import { startCase } from "lodash";
 import MarginDivider from "../MarginDivider";
 import LoadBtn from "../LoadBtn";
+import useLogout from "../../hooks/useLogout";
 interface IFields {
     oldPassword: string;
     newPassword: string;
@@ -12,17 +13,19 @@ interface IFields {
     newPasswordError: string;
     repeatPasswordError: string;
 }
+const initialState: IFields = {
+    oldPassword: "",
+    newPassword: "",
+    repeatPassword: "",
+    oldPasswordError: "",
+    newPasswordError: "",
+    repeatPasswordError: "",
+};
 export default memo(() => {
     const
         [put, loading] = usePut(),
-        [state, setState] = useState<IFields>({
-            oldPassword: "",
-            newPassword: "",
-            repeatPassword: "",
-            oldPasswordError: "",
-            newPasswordError: "",
-            repeatPasswordError: "",
-        }),
+        logout = useLogout(),
+        [state, setState] = useState(initialState),
         enabled = state.repeatPasswordError === "" && state.newPasswordError === "" && state.oldPasswordError === "" && state.newPassword !== "" && state.repeatPassword !== "",
         changePassword = e => {
             e.preventDefault();
@@ -36,6 +39,7 @@ export default memo(() => {
                     },
                     doneMsg: "Password updated",
                     done() {
+                        logout();
                         setState({
                             ...state,
                             newPassword: "",
@@ -106,8 +110,11 @@ export default memo(() => {
         };
     return (
         <form onSubmit={changePassword}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6">
                 Password
+            </Typography>
+            <Typography className="my_12" color="textSecondary">
+                Changing your password will sign you out of all devices you've logged in to.
             </Typography>
             <Grid container spacing={2}>
                 {["old", "new", "repeat"].map(p => (
@@ -133,12 +140,15 @@ export default memo(() => {
                     </Grid>
                 ))}
             </Grid>
-            <LoadBtn
-                label="Change"
-                color="secondary"
-                disabled={!enabled}
-                loading={loading}
-            />
+            <div className="flex space_between">
+                <LoadBtn
+                    label="Change"
+                    color="secondary"
+                    disabled={!enabled}
+                    loading={loading}
+                />
+                <Button onClick={() => setState(initialState)}>Clear</Button>
+            </div>
             <MarginDivider />
         </form>
     );
