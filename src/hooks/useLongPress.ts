@@ -4,37 +4,33 @@ export default function useLongPress(time = 500) {
     const timeout = useRef<NodeJS.Timeout>(null);
     const shouldShortPress = useRef(true);
     const moved = useRef(false);
-    function startTimeout(onLongPress: () => void) {
+    function startTimeout(onLongPress: (e?: React.TouchEvent) => void, e: React.TouchEvent) {
         timeout.current = setTimeout(() => {
             shouldShortPress.current = false;
-            !moved.current && onLongPress();
-            !moved.current && alert("long press");
-            alert("timer done");
-        }, 0);
+            !moved.current && onLongPress(e);
+        }, time);
     }
     function cancelTimeout() {
         clearTimeout(timeout.current);
-        alert("timeout cancelled");
     }
-    function onTouchStart(onLongPress: () => void) {
+    function onTouchStart(onLongPress: (e?: React.TouchEvent) => void, e: React.TouchEvent) {
         shouldShortPress.current = true;
         moved.current = false;
-        startTimeout(onLongPress);
+        startTimeout(onLongPress, e);
     }
     function onTouchMove() {
         moved.current = true;
     }
     useEffect(() => {
-        alert("longpress listener");
         return cancelTimeout;
     }, []);
-    return (onLongPress: (e?) => void) => {
+    return (onLongPress: (e?: React.TouchEvent) => void) => {
         return {
             onContextMenu: e => e.preventDefault(),
-            onTouchStart: () => onTouchStart(onLongPress),
             onTouchEnd: cancelTimeout,
             onTouchMove,
             onTouchCancel: cancelTimeout,
+            onTouchStart: (e: React.TouchEvent) => onTouchStart(onLongPress, e),
         };
     };
 }
