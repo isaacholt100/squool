@@ -19,3 +19,10 @@ export const setRefreshToken = (res: NextApiResponse, refreshToken: string) => {
         maxAge: 1000000000000000
     }));
 }
+export function deleteRefreshToken(res: NextApiResponse) {
+    res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {
+        maxAge: -1,
+        httpOnly: true,
+        sameSite: "strict",
+    }));
+}

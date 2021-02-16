@@ -17,6 +17,10 @@ import {
     DialogContent,
     TextField,
     DialogActions,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from "@material-ui/core";
 import useConfirm from "../../hooks/useConfirm";
 import Icon from "../../components/Icon";
@@ -34,7 +38,7 @@ import { startCase } from "lodash";
 import MembersAutocomplete from "../../components/MembersAutocomplete";
 import Title from "../../components/Title";
 import useSWR, { mutate } from "swr";
-import ISchool from "../../types/ISchool";
+import ISchool, { IPermissions } from "../../types/ISchool";
 import Loader from "../../components/Loader";
 import useMembers from "../../hooks/useMembers";
 
@@ -212,6 +216,49 @@ function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): vo
     );
 }
 
+function SchoolSettings(props: { permissions: IPermissions }) {
+    const
+        [state, setState] = useState(() => props.permissions),
+        keys = Object.keys(state),
+        canRevert = keys.some(k => state[k] !== props.permissions[k]),
+        handleChange = (permission: string) => (e: React.ChangeEvent<{ value: string }>) => {
+            setState({
+                ...state,
+                [permission]: e.target.value,
+            });
+        };
+    return (
+        <>
+            <Typography variant="h5" gutterBottom>
+                Permissions
+            </Typography>
+            {keys.sort().map(permission => (
+                <div className="flex space_between align_items_center mt_6">
+                    <Typography id={permission + "-permission-label"}>{startCase(permission)}</Typography>
+                    <Box clone minWidth={144}>
+                        <FormControl variant="outlined">
+                            <Select
+                                labelId={permission + "-permission-label"}
+                                id={permission + "-permission-select"}
+                                value={state[permission]}
+                                onChange={handleChange(permission)}
+                            >
+                                <MenuItem value={0}>Owner (You)</MenuItem>
+                                <MenuItem value={1}>All Admins</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </div>
+            ))}
+            <MarginDivider />
+            <div className="flex space_between">
+                <Button color="secondary" disabled={!canRevert}>Update</Button>
+                <Button disabled={!canRevert} onClick={() => setState(props.permissions)}>Revert</Button>
+            </div>
+        </>
+    );
+}
+
 function InfoPage({ schoolInfo }: { schoolInfo: ISchool }) {
     const
         userInfo = useUserInfo(),
@@ -317,16 +364,20 @@ function InfoPage({ schoolInfo }: { schoolInfo: ISchool }) {
     );
 }
 
-const pages = ["info", "invite", "students", "teachers", "admins", "classes"];
 export default function School() {
     const members = useMembers();
     console.log(members);
-    
+    const
+        { role } = useUserInfo(),
+        pages = ["info", "invite", "members", "classes"];
+    if (role === "owner") {
+        pages.push("settings");
+    }
     const
         [hashIndex, changeHash] = useUrlHashIndex(pages),
         [activeTab, setActiveTab] = useState(hashIndex),
-        { data: schoolInfo } = useSWR("/api/school");
-    const isLoggedIn = useRedirect();
+        { data: schoolInfo } = useSWR<ISchool>("/api/school"),
+        isLoggedIn = useRedirect();
     return (
         <>
             <Title title="School" />
@@ -355,6 +406,7 @@ export default function School() {
 
                             </>
                         )}
+                        {activeTab === 4 && <SchoolSettings permissions={schoolInfo.permissions} />}
                     </Box>
                 </div>
             )}

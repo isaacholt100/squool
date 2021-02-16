@@ -14,7 +14,7 @@ export default function AlertError(props: IProps) {
                 <AlertTitle>Uh oh!</AlertTitle>
                 <Typography>{props.msg}</Typography>
                 <div className={"mt_6"}>
-                    <Link href="/">
+                    <Link href="/home">
                         <Button variant="outlined" component="a" className={"mr_6"} color="inherit">
                             Go Home
                         </Button>

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { didUpdate, errors, notAllowed } from "../../../server/helpers";
+import { didUpdate, notAllowed } from "../../../server/helpers";
 import tryCatch from "../../../server/tryCatch";
 import bcrypt from "bcrypt";
 import getDB from "../../../server/getDB";
@@ -9,12 +9,12 @@ import jwt from "jsonwebtoken";
 //import nodemailer from "nodemailer";
 //import cookie from "cookie";
 import getUser from "../../../server/getUser";
-import { setRefreshToken } from "../../../server/cookies";
+import { deleteRefreshToken, setRefreshToken } from "../../../server/cookies";
 import getSession from "../../../server/getSession";
 import isEmailValid from "../../../lib/isEmailValid";
-import { serialize } from "cookie";
+import passwordAuth from "../../../server/passwordAuth";
 
-const DEFAULT_PERMISSIONS = {
+export const DEFAULT_PERMISSIONS = {
     changeName: 1,
     changeRoles: 1,
     createClasses: 2,
@@ -39,10 +39,13 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     schoolID,
                     email
                 } = req.body,
-                admin = role === "admin",
+                isOwner = role === "owner",
                 emailCount = await users.countDocuments({email}),
                 errors: Errors = {};
-            const school_idCount = admin || schoolID === ""
+            if (!["student", "teacher", "admin", "owner"].includes(role)) {
+                throw new Error("400");
+            }
+            const school_idCount = isOwner || schoolID === ""
                 ? 1
                 : await schools.countDocuments({
                     _id: ObjectId.isValid(schoolID)
@@ -75,7 +78,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     await session.withTransaction(async () => {
                         const hash = await bcrypt.hash(password, saltRounds);
                         const user_id = new ObjectId();
-                        const r1 = admin
+                        const r1 = isOwner
                         ? await schools.insertOne(
                             {
                                 admin_id: user_id,
@@ -159,7 +162,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                             const jwtInfo: IUSer = {
                                 role,
                                 _id: r.insertedId,
-                                school_id: admin ? (r1 as InsertOneWriteOpResult<any>).insertedId : new ObjectId(schoolID),
+                                school_id: isOwner ? (r1 as InsertOneWriteOpResult<any>).insertedId : new ObjectId(schoolID),
                             };
                             const refreshToken = jwt.sign(jwtInfo, process.env.REFRESH_TOKEN);
                             setRefreshToken(res, refreshToken);
@@ -182,7 +185,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                 }
             } else {
                 res.json({
-                    errors
+                    errors,
                 });
             }
             break;
@@ -199,28 +202,14 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             break;
         }
         case "DELETE": {
-            const user = await auth(req, res);
-            const db = await getDB();
-            const users = db.collection("users");
-            const valid = await bcrypt.compare(req.body.password, (await users.findOne({
-                _id: user._id
-            }, {
-                projection: {
-                    password: 1,
-                    _id: 0
-                }
-            })).password);
-            if (valid) {
+            passwordAuth(req, res, async () => {
+                const user = await auth(req, res);
+                const db = await getDB();
+                const users = db.collection("users");
                 const r = await users.deleteOne({_id: user._id});
-                res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {
-                    maxAge: -1,
-                    httpOnly: true,
-                    sameSite: "strict",
-                }));
+                deleteRefreshToken(res);
                 didUpdate(res, r.deletedCount);
-            } else {
-                errors(res, "Incorrect Password");
-            }
+            });
             break;
         }
         default: {

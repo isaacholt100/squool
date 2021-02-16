@@ -5,9 +5,8 @@ import { done, errors, notAllowed } from "../../server/helpers";
 import tryCatch from "../../server/tryCatch";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { serialize } from "cookie";
 import { IUSer } from "../../server/auth";
-import { setRefreshToken } from "../../server/cookies";
+import { deleteRefreshToken, setRefreshToken } from "../../server/cookies";
 import { ObjectId } from "mongodb";
 
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
@@ -66,11 +65,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             break;
         }
         case "DELETE": {
-            res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {
-                maxAge: -1,
-                httpOnly: true,
-                sameSite: "strict",
-            }));
+            deleteRefreshToken(res);
             done(res);
             break;
         }

@@ -156,7 +156,7 @@ export default function Login() {
                                     }}
                                 />
                             </div>
-                            <Box clone mt="-8px" mb="4px">
+                            <Box clone mt="-6px" mb="6px">
                                 <FormControlLabel
                                     control={
                                         <Checkbox

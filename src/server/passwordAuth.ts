@@ -15,9 +15,7 @@ export default async (req: NextApiRequest, res: NextApiResponse, success: (() =>
         }
     }))?.password;
     if (!userPassword || typeof(req.body.password) !== "string" || !(await bcrypt.compare(req.body.password, userPassword))) {
-        errors(res, {
-            passwordError: "Password is incorrect",
-        });
+        errors(res, "Password is incorrect");
     } else {
         await success();
     }

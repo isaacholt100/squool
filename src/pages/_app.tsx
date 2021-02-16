@@ -79,10 +79,10 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 },
                 MuiInputBase: {
                     onFocus(e) {
-                        (e.target as HTMLElement).classList.add("allow_select");
+                        (e.target as HTMLElement).classList?.add("allow_select");
                     },
                     onBlur(e) {
-                        (e.target as HTMLElement).classList.remove("allow_select");
+                        (e.target as HTMLElement).classList?.remove("allow_select");
                     },
                 }
             },
@@ -151,6 +151,9 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
             list: {
                 padding: muiTheme.spacing(0.5) + "px !important",
             },
+            paper: {
+                borderRadius: muiTheme.spacing(1.5) + "px !important"
+            }
         },
         MuiMenuItem: {
             root: {

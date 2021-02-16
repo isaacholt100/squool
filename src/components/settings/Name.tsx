@@ -13,7 +13,7 @@ export default function Name(props: { firstName: string, lastName: string }) {
         [last, setLast] = useState(lastName || props.lastName),
         firstErr = first.length > 50,
         lastErr = last.length > 50,
-        disabled = firstErr || lastErr || first === "" || last === "",
+        disabled = firstErr || lastErr || first === "" || last === "" || (first === firstName && last === lastName),
         updateName = e => {
             e.preventDefault();
             if (!loading && !disabled) {

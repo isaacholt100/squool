@@ -17,27 +17,30 @@ function getPosition(e: React.MouseEvent): [number, number] {
     return [0, 0];
 }
 
-export default function useContextMenu(): [JSX.Element, (items: ContextMenuItem[]) => (e: React.MouseEvent) => void] {
+export default function useContextMenu(): [JSX.Element, (items: ContextMenuItem[], isLongPress?: boolean) => (e: React.MouseEvent) => void] {
     const [state, setState] = useState({
-        mouse: [null, null] as [number, number],
+        mouse: null as [number, number],
         items: [],
+        isMobile: false,
     });
-    function openMenu(items: ContextMenuItem[]) {
+    function openMenu(items: ContextMenuItem[], isLongPress = false) {
         return (e: React.MouseEvent) => {
             e.preventDefault();
             e.stopPropagation();
             setState({
                 items,
-                mouse: getPosition(e),
+                mouse: isLongPress ? [null, null] : getPosition(e),
+                isMobile: isLongPress,
             });
         }
     }
     function close() {
         setState({
             items: state.items,
-            mouse: [null, null],
+            mouse: null,
+            isMobile: state.isMobile,
         });
     }
-    const Menu = <ContextMenu items={state.items} mouse={state.mouse} close={close} />;
+    const Menu = <ContextMenu isMobile={state.isMobile} items={state.items} mouse={state.mouse} close={close} />;
     return [Menu, openMenu];
 }

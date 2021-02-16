@@ -4,6 +4,7 @@ import tryCatch from "../../../server/tryCatch";
 import bcrypt from "bcrypt";
 import getDB from "../../../server/getDB";
 import auth from "../../../server/auth";
+import { deleteRefreshToken } from "../../../server/cookies";
 
 const SALT_ROUNDS = 12;
 
@@ -27,6 +28,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                             accountModifiedTimestamp: new Date().getTime(),
                         },
                     });
+                    deleteRefreshToken(res);
                     didUpdate(res, r.modifiedCount);
                 } else {
                     errors(res, {

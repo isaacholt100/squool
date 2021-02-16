@@ -50,7 +50,7 @@ export default function Email({ email: initial }: { email: string }) {
                     autoComplete="email"
                 />
                 <div className="flex space_between">
-                    <LoadBtn color="secondary" label="Update" loading={loading} disabled={error} />
+                    <LoadBtn color="secondary" label="Update" loading={loading} disabled={error || email === stateEmail} />
                     <Button disabled={email === stateEmail} onClick={() => setStateEmail(email)}>Revert</Button>
                 </div>
             </form>

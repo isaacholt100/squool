@@ -1,7 +1,7 @@
-import { serialize } from "cookie";
 import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import auth from "../../../server/auth";
+import { deleteRefreshToken } from "../../../server/cookies";
 import getDB from "../../../server/getDB";
 import { done, errors, notAllowed } from "../../../server/helpers";
 import tryCatch from "../../../server/tryCatch";
@@ -21,11 +21,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                         accountModifiedTimestamp: new Date().getTime(),
                     },
                 });
-                res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {
-                    maxAge: -1,
-                    httpOnly: true,
-                    sameSite: "strict",
-                }));
+                deleteRefreshToken(res);
                 done(res);
             } else {
                 errors(res, "School not found");
@@ -42,11 +38,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     accountModifiedTimestamp: new Date().getTime(),
                 },
             });
-            res.setHeader("Set-Cookie", serialize("httpRefreshToken", "", {
-                maxAge: -1,
-                httpOnly: true,
-                sameSite: "strict",
-            }));
+            deleteRefreshToken(res);
             done(res);
             break;
         }

@@ -15,7 +15,11 @@ import {
     Divider,
     Box,
     Card,
-    Link as ButtonLink
+    Link as ButtonLink,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from "@material-ui/core";
 import LoadBtn from "../components/LoadBtn";
 import { usePost } from "../hooks/useRequest";
@@ -175,7 +179,7 @@ export default function Signup() {
                     };
                 }
             } else if (field === "schoolID") {
-                if (role === "admin" && value.trim() === "") {
+                if (isOwner && value.trim() === "") {
                     newState = {
                         schoolID: "Please enter your school name",
                     };
@@ -205,34 +209,36 @@ export default function Signup() {
                 ...newState,
             });
         },
-        changePosition = (_e: ChangeEvent<HTMLInputElement>, val: string) => {
+        changeRole = (e: ChangeEvent<{ value: string }>) => {
             if (values.schoolID === "" && helpers.schoolID !== "") {
                 setHelpers({
                     ...helpers,
                     schoolID: "",
                 });
             }
-            setRole(val);
+            setRole(e.target.value);
         },
+        isOwner = role === "owner",
         disabled =
             helpers.email !== "" ||
             helpers.password !== "" ||
             helpers.repeatPassword !== "" ||
             helpers.firstName !== "" ||
             helpers.lastName !== "" ||
-            (role === "admin" && helpers.schoolID !== "") ||
+            (isOwner && helpers.schoolID !== "") ||
             values.email === "" ||
             values.password === "" ||
             values.repeatPassword === "" ||
             values.firstName === "" ||
             values.lastName === "" ||
-            (role === "admin" && values.schoolID === ""),
+            (isOwner && values.schoolID === ""),
         [isLoggedIn, setIsRedirecting] = useAuthRedirect();
     useEffect(() => {
-        if (router.query.id) {
+        const id = window.location.search.split("id=")[1]?.split("&")[0];
+        if (id) {
             setValues({
                 ...values,
-                schoolID: router.query.id + "",
+                schoolID: id + "",
             });
         }
     }, []);
@@ -252,47 +258,40 @@ export default function Signup() {
                                 </Link>
                             </Typography>
                             <form noValidate onSubmit={signup}>
-                                <Typography>I am a...</Typography>
-                                <FormGroup row className="mb_6">
-                                    <RadioGroup
-                                        aria-label="Position"
-                                        name="role"
-                                        value={role}
-                                        onChange={changePosition}
-                                        row
-                                    >
-                                        <FormControlLabel
-                                            value="student"
-                                            control={<Radio />}
-                                            label="Student"
-                                        />
-                                        <FormControlLabel
-                                            value="teacher"
-                                            control={<Radio />}
-                                            label="Teacher"
-                                        />
-                                        <FormControlLabel
-                                            value="admin"
-                                            control={<Radio />}
-                                            label="Admin"
-                                        />
-                                    </RadioGroup>
-                                </FormGroup>
+                                <Box clone mb={"24px !important"} mt="6px">
+                                    <FormControl variant="outlined" fullWidth>
+                                        <InputLabel id="account-type-label">
+                                            Account Type
+                                        </InputLabel>
+                                        <Select
+                                            labelId="account-type-label"
+                                            id="account-type-select"
+                                            value={role}
+                                            onChange={changeRole}
+                                            label="Account Type"
+                                        >
+                                            <MenuItem value="student">Student</MenuItem>
+                                            <MenuItem value="teacher">Teacher</MenuItem>
+                                            <MenuItem value="admin">Admin</MenuItem>
+                                            <MenuItem value="owner">Owner (Head Admin)</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Box>
                                 {Object.keys(initialValues).map((field: keyof IFields, i) => (
                                     <TextField
                                         autoFocus={i === 0}
                                         key={field}
                                         id={field}
                                         name={field}
-                                        required={field !== "schoolID" || role === "admin"}
-                                        error={helpers[field] !== "" && (role !== "admin" ? field !== "schoolID" || helpers[field] === "School not found" : true)}
+                                        required={field !== "schoolID" || isOwner}
+                                        error={helpers[field] !== "" && (!isOwner ? field !== "schoolID" || helpers[field] === "School not found" : true)}
                                         autoComplete={autoCompleteNames[field]}
                                         variant="outlined"
                                         type={field.includes("assword") ? "password" : "text"}
                                         label={
                                             field === "firstName" && role !== "student"
                                                 ? "Title"
-                                                : field === "schoolID" && role === "admin"
+                                                : field === "schoolID" && isOwner
                                                     ? "Create School (Enter Name)"
                                                     : startCase(field)
                                         }
@@ -300,10 +299,10 @@ export default function Signup() {
                                         onChange={handleChange(field)}
                                         helperText={helpers[field] + " "}
                                         fullWidth
-                                        className={classes[field]}
+                                        className={classes[field] + " mt_6"}
                                     />
                                 ))}
-                                <Box clone mt="-8px" mb="4px">
+                                <Box clone mt="-6px" mb="6px">
                                     <FormControlLabel
                                         control={
                                             <Checkbox
@@ -316,7 +315,7 @@ export default function Signup() {
                                         label="Stay signed in"
                                     />
                                 </Box>
-                                <Box display="flex" justifyContent="space-between">
+                                <div className="flex space_between">
                                     <LoadBtn loading={loading} label="Sign Up" disabled={disabled} />
                                     <Button
                                         onClick={handleClear}
@@ -325,7 +324,7 @@ export default function Signup() {
                                     >
                                         clear
                                     </Button>
-                                </Box>
+                                </div>
                             </form>
                             <Divider className={"my_6"} />
                             <Typography variant="h6" gutterBottom>
