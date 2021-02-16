@@ -5,7 +5,6 @@ export default function useLongPress(time = 500) {
     const shouldShortPress = useRef(true);
     const moved = useRef(false);
     function startTimeout(onLongPress: () => void) {
-        alert("timer starting");
         timeout.current = setTimeout(() => {
             shouldShortPress.current = false;
             !moved.current && onLongPress();
