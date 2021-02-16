@@ -10,7 +10,7 @@ export default function useLongPress(time = 500) {
             !moved.current && onLongPress();
             !moved.current && alert("long press");
             alert("timer done");
-        }, time);
+        }, 0);
     }
     function cancelTimeout() {
         clearTimeout(timeout.current);
