@@ -13,6 +13,7 @@ export default function useLongPress(time = 500) {
     }
     function cancelTimeout() {
         clearTimeout(timeout.current);
+        alert("timeout cancelled");
     }
     function onTouchStart(onLongPress: () => void) {
         shouldShortPress.current = true;
@@ -23,6 +24,7 @@ export default function useLongPress(time = 500) {
         moved.current = true;
     }
     useEffect(() => {
+        alert("longpress listener")
         return cancelTimeout;
     }, []);
     return (onLongPress: (e?) => void) => {
