@@ -8,6 +8,7 @@ export default function useLongPress(time = 500) {
         timeout.current = setTimeout(() => {
             shouldShortPress.current = false;
             !moved.current && onLongPress();
+            !moved.current && alert("long press");
         }, time);
     }
     function cancelTimeout() {
