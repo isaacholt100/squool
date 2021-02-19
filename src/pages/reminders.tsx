@@ -564,4 +564,4 @@ export default function Reminders() {
         </>
     );
 };
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

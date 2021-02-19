@@ -222,4 +222,4 @@ export default function Class() {
         </>
     );
 };
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

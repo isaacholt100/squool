@@ -13,4 +13,4 @@ export default function Dashboard() {
         </>
     );
 }
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

@@ -526,4 +526,4 @@ export default function School() {
         </>
     );
 }
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;
