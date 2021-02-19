@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 export default function Title(props: { children?: ReactNode, title: string }) {
     return (
         <Head>
-            <title>{props.title}</title>
+            <title>{props.title + " | Squool"}</title>
             {props.children}
         </Head>
     )

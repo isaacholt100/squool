@@ -86,6 +86,7 @@ export default function Login() {
                                 ...(data.school_id ? {
                                     school_id: data.school_id,
                                 } : {}),
+                                carouselView: data.carouselView,
                             },
                         });
                         router.replace(toUrl && toUrl[0] === "/" && toUrl.split("?")[0] !== "/login" ? toUrl : "/home");

@@ -24,6 +24,7 @@ import IClass from "../../types/IClass";
 import useUserInfo from "../../hooks/useUserInfo";
 import useClasses from "../../hooks/useClasses";
 import { defaultRedirect } from "../../lib/serverRedirect";
+import Loader from "../../components/Loader";
 
 export default function Class() {
     const
@@ -32,7 +33,7 @@ export default function Class() {
         [post, postLoading] = usePost(),
         [ConfirmDialog, confirm] = useConfirm(delLoading),
         { email, role } = useUserInfo(),
-        userClasses = useClasses(),
+        [userClasses, classesLoading] = useClasses(),
         [createOpen, setCreateOpen] = useState(false),
         [name, setName] = useState(""),
         [options, setOptions] = useState(null),
@@ -109,7 +110,7 @@ export default function Class() {
     const isLoggedIn = useRedirect();
     return (
         <>
-            {!isLoggedIn ? null : (
+            {!isLoggedIn ? null : classesLoading ? <Loader /> : (
                 <>
                     <ListView
                         name="Class"

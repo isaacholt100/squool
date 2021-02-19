@@ -33,6 +33,7 @@ import useClasses from "../../hooks/useClasses";
 import useBooks from "../../hooks/useBooks";
 import { defaultRedirect } from "../../lib/serverRedirect";
 import Title from "../../components/Title";
+import Loader from "../../components/Loader";
 
 export default function Books() {
     const
@@ -43,7 +44,7 @@ export default function Books() {
         [ConfirmDialog, confirm, closeConfirm] = useConfirm(deleteLoading),
         router = useRouter(),
         { role } = useUserInfo(),
-        userClasses = useClasses(),
+        [userClasses] = useClasses(),
         [state, setState] = useState({
             nameError: "",
             name: "",
@@ -56,7 +57,7 @@ export default function Books() {
         [activePeriod, setActivePeriod] = useState(0),
         [createOpen, setCreateOpen] = useState(false),
         dispatch = useDispatch(),
-        books = useBooks(),
+        [books, booksLoading] = useBooks(),
         periods = unique(books.map(b => b.period)).sort().reverse(),
         filtered = books && books.filter(book => book.period === periods[activePeriod]),
         openDialog = (dialog, book_id) => {
@@ -265,7 +266,7 @@ export default function Books() {
     return (
         <>
             <Title title="Books" />
-            {!isLoggedIn ? null : (
+            {!isLoggedIn ? null : booksLoading ? <Loader /> : (
                 <>
                     <ListView
                         name="Book"

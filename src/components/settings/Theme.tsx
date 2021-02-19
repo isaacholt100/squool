@@ -12,6 +12,8 @@ import { shades, colors } from "../../json/colors";
 import { useTheme } from "../../context/Theme";
 import useCarouselView from "../../hooks/useCarouselView";
 import {io} from 'socket.io-client'
+import { mutate } from "swr";
+import Cookies from "js-cookie";
 
 type Intent = "primary" | "secondary";
 
@@ -96,6 +98,8 @@ export default function Theme() {
                 type: "/user/carouselView",
                 payload: checked,
             });
+            mutate("/api/user/settings/carouselView", checked, false);
+            Cookies.set("carouselView", checked.toString());
             put("/user/settings/carouselView", {
                 failedMsg: "updating the theme",
                 body: {

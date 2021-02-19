@@ -14,6 +14,7 @@ interface ICookieVars {
         firstName: string;
         lastName: string;
         icon: string;
+        carouselView: boolean;
     }
 }
 

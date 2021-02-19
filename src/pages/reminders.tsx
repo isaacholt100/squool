@@ -36,6 +36,7 @@ import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import Title from "../components/Title";
 import useUrlHashIndex from "../hooks/useUrlHashIndex";
 import useRedirect from "../hooks/useRedirect";
+import Loader from "../components/Loader";
 
 const TABS = ["All", "Today", "Tomorrow", "This Week", "Late"];
 
@@ -104,7 +105,7 @@ export default function Reminders() {
         [hashIndex, changeHash] = useUrlHashIndex(TABS),
         [filter, setFilter] = useState(hashIndex),
         [allDay, setAllDay] = useState(false),
-        reminders = useReminders(),
+        [reminders, remindersLoading] = useReminders(),
         [values, setValues] = useState({
             desc: "",
             name: "",
@@ -470,7 +471,7 @@ export default function Reminders() {
     return (
         <>
             <Title title="Reminders" />
-            {!isLoggedIn ? null : (
+            {!isLoggedIn ? null : remindersLoading ? <Loader /> : (
                 <>
                     <Dialog
                         open={dialogs.edit}

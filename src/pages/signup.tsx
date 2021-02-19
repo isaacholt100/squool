@@ -123,6 +123,7 @@ export default function Signup() {
                             ...(schoolID ? {
                                 school_id: schoolID,
                             } : {}),
+                            carouselView: false,
                         },
                     });
                     router.replace("/home");

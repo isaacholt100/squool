@@ -529,6 +529,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Redux store={store}>
             <SWRConfig
                 value={{
+                    refreshInterval: 1000,
                     onError: (err, _key, _config) => {
                         console.error(err);
                         snack.current.enqueueSnackbar("There was an error loading a request", {
