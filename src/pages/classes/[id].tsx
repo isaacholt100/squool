@@ -271,4 +271,4 @@ function Class() {
     );
 }
 export default memo(Class);
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

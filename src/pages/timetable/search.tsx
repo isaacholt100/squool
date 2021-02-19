@@ -275,4 +275,4 @@ export default function TimetableSearch() {
         </>
     );
 };
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

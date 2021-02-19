@@ -218,4 +218,4 @@ export default function TimetableCreate() {
         </>
     );
 }
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

@@ -17,7 +17,7 @@ export const DEFAULT_THEME_ROUTES = ["/"];
 
 const ThemeContext = createContext([{}, () => {}]);
 
-export default function Theme({ children, initialTheme }: { children: ReactChild, initialTheme: Partial<ITheme> }) {
+export default function Theme({ children, /*initialTheme*/ }: { children: ReactChild, /*initialTheme: Partial<ITheme>*/ }) {
     
     const
         //{ data } = useSWR("/api/user/settings/theme"),
@@ -30,7 +30,7 @@ export default function Theme({ children, initialTheme }: { children: ReactChild
                 type: Cookies.get("theme_type") || defaultTheme.type,
                 fontFamily: Cookies.get("theme_fontFamily") || defaultTheme.fontFamily,
             } : defaultTheme),
-            ...initialTheme,
+            //...initialTheme,
         }),
         dispatch = (t: Partial<ITheme>) => {
             const newTheme = t ? {
@@ -49,34 +49,6 @@ export default function Theme({ children, initialTheme }: { children: ReactChild
                 Cookies.remove("theme_fontFamily");
             }
         };
-    useEffect(() => {
-    }, []);
-    useEffect(() => {
-        fetch('/api/socketio').finally(() => {
-          const socket = io()
-            socket.on("/theme", t => {
-                console.log(t);
-                
-                dispatch(t);
-            });
-          socket.on('connect', () => {
-            console.log('connect')
-            socket.emit('hello')
-          });
-    
-          socket.on('hello', data => {
-            console.log('hello', data)
-          })
-    
-          socket.on('a user connected', () => {
-            console.log('a user connected')
-          })
-    
-          socket.on('disconnect', () => {
-            console.log('disconnect')
-          })
-        })
-      }, []);
     return (
         <ThemeContext.Provider value={[isLoggedIn && !DEFAULT_THEME_ROUTES.includes(router.route) ? theme.current : defaultTheme, dispatch]}>
             {children}

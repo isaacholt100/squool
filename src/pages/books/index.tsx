@@ -349,4 +349,4 @@ export default function Books() {
         </>
     );
 };
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

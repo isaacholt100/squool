@@ -111,4 +111,4 @@ export default function TimetableView() {
         </>
     );
 };
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

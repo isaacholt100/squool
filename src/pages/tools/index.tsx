@@ -54,4 +54,4 @@ export default function Tools() {
         </>
     );
 }
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

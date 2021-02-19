@@ -67,16 +67,16 @@ export default class MyDocument extends Document {
 MyDocument.getInitialProps = async ctx => {
     const sheets = new ServerStyleSheets();
     const originalRenderPage = ctx.renderPage;
-    const cookiesObj = cookies(ctx);
+    //const cookiesObj = cookies(ctx);
     ctx.renderPage = () => originalRenderPage({
         enhanceApp: App => props => {
-            const initialTheme = DEFAULT_THEME_ROUTES.includes(props.router.route) ? {} : {
+            /*const initialTheme = DEFAULT_THEME_ROUTES.includes(props.router.route) ? {} : {
                 fontFamily: cookiesObj.theme_fontFamily,
                 primary: cookiesObj.theme_primary,
                 secondary: cookiesObj.theme_secondary,
                 type: cookiesObj.theme_type,
             };
-            props.pageProps.initialTheme = initialTheme;
+            props.pageProps.initialTheme = initialTheme;*/
             return sheets.collect(<App {...props} />);
         },
     });

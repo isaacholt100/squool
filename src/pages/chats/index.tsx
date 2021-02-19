@@ -109,4 +109,4 @@ export default function Chats() {
         </div>
     );
 }
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

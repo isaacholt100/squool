@@ -73,4 +73,4 @@ export default function PrimeTest() {
     );
 };
 
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

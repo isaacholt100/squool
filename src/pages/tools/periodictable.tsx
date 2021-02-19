@@ -270,4 +270,4 @@ export default function PeriodicTable() {
     );
 };
 
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

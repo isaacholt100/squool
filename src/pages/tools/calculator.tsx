@@ -871,4 +871,4 @@ export default function Calculator() {
         </div>
     );
 };
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;

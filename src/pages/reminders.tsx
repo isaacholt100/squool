@@ -35,6 +35,7 @@ import { defaultRedirect } from "../lib/serverRedirect";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 import Title from "../components/Title";
 import useUrlHashIndex from "../hooks/useUrlHashIndex";
+import useRedirect from "../hooks/useRedirect";
 
 const TABS = ["All", "Today", "Tomorrow", "This Week", "Late"];
 
@@ -465,7 +466,7 @@ export default function Reminders() {
             }*/],
         });
     }, []);
-    const isLoggedIn = useIsLoggedIn();
+    const isLoggedIn = useRedirect();
     return (
         <>
             <Title title="Reminders" />

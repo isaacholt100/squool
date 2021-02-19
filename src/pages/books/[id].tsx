@@ -7,4 +7,4 @@ export default function Book() {
     const isLoggedIn = useRedirect();
     return isLoggedIn && process.browser ? <BookEditor /> : null;
 }
-export const getServerSideProps = defaultRedirect;
+//export const getServerSideProps = defaultRedirect;
