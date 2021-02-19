@@ -22,6 +22,8 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             const db = await getDB();
             const users = db.collection("users");
             const { theme } = await users.findOne({ _id }, { projection: { theme: 1, _id: 0 }});
+            console.log(theme);
+            
             res.json(theme);
         }
         default: {

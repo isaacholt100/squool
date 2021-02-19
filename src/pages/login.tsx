@@ -76,9 +76,17 @@ export default function Login() {
                             accessToken: data.accessToken,
                             refreshToken: data.refreshToken,
                             staySignedIn,
-                            user_id: data._id,
-                            school_id: data.school_id,
-                            role: data.role,
+                            userInfo: {
+                                user_id: data._id,
+                                role: data.role,
+                                firstName: data.firstName,
+                                lastName: data.lastName,
+                                icon: data.icon,
+                                email,
+                                ...(data.school_id ? {
+                                    school_id: data.school_id,
+                                } : {}),
+                            },
                         });
                         router.replace(toUrl && toUrl[0] === "/" && toUrl.split("?")[0] !== "/login" ? toUrl : "/home");
                         //socket.connect(`http://${serverUrl.split(":5000")[0]}`);

@@ -11,6 +11,7 @@ import clsx from "clsx";
 import { dispatch } from "../../redux/store";
 import useUserInfo from "../../hooks/useUserInfo";
 import LargeAvatar from "../LargeAvatar";
+import { mutate } from "swr";
 
 const useStyles = makeStyles(theme => ({
     avatar: {
@@ -34,11 +35,11 @@ const useStyles = makeStyles(theme => ({
         border: 0,
     }
 }));
-export default memo(({ icon: initial }: { icon: string }) => {
+export default memo(() => {
     const
         classes = useStyles(),
         [put, loading] = usePut(),
-        icon = useUserInfo().icon ?? initial,
+        { icon } = useUserInfo(),
         [enlarged, setEnlarged] = useState(""),
         [open, setOpen] = useState(false),
         change = (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,12 +51,10 @@ export default memo(({ icon: initial }: { icon: string }) => {
                 body: { icon: enlarged },
                 done: () => {
                     setOpen(false);
-                    dispatch({
-                        type: "/user/info/update",
-                        payload: {
-                            icon: enlarged,
-                        }
-                    });
+                    mutate("/api/user?info", user => ({
+                        ...user,
+                        icon: enlarged,
+                    }), false);
                     /*dispatchEmit("/user/info/update", {
                         icon: enlarged,
                     });*/

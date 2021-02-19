@@ -1,16 +1,17 @@
 import { Button, TextField, Typography } from "@material-ui/core";
 import { useEffect, useState } from "react";
+import { mutate } from "swr";
 import { usePut } from "../../hooks/useRequest";
 import useUserInfo from "../../hooks/useUserInfo";
 import { dispatch } from "../../redux/store";
 import LoadBtn from "../LoadBtn";
 
-export default function Name(props: { firstName: string, lastName: string }) {
+export default function Name() {
     const
         { firstName, lastName, role } = useUserInfo(),
         [put, loading] = usePut(),
-        [first, setFirst] = useState(firstName || props.firstName),
-        [last, setLast] = useState(lastName || props.lastName),
+        [first, setFirst] = useState(firstName),
+        [last, setLast] = useState(lastName),
         firstErr = first.length > 50,
         lastErr = last.length > 50,
         disabled = firstErr || lastErr || first === "" || last === "" || (first === firstName && last === lastName),
@@ -26,13 +27,11 @@ export default function Name(props: { firstName: string, lastName: string }) {
                     doneMsg: "Name updated",
                     failedMsg: "updating your name",
                     done() {
-                        dispatch({
-                            type: "/user/info/update",
-                            payload: {
-                                firstName: first,
-                                lastName: last,
-                            }
-                        });
+                        mutate("/api/user?info", user => ({
+                            ...user,
+                            firstName: first,
+                            lastName: last,
+                        }), false);
                     }
                 });
             }
@@ -80,7 +79,7 @@ export default function Name(props: { firstName: string, lastName: string }) {
                 />
                 <div className="flex space_between">
                     <LoadBtn label="Update Name" color="secondary" loading={loading} disabled={disabled} />
-                    <Button disabled={first === firstName && last === lastName} onClick={revertFields}>Revert</Button>
+                    <Button disabled={(first === firstName && last === lastName) || loading} onClick={revertFields}>Revert</Button>
                 </div>
             </form>
         </>

@@ -91,14 +91,17 @@ export default function Signup() {
         signup = (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
             const email = values.email.trim().toLocaleLowerCase();
+            const schoolID = values.schoolID.trim();
+            const firstName = values.firstName.trim();
+            const lastName = values.lastName.trim();
             post("/user", {
                 setLoading: true,
                 failedMsg:  "signing you up",
                 body: {
                     email,
-                    firstName: values.firstName.trim(),
-                    lastName: values.lastName.trim(),
-                    schoolID: values.schoolID.trim(),
+                    firstName,
+                    lastName,
+                    schoolID,
                     password: values.password,
                     repeatPassword: values.repeatPassword,
                     role,
@@ -110,9 +113,17 @@ export default function Signup() {
                         accessToken: data.accessToken,
                         refreshToken: data.refreshToken,
                         staySignedIn,
-                        user_id: data.user_id,
-                        school_id: values.schoolID.trim() !== "" ? values.schoolID.trim() : undefined,
-                        role,
+                        userInfo: {
+                            user_id: data.user_id,
+                            role,
+                            firstName,
+                            lastName,
+                            icon: "",
+                            email,
+                            ...(schoolID ? {
+                                school_id: schoolID,
+                            } : {}),
+                        },
                     });
                     router.replace("/home");
                     dispatch({

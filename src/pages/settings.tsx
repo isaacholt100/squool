@@ -17,63 +17,59 @@ import Title from "../components/Title";
 
 const PAGES = ["account", "profile", "theme"];
 
-function AccountPage({ email }: { email: string }) {
+function AccountPage() {
     return (
         <>
-            <Email email={email} />
+            <Email />
             <Password />
             <School />
             <DeleteAccount />
         </>
     );
 }
-function ProfilePage(props: { icon: string; firstName: string; lastName: string; }) {
+function ProfilePage() {
     return (
         <>
-            <Icon icon={props.icon} />
-            <Name firstName={props.firstName} lastName={props.lastName} />
+            <Icon />
+            <Name />
         </>
     );
 }
 
-export default function Settings(props: { email: string, icon: string, firstName: string, lastName: string }) {
+export default function Settings() {
     const
         isLoggedIn = useRedirect(),
         [hashIndex, changeHash] = useUrlHashIndex(PAGES),
         [page, setPage] = useState(hashIndex);
-        console.log(page);
-        
     return (
         <>
             <Title title="Settings" />
             {!isLoggedIn ? null : (
                 <div>
-                    <Box>
-                        <AppBar position="relative" color="default">
-                            <Tabs
-                                value={page}
-                                onChange={(_e, p) => setPage(p)}
-                                indicatorColor="primary"
-                                textColor="primary"
-                                variant="scrollable"
-                                scrollButtons="auto"
-                                aria-label="scrollable tabs"
-                            >
-                                {PAGES.map((tab, i) => (
-                                    <Tab
-                                        key={i}
-                                        id={`tab-${i + 1}`}
-                                        aria-controls={tab}
-                                        label={tab}
-                                        onClick={() => changeHash(tab)}
-                                    />
-                                ))}
-                            </Tabs>
-                        </AppBar>
-                    </Box>
-                    <Box component={Card} my={{ xs: "6px", lg: "12px", }}>
-                        {page === 0 && <AccountPage email={props.email} />}
-                        {page === 1 && <ProfilePage icon={props.icon} firstName={props.firstName} lastName={props.lastName} />}
+                    <AppBar position="relative" color="default">
+                        <Tabs
+                            value={page}
+                            onChange={(_e, p) => setPage(p)}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            aria-label="scrollable tabs"
+                        >
+                            {PAGES.map((tab, i) => (
+                                <Tab
+                                    key={i}
+                                    id={`tab-${i + 1}`}
+                                    aria-controls={tab}
+                                    label={tab}
+                                    onClick={() => changeHash(tab)}
+                                />
+                            ))}
+                        </Tabs>
+                    </AppBar>
+                    <Box component={Card} mt={{ lg: "12px", sm: "6px", xs: "6px" }}>
+                        {page === 0 && <AccountPage />}
+                        {page === 1 && <ProfilePage />}
                         {page === 2 && <Theme />}
                     </Box>
                 </div>
@@ -81,14 +77,3 @@ export default function Settings(props: { email: string, icon: string, firstName
         </>
     );
 };
-export async function getServerSideProps(ctx: NextPageContext) {
-    return serverRedirect(ctx, async (cookies) => {
-        const user_id = new ObjectId(cookies.user_id);
-        const db = await getDB();
-        const users = db.collection("users");
-        const user = await users.findOne({ _id: user_id }, { projection: { firstName: 1, lastName: 1, email: 1, icon: 1, _id: 0} });
-        return {
-            props: user
-        }
-    });
-}

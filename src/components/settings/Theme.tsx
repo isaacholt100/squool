@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePut } from "../../hooks/useRequest";
 import { useDispatch } from "react-redux";
 //import socket from "../../api/socket";
@@ -49,6 +49,7 @@ export default function Theme() {
                     val: payload,
                 },
                 done() {
+                    //alert("thene updated")
                     //console.log("theme updated");
                 }//socket.emit("user message", "/theme", { [name]: payload }),
             });
@@ -118,6 +119,22 @@ export default function Theme() {
             });
         };
         //console.log(theme);
+    useEffect(() => {
+        if (theme.primary !== colors[themeState.primaryHue[shades[themeState.primaryShade]]]) {
+            setThemeState({
+                ...themeState,
+                ...huesAndShades(theme.primary, "primary"),
+            });
+        }
+    }, [theme.primary]);
+    useEffect(() => {
+        if (theme.secondary !== colors[themeState.secondaryHue[shades[themeState.secondaryShade]]]) {
+            setThemeState({
+                ...themeState,
+                ...huesAndShades(theme.secondary, "secondary"),
+            });
+        }
+    }, [theme.secondary]);
     return (
         <>
             <FormControl component="fieldset" fullWidth>

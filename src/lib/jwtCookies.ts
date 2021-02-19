@@ -1,7 +1,23 @@
 import { mutate } from "swr";
 import Cookies from "js-cookie";
+import IUser from "../types/IUser";
 
-export default function jwtCookies({ accessToken, refreshToken, staySignedIn, user_id, school_id, role }: { accessToken: string, refreshToken: string, staySignedIn: boolean, user_id: string, school_id: string, role: string }) {
+interface ICookieVars {
+    accessToken: string;
+    refreshToken: string;
+    staySignedIn: boolean;
+    userInfo: {
+        user_id: string;
+        school_id?: string;
+        role: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        icon: string;
+    }
+}
+
+export default function jwtCookies({ accessToken, refreshToken, staySignedIn, userInfo }: ICookieVars) {
     mutate("/api/login", true, false);
     Cookies.set("loginTimestamp", new Date().getTime().toString(), {
         expires: 1000000,
@@ -14,13 +30,9 @@ export default function jwtCookies({ accessToken, refreshToken, staySignedIn, us
             expires: 1000000,
         } : {}),
     });
-    Cookies.set("user_id", user_id, {
-        expires: 1000000,
-    });
-    school_id && Cookies.set("school_id", school_id, {
-        expires: 1000000,
-    });
-    Cookies.set("role", role, {
-        expires: 1000000,
-    });
+    for (const key in userInfo) {
+        Cookies.set(key, userInfo[key], {
+            expires: 100000,
+        });
+    }
 }

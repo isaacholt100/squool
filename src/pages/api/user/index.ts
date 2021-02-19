@@ -191,14 +191,23 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             break;
         }
         case "GET": {
-            const { _id } = await auth(req, res);
-            const db = await getDB();
-            const users = db.collection("users");
-            const user = await getUser(_id, users);
-            if (!user) {
-                throw new Error("User not found");
+            if (req.query.info) {
+                const { _id } = await auth(req, res);
+                const user_id = new ObjectId(_id);
+                const db = await getDB();
+                const users = db.collection("users");
+                const user = await users.findOne({ _id: user_id }, { projection: { firstName: 1, lastName: 1, email: 1, icon: 1, _id: 0} });
+                res.json(user);
+            } else {
+                const { _id } = await auth(req, res);
+                const db = await getDB();
+                const users = db.collection("users");
+                const user = await getUser(_id, users);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                res.json(user);
             }
-            res.json(user);
             break;
         }
         case "DELETE": {

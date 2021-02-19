@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import useRefState from "../hooks/useRefState";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
+import useSWR from "swr";
 
 interface ITheme {
     fontFamily: string;
@@ -20,7 +21,16 @@ const ThemeContext = createContext([{}, () => {}]);
 export default function Theme({ children, /*initialTheme*/ }: { children: ReactChild, /*initialTheme: Partial<ITheme>*/ }) {
     
     const
-        //{ data } = useSWR("/api/user/settings/theme"),
+        { data, mutate } = useSWR<ITheme>("/api/user/settings/theme", {
+            initialData: process.browser ? {
+                primary: Cookies.get("theme_primary") || defaultTheme.primary,
+                secondary: Cookies.get("theme_secondary") || defaultTheme.secondary,
+                type: Cookies.get("theme_type") || defaultTheme.type,
+                fontFamily: Cookies.get("theme_fontFamily") || defaultTheme.fontFamily,
+            } : defaultTheme,
+            refreshInterval: 1000,
+            onError() {},
+        }),
         router = useRouter(),
         isLoggedIn = useIsLoggedIn(),
         [theme, setTheme] = useRefState<ITheme>({
@@ -37,6 +47,9 @@ export default function Theme({ children, /*initialTheme*/ }: { children: ReactC
                 ...theme.current,
                 ...t,
             } : defaultTheme;
+            //console.log(newTheme);
+            
+            //mutate(newTheme, true);
             setTheme(newTheme);
             if (t) {
                 for (const key in t) {
@@ -49,6 +62,9 @@ export default function Theme({ children, /*initialTheme*/ }: { children: ReactC
                 Cookies.remove("theme_fontFamily");
             }
         };
+    useEffect(() => {
+        setTheme(data);
+    }, [data]);
     return (
         <ThemeContext.Provider value={[isLoggedIn && !DEFAULT_THEME_ROUTES.includes(router.route) ? theme.current : defaultTheme, dispatch]}>
             {children}
