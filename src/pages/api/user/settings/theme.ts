@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import auth from "../../../../server/auth";
 import getDB from "../../../../server/getDB";
@@ -18,12 +19,9 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             break;
         }
         case "GET": {
-            const { _id } = await auth(req, res);
             const db = await getDB();
             const users = db.collection("users");
-            const { theme } = await users.findOne({ _id }, { projection: { theme: 1, _id: 0 }});
-            console.log(theme);
-            
+            const { theme } = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, { projection: { theme: 1, _id: 0 }});
             res.json(theme);
         }
         default: {
