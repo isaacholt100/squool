@@ -14,9 +14,8 @@ export default function useLogout() {
     }
 }
 export function clearStorage() {
-    Cookies.remove("refreshToken");
-    Cookies.remove("accessToken");
-    Cookies.remove("user_id");
-    Cookies.remove("loginTimestamp");
+    for (const cookie in Cookies.get()) {
+        Cookies.remove(cookie);
+    }
     localStorage.clear();
 }

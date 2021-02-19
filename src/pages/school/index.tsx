@@ -21,10 +21,12 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    InputAdornment,
+    Menu,
 } from "@material-ui/core";
 import useConfirm from "../../hooks/useConfirm";
 import Icon from "../../components/Icon";
-import { mdiDelete, mdiPencil, mdiPlus } from "@mdi/js";
+import { mdiClose, mdiDelete, mdiFilter, mdiPencil, mdiPlus, mdiSortAlphabeticalAscending, mdiSortAlphabeticalDescending } from "@mdi/js";
 import useUrlHashIndex from "../../hooks/useUrlHashIndex";
 import useUserInfo from "../../hooks/useUserInfo";
 import { defaultRedirect } from "../../lib/serverRedirect";
@@ -41,6 +43,7 @@ import useSWR, { mutate } from "swr";
 import ISchool, { IPermissions } from "../../types/ISchool";
 import Loader from "../../components/Loader";
 import useMembers from "../../hooks/useMembers";
+import usePasswordAuth from "../../hooks/usePasswordAuth";
 
 function InvitePage() {
     const
@@ -218,6 +221,8 @@ function RoleDialog(props: { open: boolean, mode: "edit" | "create", close(): vo
 
 function SchoolSettings(props: { permissions: IPermissions }) {
     const
+        [put, putLoading] = usePut(),
+        [PasswordDialog, passwordConfirm, closePasswordDialog] = usePasswordAuth(putLoading),
         [state, setState] = useState(() => props.permissions),
         keys = Object.keys(state),
         canRevert = keys.some(k => state[k] !== props.permissions[k]),
@@ -226,14 +231,38 @@ function SchoolSettings(props: { permissions: IPermissions }) {
                 ...state,
                 [permission]: e.target.value,
             });
+        },
+        updatePermissions = (password: string, setError: () => void) => {
+            put("/school/permissions", {
+                setLoading: true,
+                body: {
+                    permissions: state,
+                    password,
+                },
+                doneMsg: "Permissions updated",
+                failedMsg: "updating the permissions",
+                done() {
+                    mutate("/api/school", (current: ISchool) => {
+                        console.log(current);
+                        
+                        current.permissions = state;
+                        return current;
+                    }, false);
+                    closePasswordDialog();
+                },
+                errors() {
+                    setError();
+                },
+            });
         };
     return (
         <>
+            {PasswordDialog}
             <Typography variant="h5" gutterBottom>
                 Permissions
             </Typography>
             {keys.sort().map(permission => (
-                <div className="flex space_between align_items_center mt_6">
+                <div className="flex space_between align_items_center mt_6" key={permission}>
                     <Typography id={permission + "-permission-label"}>{startCase(permission)}</Typography>
                     <Box clone minWidth={144}>
                         <FormControl variant="outlined">
@@ -252,7 +281,7 @@ function SchoolSettings(props: { permissions: IPermissions }) {
             ))}
             <MarginDivider />
             <div className="flex space_between">
-                <Button color="secondary" disabled={!canRevert}>Update</Button>
+                <Button color="secondary" disabled={!canRevert} onClick={() => passwordConfirm(updatePermissions)}>Update</Button>
                 <Button disabled={!canRevert} onClick={() => setState(props.permissions)}>Revert</Button>
             </div>
         </>
@@ -364,9 +393,97 @@ function InfoPage({ schoolInfo }: { schoolInfo: ISchool }) {
     );
 }
 
+const SORT_BY_ICONS = [mdiSortAlphabeticalAscending, mdiSortAlphabeticalDescending];
+const ROLES = ["admins", "owner", "students", "teachers"];
+
+function MembersPage() {
+    const
+        members = useMembers(),
+        [search, setSearch] = useState(""),
+        [sortByAnchor, setSortByAnchor] = useState(null),
+        [sortBy, setSortBy] = useState(0),
+        [filterRolesAnchor, setFilterRolesAnchor] = useState(null),
+        [filterRoles, setFilterRoles] = useState(ROLES),
+        toggleFilterRole = (role: string) => {
+            if (filterRoles.includes(role)) {
+                setFilterRoles(filterRoles.filter(r => r !== role));
+            } else {
+                setFilterRoles([...filterRoles, role].sort());
+            }
+        };
+    return (
+        <>
+            <TextField
+                label="Search members"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                fullWidth
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            <IconButton size="small" aria-label="clear search field" className="p_3" onMouseDown={e => e.preventDefault()} onClick={() => setSearch("")}>
+                                <Icon path={mdiClose} />
+                            </IconButton>
+                        </InputAdornment>
+                    )
+                }}
+            />
+            <div className="flex mt_6">
+                <Tooltip title="Sort By">
+                    <IconButton className="mr_6" onClick={e => setSortByAnchor(e.currentTarget)}>
+                        <Icon path={SORT_BY_ICONS[sortBy]} />
+                    </IconButton>
+                </Tooltip>
+                <Menu
+                    id="sort-by-menu"
+                    anchorEl={sortByAnchor}
+                    keepMounted
+                    open={Boolean(sortByAnchor)}
+                    onClose={() => setSortByAnchor(null)}
+                >
+                    {["A-Z", "Z-A"].map((opt, i) => (
+                        <MenuItem
+                            key={i}
+                            selected={sortBy === i}
+                            onClick={() => {
+                                setSortByAnchor(null);
+                                setSortBy(i);
+                            }}
+                        >
+                            {opt}
+                        </MenuItem>
+                    ))}
+                </Menu>
+                <Tooltip title="Filter Tags">
+                    <IconButton className="mr_6" onClick={e => setFilterRolesAnchor(e.currentTarget)}>
+                        <Icon path={mdiFilter} />
+                    </IconButton>
+                </Tooltip>
+                <Menu
+                    id="filter-menu"
+                    anchorEl={filterRolesAnchor}
+                    keepMounted
+                    open={Boolean(filterRolesAnchor)}
+                    onClose={() => setFilterRolesAnchor(null)}
+                    variant="menu"
+                    PaperProps={{
+                        style: {
+                            maxHeight: 256
+                        }
+                    }}
+                >
+                    {ROLES.map(role => (
+                        <MenuItem key={role} button selected={filterRoles.includes(role)} onClick={() => toggleFilterRole(role)}>
+                            {role}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            </div>
+        </>
+    );
+}
+
 export default function School() {
-    const members = useMembers();
-    console.log(members);
     const
         { role } = useUserInfo(),
         pages = ["info", "invite", "members", "classes"];
@@ -401,11 +518,7 @@ export default function School() {
                     <Box component={Card} my={{ xs: "6px", lg: "12px", }}>
                         {activeTab === 0 && <InfoPage schoolInfo={schoolInfo} />}
                         {activeTab === 1 && <InvitePage />}
-                        {activeTab === 2 && (
-                            <>
-
-                            </>
-                        )}
+                        {activeTab === 2 && <MembersPage />}
                         {activeTab === 4 && <SchoolSettings permissions={schoolInfo.permissions} />}
                     </Box>
                 </div>

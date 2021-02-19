@@ -12,7 +12,6 @@ import { ObjectId } from "mongodb";
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
         case "POST": {
-            //throw new Error("Test error");
             const
                 db = await getDB(),
                 users = db.collection("users"),
@@ -50,18 +49,20 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
         }
         case "GET": {
             if (!ObjectId.isValid(req.cookies.user_id)) {
-                return res.json(false);
+                res.json(false);
+            } else {
+                const db = await getDB();
+                const users = db.collection("users");
+                const user = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, {
+                    projection: {
+                        _id: 1,
+                        accountModifiedTimestamp: 1,
+                    },
+                });
+                const isLoggedIn = req.cookies.refreshToken && req.cookies.httpRefreshToken && req.cookies.accessToken && req.cookies.loginTimestamp && (user.accountModifiedTimestamp === undefined || +req.cookies.loginTimestamp > user.accountModifiedTimestamp);
+                
+                res.json(isLoggedIn);
             }
-            const db = await getDB();
-            const users = db.collection("users");
-            const user = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, {
-                projection: {
-                    _id: 1,
-                    accountModifiedTimestamp: 1,
-                },
-            });
-            const isLoggedIn = req.cookies.refreshToken && req.cookies.httpRefreshToken && req.cookies.accessToken && req.cookies.loginTimestamp && (user.accountModifiedTimestamp === undefined || +req.cookies.loginTimestamp > user.accountModifiedTimestamp);
-            res.json(isLoggedIn);
             break;
         }
         case "DELETE": {

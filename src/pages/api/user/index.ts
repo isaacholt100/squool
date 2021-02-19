@@ -206,7 +206,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                 const user = await auth(req, res);
                 const db = await getDB();
                 const users = db.collection("users");
-                const r = await users.deleteOne({_id: user._id});
+                const r = await users.deleteOne({_id: user._id, role: {$ne: "owner"}});
                 deleteRefreshToken(res);
                 didUpdate(res, r.deletedCount);
             });

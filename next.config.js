@@ -4,6 +4,7 @@ module.exports = withPWA({
     pwa: {
         disable: process.env.NODE_ENV !== "production",
         dest: "public",
+        register: true,
     },
     //reactStrictMode: true,
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

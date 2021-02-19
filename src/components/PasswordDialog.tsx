@@ -8,7 +8,10 @@ export default function ConfirmDialog({ loading, fn, close }: { loading: boolean
     return (
         <Dialog
             open={fn !== null}
-            onClose={close}
+            onClose={() => {
+                close();
+                setValue("");
+            }}
             aria-labelledby="confirm-action"
             aria-describedby="confirm-description"
         >

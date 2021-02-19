@@ -24,6 +24,7 @@ import { useRouter } from "next/router";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import jwtCookies from "../lib/jwtCookies";
 import Title from "../components/Title";
+import BtnLink from "../components/BtnLink";
 
 const initialState = {
     email: "",
@@ -99,11 +100,7 @@ export default function Login() {
                     <Box maxWidth={600} mx="auto" /*className={effects.fadeup}*/ component={Card}>
                         <Typography variant="h5" gutterBottom>
                             Login to{" "}
-                            <Link href="/">
-                                <ButtonLink component="button">
-                                    <Typography variant="h5">Squool</Typography>
-                                </ButtonLink>
-                            </Link>
+                            <BtnLink href="/" variant="h5" label="Squool" />
                         </Typography>
                         <form onSubmit={handleSubmit}>
                             <div className={"my_6"}>

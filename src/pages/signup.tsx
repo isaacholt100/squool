@@ -29,6 +29,7 @@ import useAuthRedirect from "../hooks/useAuthRedirect";
 import { useRouter } from "next/router";
 import isEmailValid from "../lib/isEmailValid";
 import Title from "../components/Title";
+import BtnLink from "../components/BtnLink";
 
 interface IFields {
     firstName: string;
@@ -251,11 +252,7 @@ export default function Signup() {
                         <Box maxWidth={600} /*className={effects.fadeup}*/ mx="auto" component={Card}>
                             <Typography variant="h5" gutterBottom>
                                 Sign up to{" "}
-                                <Link href="/">
-                                    <ButtonLink component="button">
-                                        <Typography variant="h5">Squool</Typography>
-                                    </ButtonLink>
-                                </Link>
+                                <BtnLink href="/" variant="h5" label="Squool" />
                             </Typography>
                             <form noValidate onSubmit={signup}>
                                 <Box clone mb={"24px !important"} mt="6px">

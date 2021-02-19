@@ -6,7 +6,7 @@ import { clearStorage } from "./useLogout";
 export default function useIsLoggedIn() {
     const [, setOnline] = useIsOnline();
     const l = Boolean(Cookies.get("refreshToken") && Cookies.get("accessToken"));
-    const { data, error } = useSWR("/api/login", async url => {
+    const { data } = useSWR("/api/login", async url => {
         let offline = true;
         try {
             const res = await fetch(url, {
@@ -30,7 +30,7 @@ export default function useIsLoggedIn() {
         //refreshWhenOffline: true,
         //refreshWhenHidden: true,
     });
-    if (!error) {
+    if (data !== undefined) {
         if (!data && Cookies.get("refreshToken")) {
             clearStorage();
         }
