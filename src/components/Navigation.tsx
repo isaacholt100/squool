@@ -46,6 +46,8 @@ const
             borderRadius: 0,
             zIndex: 1200,
             height: 65,
+            position: "absolute",
+            top: 0,
         },
         navIconHide: {
             [theme.breakpoints.up("md")]: {

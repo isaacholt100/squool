@@ -38,6 +38,7 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
         defaultBg = themeType === "light" ? "#fff" : "#121212",
         level1Bg = themeType === "light" ? "#ddd" : "#333",
         isMobile = useIsMobile(),
+        isInApp = useIsInApp(),
         fontFamily = `https://fonts.googleapis.com/css?family=${theme.fontFamily.toLowerCase().split(" ").map((s: string) => s.charAt(0).toUpperCase() + s.substring(1)).join("+")}:300,400,500&display=swap`,
         muiTheme = createMuiTheme({
             palette: {
@@ -92,11 +93,20 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
     muiTheme.overrides = {
         MuiCssBaseline: {
             "@global": {
-                "html, body, body > #__next": {
+                "html": {
+                    overflow: "hidden",
+                },
+                "html, body > #__next": {
                     width: "100%",
                     height: "100%",
                     fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
-                    overflow: "hidden",
+                },
+                "body": {
+                    fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
+                    width: "100%",
+                    height: isInApp ? "calc(100% - 64px)" : "100%",
+                    marginTop: isInApp ? 64 : 0,
+                    overflow: "auto",
                 },
                 "*": {
                     caretColor: theme.primary,
@@ -462,7 +472,7 @@ function Frame({ children }: { children: ReactChild }) {
         };
     useEffect(getData, []);
     return (
-        <div className={"flex flex_col full_screen"}>
+        <div className={"flex flex_col"}>
             {false && (
                 <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} opacity={dataLoaded ? 0 : 1} />
             )}
@@ -489,7 +499,7 @@ const useContainerStyles = makeStyles(({ breakpoints }) => ({
             width: "100%",
             //maxWidth: 2048,
             margin: "0 auto",
-            overflowY: "auto",
+            //overflowY: "auto",
             overflowX: "hidden",
             flex: 1,
             //height: "100%",
