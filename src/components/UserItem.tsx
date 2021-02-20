@@ -22,7 +22,7 @@ function UserItem({ user, ...props }: { user: IUser } & ListItemProps) {
                     </Box>
                 </ListItemAvatar>
                 <ListItemText
-                    primary={user._id === userInfo._id ? "You" : getFullName(user)}
+                    primary={user._id === userInfo._id ? getFullName(userInfo) + " (You)" : getFullName(user)}
                     secondary={user.email}
                 />
             </ListItem>

@@ -124,7 +124,7 @@
 }
 .no_scrollbar::-webkit-scrollbar {
     display: none;
-}  
+}
 .overflow_scroll {
     overflow: scroll !important;
 }

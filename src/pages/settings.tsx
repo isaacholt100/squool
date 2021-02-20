@@ -67,7 +67,7 @@ export default function Settings() {
                             ))}
                         </Tabs>
                     </AppBar>
-                    <Box component={Card} mt={{ lg: "12px", sm: "6px", xs: "6px" }}>
+                    <Box component={Card} my={{ lg: "12px", sm: "6px", xs: "6px" }}>
                         {page === 0 && <AccountPage />}
                         {page === 1 && <ProfilePage />}
                         {page === 2 && <Theme />}

@@ -4,6 +4,7 @@ import IUser, { Role } from "../types/IUser";
 import { useUserInfo as useInfo } from "../context/UserInfo";
 import useSWR from "swr";
 import Cookies from "js-cookie";
+import { useEffect } from "react";
 
 export default function useUserInfo(): IUser & { school_id: string } {
     const { data } = useSWR<IUser & { school_id: string }>("/api/user?info", {
@@ -27,5 +28,11 @@ export default function useUserInfo(): IUser & { school_id: string } {
         refreshInterval: 1000,
         onError: () => {},
     });
+    useEffect(() => {
+        Cookies.set("icon", data.icon);
+        Cookies.set("firstName", data.firstName);
+        Cookies.set("lastName", data.lastName);
+        Cookies.set("email", data.email);
+    }, [data]);
     return data;
 }

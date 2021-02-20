@@ -63,6 +63,9 @@ export default function Theme({ children, /*initialTheme*/ }: { children: ReactC
             }
         };
     useEffect(() => {
+        for (const key in data) {
+            Cookies.set("theme_" + key, data[key]);
+        }
         setTheme(data);
     }, [data]);
     return (

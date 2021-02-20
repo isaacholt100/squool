@@ -44,6 +44,9 @@ import ISchool, { IPermissions } from "../../types/ISchool";
 import Loader from "../../components/Loader";
 import useMembers from "../../hooks/useMembers";
 import usePasswordAuth from "../../hooks/usePasswordAuth";
+import { getFullName } from "../../lib/userName";
+import IUser from "../../types/IUser";
+import { Pagination } from "@material-ui/lab";
 
 function InvitePage() {
     const
@@ -394,11 +397,11 @@ function InfoPage({ schoolInfo }: { schoolInfo: ISchool }) {
 }
 
 const SORT_BY_ICONS = [mdiSortAlphabeticalAscending, mdiSortAlphabeticalDescending];
-const ROLES = ["admins", "owner", "students", "teachers"];
+const ROLES = ["admin", "owner", "student", "teacher"];
 
 function MembersPage() {
     const
-        members = useMembers(),
+        [members, membersLoading] = useMembers(),
         [search, setSearch] = useState(""),
         [sortByAnchor, setSortByAnchor] = useState(null),
         [sortBy, setSortBy] = useState(0),
@@ -410,7 +413,8 @@ function MembersPage() {
             } else {
                 setFilterRoles([...filterRoles, role].sort());
             }
-        };
+        },
+        sortFn = sortBy === 0 ? ((a: IUser, b: IUser) => a.lastName >= b.lastName ? 1 : -1) : ((a: IUser, b: IUser) => a.lastName <= b.lastName ? 1 : -1);
     return (
         <>
             <TextField
@@ -428,7 +432,7 @@ function MembersPage() {
                     )
                 }}
             />
-            <div className="flex mt_6">
+            <div className="flex mt_6 mb_6">
                 <Tooltip title="Sort By">
                     <IconButton className="mr_6" onClick={e => setSortByAnchor(e.currentTarget)}>
                         <Icon path={SORT_BY_ICONS[sortBy]} />
@@ -479,6 +483,14 @@ function MembersPage() {
                     ))}
                 </Menu>
             </div>
+            <Pagination count={10} variant="outlined" shape="rounded" color="secondary" />
+            {membersLoading ? <Loader /> : (
+                <List dense className="mt_6 mb_-3">
+                    {members.filter(member => getFullName(member).toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()) && filterRoles.includes(member.role)).sort(sortFn).map(member => (
+                        <UserItem user={member} />
+                    ))}
+                </List>
+            )}
         </>
     );
 }

@@ -86,7 +86,7 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     onBlur(e) {
                         (e.target as HTMLElement).classList?.remove("allow_select");
                     },
-                }
+                },
             },
         });
     muiTheme.overrides = {
@@ -381,8 +381,35 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
             dialogRoot: {
                 width: "auto",
                 minWidth: "auto",
-            }
-        }
+            },
+        },
+        MuiPaginationItem: {
+            rounded: {
+                borderRadius: 6,
+            },
+        },
+        MuiPagination: {
+            ul: {
+                overflow: "scroll",
+                flexWrap: "nowrap",
+                scrollbarWidth: "none !important",
+                MsOverflowStyle: "none !important",
+                "&::-webkit-scrollbar": {
+                    display: "none",
+                },
+            },
+        },
+        MuiListItemText: {
+            secondary: {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+            },
+            primary: {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+            },
+        },
     } as any;
     return (
         <>

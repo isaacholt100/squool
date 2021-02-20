@@ -340,6 +340,7 @@ export default function Reminders() {
                         label="Name"
                         fullWidth
                         className="my_6"
+                        autoFocus
                     />
                     <TextField
                         onChange={handleChange("desc")}
