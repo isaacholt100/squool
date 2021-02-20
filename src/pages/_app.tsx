@@ -25,6 +25,8 @@ import useLogout from "../hooks/useLogout";
 import useThemeType from "../hooks/useThemeType";
 import usePathname from "../hooks/usePathname";
 import useIsMobile from "../hooks/useIsMobile";
+import sendRequest from "../lib/sendRequest";
+import useIsInApp from "../hooks/useIsInApp";
 
 
 function ThemeWrapper({ children }: { children: ReactChild }) {
@@ -396,11 +398,11 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
 function Frame({ children }: { children: ReactChild }) {
     const
         isLoggedIn = useIsLoggedIn(),
-        pathname = usePathname(),
+        isInApp = useIsInApp(),
         dispatch = useDispatch(),
         [get] = useGet(),
         [dataLoaded, setDataLoaded] = useState(false),
-        classes = useContainerStyles(isLoggedIn && pathname !== "/"),
+        classes = useContainerStyles(isLoggedIn && isInApp),
         [, setTheme] = useTheme(),
         getData = () => {
             if (!dataLoaded && isLoggedIn) {
@@ -537,16 +539,7 @@ export default function App({ Component, pageProps }: AppProps) {
                         });
                     },
                     fetcher: async (url, options) => {
-                        const res = await fetch(url, {
-                            ...options,
-                            credentials: "include",
-                            headers: {
-                                "authorization": "Bearer " + Cookies.get("accessToken"),
-                                "authorization-refresh": "Bearer " + Cookies.get("refreshToken"),
-                                "Access-Control-Expose-Headers": "authorization",
-                                "Access-Control-Allow-Headers": "authorization",
-                            },
-                        });
+                        const res = await sendRequest(url, options);
                         const header = res?.headers?.get("authorization");
                         if (res?.status === 401) {
                             logout();

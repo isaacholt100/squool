@@ -25,6 +25,7 @@ import useUserInfo from "../../hooks/useUserInfo";
 import useClasses from "../../hooks/useClasses";
 import { defaultRedirect } from "../../lib/serverRedirect";
 import Loader from "../../components/Loader";
+import { getPrefetchProps } from "../../lib/sendRequest";
 
 export default function Class() {
     const
@@ -133,7 +134,7 @@ export default function Class() {
                         }]}
                         Item={c => (
                             <Link href={`/classes/${c._id}`}>
-                                <CardActionArea className={"p_6 full_height"}>
+                                <CardActionArea className={"p_6 full_height"} {...getPrefetchProps(`/api/classes?_id=${c._id}`)}>
                                     <div className="full_height">
                                         <Typography variant="h6" gutterBottom>
                                             {c.name}

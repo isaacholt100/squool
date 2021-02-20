@@ -32,6 +32,7 @@ import { useIsOnline } from "../../context/IsOnline";
 import useUserInfo from "../../hooks/useUserInfo";
 import { defaultRedirect } from "../../lib/serverRedirect";
 import useRedirect from "../../hooks/useRedirect";
+import useSWR from "swr";
 
 const sampleFiles: IFile[] = [{
     name: "file",
@@ -88,16 +89,16 @@ function Class() {
         [isOnline] = useIsOnline(),
         [del, delLoading] = useDelete(),
         [files, setFiles] = useState<IFile[]>(null),
-        [get] = useGet(),
         [ConfirmDialog, confirm] = useConfirm(delLoading),
-        dispatch = useDispatch(),
         classes = useStyles(),
-        [classInfo, setClassInfo] = useState(null),
         router = useRouter(),
+        class_id = router.query.id as string,
+        { data: classInfo, error: loadError } = useSWR(`/api/classes?_id=${class_id}`, {
+            onError() {}
+        }),
         [hashIndex, changeHash] = useUrlHashIndex(pages),
         [activeTab, setActiveTab] = useState(hashIndex),
         [offlineFiles, setOfflineFiles] = useState<IFile[]>([]),
-        class_id = router.query.id as string,
         user_id = useUserInfo()._id,
         kickout = (_id: string) => {
             del("/classes/member", {
@@ -150,20 +151,6 @@ function Class() {
         };
         
     useEffect(() => {
-        get(`/classes?_id=${class_id}`, {
-            //setLoading: true,
-            failedMsg: "loading the class info",
-            done(data) {
-                //title(data.name + " Class");
-                setClassInfo(data);
-            },
-            errors() {
-                dispatch({
-                    type: "LOAD_ERROR",
-                    payload: "This class couldn't be found",
-                });
-            }
-        });
         setFiles(sampleFiles);
     }, []);
     useEffect(() => {

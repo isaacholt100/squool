@@ -26,6 +26,9 @@ import { useRouter } from "next/router";
 import MoreActions from "./MoreActions";
 import useUserInfo from "../hooks/useUserInfo";
 import usePathname from "../hooks/usePathname";
+import { keyInterface, mutate } from "swr";
+import sendRequest, { getPrefetchProps, prefetch } from "../lib/sendRequest";
+import useIsInApp from "../hooks/useIsInApp";
 
 NProgress.configure({
     parent: "#nprogress-parent",
@@ -118,6 +121,18 @@ const Nav = memo(() => {
             "School": mdiSchool,
             "Home": mdiHome,//<Image src="/icons/android-icon-48x48.png" layout="fixed" height={36} width={36} draggable="false" priority loading="eager" />
         },
+        apiRoutes = {
+            "Books": "books",
+            "Classes": "classes",
+            "Chats": "",
+            "Timetable": "",
+            "Calendar": "",
+            "Tools": "",
+            "Reminders": "reminders",
+            "Settings": "",
+            "School": "school",
+            "Home": "",
+        },
         links = () => {
             switch (role) {
                 case "student":
@@ -132,14 +147,15 @@ const Nav = memo(() => {
             <div className={clsx(classes.linksContainer, "no_scrollbar")}>
                 {links().map(link => (
                     <Fragment key={link}>
-                        <Link href={"/" + link.toLowerCase()}>
+                        <Link href={"/" + link.toLowerCase()} prefetch>
                             <div>
                                 <Tooltip placement="left" title={link} {...(small ? {open: false} : {})}>
                                     <ListItem
                                         button
                                         href={"/" + link.toLowerCase()}
-                                        selected={link.toLowerCase() === router.pathname.slice(1) || (link === "Home" && router.pathname === "/")}
+                                        selected={link.toLowerCase() === router.pathname.slice(1)}
                                         className={clsx(classes.navItem, link === "Home" && classes.imgLink)}
+                                        {...(apiRoutes[link] ? getPrefetchProps("/api/" + apiRoutes[link]) : {})}
                                         onClick={(e) => {
                                             setMobileOpen(false);
                                             e.stopPropagation();
@@ -263,6 +279,6 @@ const Nav = memo(() => {
 });
 export default function Navigation() {
     const isLoggedIn = useIsLoggedIn();
-    const pathname = usePathname();
-    return isLoggedIn && pathname !== "/" ? <Nav /> : null;
+    const isInApp = useIsInApp();
+    return isLoggedIn && isInApp ? <Nav /> : null;
 }

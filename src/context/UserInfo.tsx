@@ -5,8 +5,6 @@ import useRefState from "../hooks/useRefState";
 import { useRouter } from "next/router";
 import IUser, { Role } from "../types/IUser";
 
-export const DEFAULT_THEME_ROUTES = ["/"];
-
 const initialUserInfo: IUser & { school_id: string } = process.browser ? {
     email: Cookies.get("email"),
     firstName: Cookies.get("firstName"),
