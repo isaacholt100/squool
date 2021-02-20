@@ -3,6 +3,7 @@ import React, { memo } from "react";
 import { Menu, Divider, ListItemText, ListItemIcon, MenuItem, SwipeableDrawer, MenuList } from "@material-ui/core";
 import { ContextMenuItem } from "../types/contextMenu";
 import styles from "../css/contextMenu.module.css";
+import useIsMobile from "../hooks/useIsMobile";
 
 interface IProps {
     items: ContextMenuItem[];
@@ -34,7 +35,7 @@ function MobileContextMenu({ items, close, open }: Pick<IProps, "items" | "close
             anchor="bottom"
             open={open}
             onClose={close}
-            onOpen={undefined}
+            onOpen={() => {}}
             disableDiscovery
             classes={{
                 paper: styles.mobile_menu,
@@ -73,7 +74,8 @@ function DesktopContextMenu({ items, mouse, close }: Omit<IProps, "isMobile">) {
     );
 }
 
-function ContextMenu({ items, mouse, close, isMobile }: IProps) {
+function ContextMenu({ items, mouse, close }: IProps) {
+    const isMobile = useIsMobile();
     return isMobile ? <MobileContextMenu items={items} close={close} open={mouse !== null} /> : <DesktopContextMenu items={items} mouse={mouse} close={close} />;
 }
 

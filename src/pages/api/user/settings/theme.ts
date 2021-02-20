@@ -19,10 +19,14 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             break;
         }
         case "GET": {
-            const db = await getDB();
-            const users = db.collection("users");
-            const { theme } = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, { projection: { theme: 1, _id: 0 }});
-            res.json(theme);
+            if (req.cookies.user_id) {
+                const db = await getDB();
+                const users = db.collection("users");
+                const { theme } = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, { projection: { theme: 1, _id: 0 }});
+                res.json(theme);
+            } else {
+                res.json({});
+            }
         }
         default: {
             notAllowed(res);

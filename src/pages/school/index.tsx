@@ -47,6 +47,7 @@ import usePasswordAuth from "../../hooks/usePasswordAuth";
 import { getFullName } from "../../lib/userName";
 import IUser from "../../types/IUser";
 import { Pagination } from "@material-ui/lab";
+import { getPrefetchProps } from "../../lib/sendRequest";
 
 function InvitePage() {
     const
@@ -523,11 +524,11 @@ export default function School() {
                             aria-label="school tabs"
                         >
                         {pages.map(p => (
-                            <Tab label={p} key={p} onClick={() => changeHash(p)} />
+                            <Tab label={p} key={p} onClick={() => changeHash(p)} {...(p === "members" ? getPrefetchProps("/api/school/members") : {})} />
                         ))}
                     </Tabs>
                     </AppBar>
-                    <Box component={Card} my={{ xs: "6px", lg: "12px", }}>
+                    <Box component={Card} my={{ xs: "6px", sm: "6px", lg: "12px", }}>
                         {activeTab === 0 && <InfoPage schoolInfo={schoolInfo} />}
                         {activeTab === 1 && <InvitePage />}
                         {activeTab === 2 && <MembersPage />}

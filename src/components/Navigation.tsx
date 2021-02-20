@@ -147,7 +147,7 @@ const Nav = memo(() => {
             <div className={clsx(classes.linksContainer, "no_scrollbar")}>
                 {links().map(link => (
                     <Fragment key={link}>
-                        <Link href={"/" + link.toLowerCase()} prefetch>
+                        <Link href={"/" + link.toLowerCase()}>
                             <div>
                                 <Tooltip placement="left" title={link} {...(small ? {open: false} : {})}>
                                     <ListItem

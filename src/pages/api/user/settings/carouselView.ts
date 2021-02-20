@@ -14,10 +14,15 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
             break;
         }
         case "GET": {
-            const db = await getDB();
-            const users = db.collection("users");
-            const { carouselView } = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, { projection: { carouselView: 1, _id: 0 }});
-            res.json(carouselView);
+            if (req.cookies.user_id) {
+                const db = await getDB();
+                const users = db.collection("users");
+                const { carouselView } = await users.findOne({ _id: new ObjectId(req.cookies.user_id) }, { projection: { carouselView: 1, _id: 0 }});
+                res.json(Boolean(carouselView));
+            } else {
+                res.json(false);
+            }
+            break;
         }
         default: {
             notAllowed(res);

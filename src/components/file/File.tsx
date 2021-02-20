@@ -17,7 +17,7 @@ const CodeViewer = memo(({ ext, url }: { url: string; ext: string }) => {
     const { data, error } = useSWR(url, (url, opts) => fetch(url, opts).then(res => res.text()));
     return data === undefined ? <MediaLoader /> : (
         error ? <AlertError msg={"Error loading file"} btn={null} /> : (
-            <Code lang={ext} code={data.slice(0, 1000)} showLineNumbers wrapLongLines height="calc(100vh - 256px)" />
+            <Code lang={ext} code={data.slice(0, 1000)} showLineNumbers wrapLongLines height="calc(100% - 256px)" />
         ) 
     );
 });

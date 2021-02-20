@@ -93,9 +93,10 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
         MuiCssBaseline: {
             "@global": {
                 "html, body, body > #__next": {
-                    width: "100vw",
-                    height: "100vh",
+                    width: "100%",
+                    height: "100%",
                     fontFamily: `"${theme.fontFamily}", "Helvetica", "Arial", sans-serif`,
+                    overflow: "hidden",
                 },
                 "*": {
                     caretColor: theme.primary,
@@ -475,14 +476,14 @@ function Frame({ children }: { children: ReactChild }) {
 }
 const useContainerStyles = makeStyles(({ breakpoints }) => ({
     appContainer: {
-        width: "100vw",
+        width: "100%",
         //marginTop: props => (props as any) ? 60 : 0,
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
         [breakpoints.up("md")]: {
             marginLeft: props => (props as any) ? 60 : 0,
-            width: props => (props as any) ? "calc(100vw - 60px)" : "100vw",
+            width: props => (props as any) ? "calc(100% - 60px)" : "100%",
         },
         "& > *": {
             width: "100%",
