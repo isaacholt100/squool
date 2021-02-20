@@ -21,7 +21,8 @@ const ThemeContext = createContext([{}, () => {}]);
 export default function Theme({ children, /*initialTheme*/ }: { children: ReactChild, /*initialTheme: Partial<ITheme>*/ }) {
     
     const
-        { data, mutate } = useSWR<ITheme>("/api/user/settings/theme", url => fetch(url).then(res => res.json()), {
+        isLoggedIn = useIsLoggedIn(),
+        { data, mutate } = useSWR<ITheme>(isLoggedIn ? "/api/user/settings/theme" : null, url => fetch(url).then(res => res.json()), {
             initialData: process.browser ? {
                 primary: Cookies.get("theme_primary") || defaultTheme.primary,
                 secondary: Cookies.get("theme_secondary") || defaultTheme.secondary,
@@ -32,7 +33,6 @@ export default function Theme({ children, /*initialTheme*/ }: { children: ReactC
             onError() {},
         }),
         router = useRouter(),
-        isLoggedIn = useIsLoggedIn(),
         [theme, setTheme] = useRefState<ITheme>({
             ...(process.browser ? {
                 primary: Cookies.get("theme_primary") || defaultTheme.primary,
