@@ -88,6 +88,10 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                         (e.target as HTMLElement).classList?.remove("allow_select");
                     },
                 },
+                MuiBackdrop: {
+                    //onEnter: () => document.documentElement.classList.add("disable_scroll"),
+                    //onExit: () => document.documentElement.classList.remove("disable_scroll"),
+                }
             },
         });
     muiTheme.overrides = {

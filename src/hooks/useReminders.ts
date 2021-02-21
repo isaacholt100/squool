@@ -9,8 +9,6 @@ export default function useReminders(): [IReminder[], boolean] {
             console.error(err);
         }
     });
-    console.log("reminders data", data);
-    console.error("reminders error", error);
     //const reminders = useSelector((s: RootState) => s.reminders);
     return [data || [], data === undefined];
 }

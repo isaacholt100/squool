@@ -115,6 +115,12 @@
 .overflow_auto {
     overflow: auto !important;
 }
+html {
+    overflow: hidden !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: auto !important;
+}
 .nowrap {
     white-space: nowrap !important;
 }

@@ -20,6 +20,6 @@ export function getPrefetchProps(key: string) {
     return {
         onMouseEnter: () => prefetch(key),
         //onTouchStart: () => prefetch(key),
-        //onFocus: () => prefetch(key),
+        onFocus: () => prefetch(key),
     }
 }
