@@ -582,7 +582,16 @@ export default function App({ Component, pageProps }: AppProps) {
                         });
                     },
                     fetcher: async (url, options) => {
-                        const res = await sendRequest(url, options);
+                        const res = await fetch(url, {
+                            ...options,
+                            credentials: "include",
+                            headers: {
+                                "authorization": "Bearer " + Cookies.get("accessToken"),
+                                "authorization-refresh": "Bearer " + Cookies.get("refreshToken"),
+                                "Access-Control-Expose-Headers": "authorization",
+                                "Access-Control-Allow-Headers": "authorization",
+                            },
+                        });
                         const header = res?.headers?.get("authorization");
                         if (res?.status === 401) {
                             logout();
