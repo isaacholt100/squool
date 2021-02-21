@@ -4,13 +4,13 @@ import { RootState } from "../redux/store";
 import IReminder from "../types/IReminder";
 
 export default function useReminders(): [IReminder[], boolean] {
-    const { data } = useSWR("/api/reminders", {
+    const { data, error } = useSWR("/api/reminders", {
         onError(err) {
             console.error(err);
         }
     });
-    console.log(data);
-    
+    console.log("reminders data", data);
+    console.error("reminders error", error);
     //const reminders = useSelector((s: RootState) => s.reminders);
     return [data || [], data === undefined];
 }
