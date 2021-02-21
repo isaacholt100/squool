@@ -13,8 +13,11 @@ export default function sendRequest(url: string, options = {}) {
         },
     });
 }
+function fetcher(path: string) {
+    return sendRequest(path).then(res => res.json());
+}
 export function prefetch(key: string) {
-    mutate(key, sendRequest(key).then(res => []), false);
+    mutate(key, fetcher(key), false);
 }
 export function getPrefetchProps(key: string) {
     return {
