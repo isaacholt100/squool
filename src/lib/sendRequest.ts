@@ -14,7 +14,7 @@ export default function sendRequest(url: string, options = {}) {
     });
 }
 export function prefetch(key: string) {
-    mutate(key, sendRequest(key).then(res => []), true);
+    mutate(key, sendRequest(key).then(res => []), false);
 }
 export function getPrefetchProps(key: string) {
     return {
