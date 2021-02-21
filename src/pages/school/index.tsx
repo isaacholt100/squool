@@ -488,7 +488,7 @@ function MembersPage() {
             {membersLoading ? <Loader /> : (
                 <List dense className="mt_6 mb_-3">
                     {members.filter(member => getFullName(member).toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()) && filterRoles.includes(member.role)).sort(sortFn).map(member => (
-                        <UserItem user={member} />
+                        <UserItem user={member} key={member._id} />
                     ))}
                 </List>
             )}
@@ -528,7 +528,7 @@ export default function School() {
                         ))}
                     </Tabs>
                     </AppBar>
-                    <Box component={Card} my={{ xs: "6px", sm: "6px", lg: "12px", }}>
+                    <Box component={Card} mt={{ xs: "6px", sm: "6px", lg: "12px", }}>
                         {activeTab === 0 && <InfoPage schoolInfo={schoolInfo} />}
                         {activeTab === 1 && <InvitePage />}
                         {activeTab === 2 && <MembersPage />}

@@ -472,7 +472,7 @@ function Frame({ children }: { children: ReactChild }) {
         };
     useEffect(getData, []);
     return (
-        <div className={"flex flex_col"}>
+        <>
             {false && (
                 <LoadPreview status={dataLoaded === undefined ? "error" : "loading"} getData={getData} opacity={dataLoaded ? 0 : 1} />
             )}
@@ -481,12 +481,13 @@ function Frame({ children }: { children: ReactChild }) {
             <div className={classes.appContainer}>
                 {children}
             </div>
-        </div>
+        </>
     );
 }
 const useContainerStyles = makeStyles(({ breakpoints }) => ({
     appContainer: {
         width: "100%",
+        height: "100%",
         //marginTop: props => (props as any) ? 60 : 0,
         display: "flex",
         flexDirection: "column",

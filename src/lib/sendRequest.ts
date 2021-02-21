@@ -14,11 +14,11 @@ export default function sendRequest(url: string, options = {}) {
     });
 }
 export function prefetch(key: string) {
-    mutate(key, sendRequest(key).then(res => res.json()));
+    mutate(key, sendRequest(key).then(res => res.json()), false);
 }
 export function getPrefetchProps(key: string) {
     return {
-        //onMouseOver: () => prefetch(key),
+        onMouseEnter: () => prefetch(key),
         //onTouchStart: () => prefetch(key),
         //onFocus: () => prefetch(key),
     }
