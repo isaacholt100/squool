@@ -17,7 +17,7 @@ function fetcher(path: string) {
     return sendRequest(path).then(res => res.json());
 }
 export function prefetch(key: string) {
-    mutate(key, fetcher(key), false);
+    sendRequest(path).then(res => mutate(key, res.json(), false));
 }
 export function getPrefetchProps(key: string) {
     return {
