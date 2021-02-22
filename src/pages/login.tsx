@@ -143,7 +143,6 @@ export default function Login() {
                                     autoComplete="current-password"
                                     helperText={state.passwordError + " "}
                                     fullWidth
-                                    onLoad={() => console.log("helo")}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">

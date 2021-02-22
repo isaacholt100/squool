@@ -50,7 +50,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
                         role: payload.role,
                     }
                     res.setHeader("authorization", jwt.sign(jwtInfo, process.env.ACCESS_TOKEN, {
-                        expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME,
+                        expiresIn: "20s",
                     }));
                     token = {
                         role: payload.role,

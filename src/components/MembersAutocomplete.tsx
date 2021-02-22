@@ -11,8 +11,6 @@ interface IProps<T extends boolean> {
 }
 
 export default function MembersAutocomplete<T extends boolean>(props: IProps<T>) {
-    console.log(props.value);
-    
     return (
         <Autocomplete
             multiple={props.multiple}

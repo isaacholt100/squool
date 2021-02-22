@@ -1763,7 +1763,6 @@ export default function Book() {
             failedMsg: "loading your book",
             setLoading: true,
             done: data => {
-                console.log(data);
                 dispatch({
                     type: "/moreActions",
                     payload: [{

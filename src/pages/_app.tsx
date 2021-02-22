@@ -596,7 +596,7 @@ export default function App({ Component, pageProps }: AppProps) {
                         if (res?.status === 401) {
                             logout();
                         } else if (header) {
-                            Cookies.set("accessToken", header, { sameSite: "strict", ...(true ? { expires: 100 } : { expires: 100 }) });
+                            Cookies.set("accessToken", header, { expires: 1 });
                         }
                         return res.json();
                     }
