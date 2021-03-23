@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { didUpdate, notAllowed } from "../../../server/helpers";
 import tryCatch from "../../../server/tryCatch";
-import bcrypt from "bcrypt";
+import argon2 from "argon2";
 import getDB from "../../../server/getDB";
 import auth, { IUSer } from "../../../server/auth";
 import { InsertOneWriteOpResult, ObjectId } from "mongodb";
@@ -76,7 +76,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                 const session = await getSession();
                 try {
                     await session.withTransaction(async () => {
-                        const hash = await bcrypt.hash(password, saltRounds);
+                        const hash = await argon2.hash(password);
                         const user_id = new ObjectId();
                         const r1 = isOwner
                         ? await schools.insertOne(

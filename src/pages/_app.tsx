@@ -91,6 +91,9 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                 MuiBackdrop: {
                     //onEnter: () => document.documentElement.classList.add("disable_scroll"),
                     //onExit: () => document.documentElement.classList.remove("disable_scroll"),
+                },
+                MuiCircularProgress: {
+                    disableShrink: true,
                 }
             },
         });
@@ -138,7 +141,7 @@ function ThemeWrapper({ children }: { children: ReactChild }) {
                     color: muiTheme.palette.secondary.contrastText,
                     backgroundColor: muiTheme.palette.secondary.main,
                 },
-                ...(isMobile ? {
+                ...(isMobile && isInApp ? {
                     "*": {
                         WebkitTouchCallout: "none !important",
                         WebkitUserSelect: "none !important",

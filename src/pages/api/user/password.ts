@@ -1,30 +1,30 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { didUpdate, errors, notAllowed } from "../../../server/helpers";
 import tryCatch from "../../../server/tryCatch";
-import bcrypt from "bcrypt";
+import argon2 from "argon2";
 import getDB from "../../../server/getDB";
 import auth from "../../../server/auth";
 import { deleteRefreshToken } from "../../../server/cookies";
+import isStrongPassword from "../../../lib/isStrongPassword";
 
-const SALT_ROUNDS = 12;
+export const SALT_ROUNDS = 12;
 
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
         case "PUT": {
             const { newPassword, oldPassword } = req.body;
-            if (!newPassword || newPassword.length < 6) {
-                errors(res, {
-                    newPasswordError: "Password must at least 6 characters",
-                });
+            if (!isStrongPassword(newPassword)) {
+                throw new Error("400");
             } else {
                 const { _id } = await auth(req, res);
                 const db = await getDB();
                 const users = db.collection("users");
-                const valid = await bcrypt.compare(oldPassword, (await users.findOne({ _id }, {projection: { password: 1, _id: 0 }}))?.password);
+                const hash = (await users.findOne({ _id }, {projection: { password: 1, _id: 0 }}))?.password;
+                const valid = await argon2.verify(hash, oldPassword);
                 if (valid) {
                     const r = await users.updateOne({ _id }, {
                         $set: {
-                            password: await bcrypt.hash(newPassword, SALT_ROUNDS),
+                            password: await argon2.hash(newPassword),
                             accountModifiedTimestamp: new Date().getTime(),
                         },
                     });

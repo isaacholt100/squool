@@ -3,11 +3,11 @@ import getDB from "../../server/getDB";
 import getUser from "../../server/getUser";
 import { done, errors, notAllowed } from "../../server/helpers";
 import tryCatch from "../../server/tryCatch";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { IUSer } from "../../server/auth";
 import { deleteRefreshToken, setRefreshToken } from "../../server/cookies";
 import { ObjectId } from "mongodb";
+import argon2 from "argon2";
 
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
@@ -22,7 +22,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     emailError: "Email not found",
                 });
             } else {
-                const valid = await bcrypt.compare(password, isUser.password);
+                const valid = await argon2.verify(isUser.password, password);
                 if (valid) {
                     const user = await getUser(isUser._id, users);
                     const jwtInfo: IUSer = {

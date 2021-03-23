@@ -15,11 +15,9 @@ function UserItem({ user, ...props }: { user: IUser } & ListItemProps) {
         <Link href={"/profile/" + user._id}>
             <ListItem {...props as any} button>
                 <ListItemAvatar>
-                    <Box clone bgcolor="primary.main" color="primary.contrastText">
-                        <Avatar>
-                            <Icon path={profileIcons[user.icon] || mdiAccount} />
-                        </Avatar>
-                    </Box>
+                    <Avatar className="primary_bg primary_contrastText">
+                        <Icon path={profileIcons[user.icon] || mdiAccount} />
+                    </Avatar>
                 </ListItemAvatar>
                 <ListItemText
                     primary={user._id === userInfo._id ? getFullName(userInfo) + " (You)" : getFullName(user)}

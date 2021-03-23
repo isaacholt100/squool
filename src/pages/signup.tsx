@@ -30,6 +30,7 @@ import { useRouter } from "next/router";
 import isEmailValid from "../lib/isEmailValid";
 import Title from "../components/Title";
 import BtnLink from "../components/BtnLink";
+import styles from "../css/form.module.css";
 
 interface IFields {
     firstName: string;
@@ -261,7 +262,7 @@ export default function Signup() {
             {isLoggedIn ? null : (
                 <>
                     <div>
-                        <Box maxWidth={600} /*className={effects.fadeup}*/ mx="auto" component={Card}>
+                        <Card className={"mx_auto " + styles.maxwidth_600}>
                             <Typography variant="h5" gutterBottom>
                                 Sign up to{" "}
                                 <BtnLink href="/" variant="h5" label="Squool" />
@@ -347,7 +348,7 @@ export default function Signup() {
                                     Login
                                 </Button>
                             </Link>
-                        </Box>
+                        </Card>
                     </div>
                 </>
             )}

@@ -25,6 +25,8 @@ import useAuthRedirect from "../hooks/useAuthRedirect";
 import jwtCookies from "../lib/jwtCookies";
 import Title from "../components/Title";
 import BtnLink from "../components/BtnLink";
+import styles from "../css/form.module.css";
+import { NextPageContext } from "next";
 
 const initialState = {
     email: "",
@@ -33,7 +35,7 @@ const initialState = {
     passwordError: "",
 };
 
-export default function Login() {
+export default function Login({ initialEmail }: { initialEmail: string }) {
     const
         [isLoggedIn, setIsRedirecting] = useAuthRedirect(),
         router = useRouter(),
@@ -41,7 +43,7 @@ export default function Login() {
         [, setTheme] = useTheme(),
         [show, setShow] = useState(false),
         [staySignedIn, setStaySignedIn] = useState(true),
-        [state, setState] = useState(initialState),
+        [state, setState] = useState({...initialState, email: initialEmail}),
         dispatch = useDispatch(),
         //socket = useSocket(),
         disabled = state.emailError !== "" || state.passwordError !== "" || state.email === "" || state.password === "",
@@ -106,74 +108,73 @@ export default function Login() {
             <Title title="Login" />
             {isLoggedIn ? null : (
                 <div>
-                    <Box maxWidth={600} mx="auto" /*className={effects.fadeup}*/ component={Card}>
+                    <Card className={"mx_auto " + styles.maxwidth_600}>
                         <Typography variant="h5" gutterBottom>
                             Login to{" "}
                             <BtnLink href="/" variant="h5" label="Squool" />
                         </Typography>
-                        <form onSubmit={handleSubmit}>
-                            <div className={"my_6"}>
-                                <TextField
-                                    id="email"
-                                    name="email"
-                                    required
-                                    error={state.emailError !== ""}
-                                    variant="outlined"
-                                    label="Email"
-                                    value={state.email}
-                                    onChange={handleChange("email")}
-                                    autoComplete="email"
-                                    helperText={state.emailError + " "}
-                                    fullWidth
-                                    autoFocus
-                                    type="email"
-                                />
+                        <form onSubmit={handleSubmit} noValidate>
+                            <TextField
+                                id="email"
+                                name="email"
+                                required
+                                error={state.emailError !== ""}
+                                variant="outlined"
+                                label="Email"
+                                value={state.email}
+                                onChange={handleChange("email")}
+                                autoComplete="email"
+                                helperText={state.emailError + " "}
+                                fullWidth
+                                autoFocus
+                                type="email"
+                                className={"my_6"}
+                            />
+                            <TextField
+                                name="password"
+                                id="password"
+                                required
+                                error={state.passwordError !== ""}
+                                variant="outlined"
+                                type={show ? "text" : "password"}
+                                label="Password"
+                                value={state.password}
+                                onChange={handleChange("password")}
+                                autoComplete="current-password"
+                                helperText={state.passwordError + " "}
+                                fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <Tooltip title={(show ? "Hide" : "Show") + " Password"}>
+                                                <IconButton
+                                                    aria-label="Toggle password visibility"
+                                                    onClick={() => setShow(!show)}
+                                                    onMouseDown={e => e.preventDefault()}
+                                                    className="p_3"
+                                                >
+                                                    {show ? <Icon path={mdiEyeOff} /> : <Icon path={mdiEye} />}
+                                                </IconButton>
+                                            </Tooltip>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <div>
+                                <BtnLink href="/forgotpassword" label="Forgot password?" />
                             </div>
-                            <div className={"my_6"}>
-                                <TextField
-                                    name="password"
-                                    id="password"
-                                    required
-                                    error={state.passwordError !== ""}
-                                    variant="outlined"
-                                    type={show ? "text" : "password"}
-                                    label="Password"
-                                    value={state.password}
-                                    onChange={handleChange("password")}
-                                    autoComplete="current-password"
-                                    helperText={state.passwordError + " "}
-                                    fullWidth
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <Tooltip title={(show ? "Hide" : "Show") + " Password"}>
-                                                    <IconButton
-                                                        aria-label="Toggle password visibility"
-                                                        onClick={() => setShow(!show)}
-                                                        onMouseDown={e => e.preventDefault()}
-                                                        className="p_3"
-                                                    >
-                                                        {show ? <Icon path={mdiEyeOff} /> : <Icon path={mdiEye} />}
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </div>
-                            <Box clone mt="-6px" mb="6px">
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={staySignedIn}
-                                            onChange={e => setStaySignedIn(e.target.checked)}
-                                            value="Stay signed in"
-                                            color="primary"
-                                        />
-                                    }
-                                    label="Stay signed in"
-                                />
-                            </Box>
+                            <FormControlLabel
+                                className="mb_6"
+                                control={
+                                    <Checkbox
+                                        checked={staySignedIn}
+                                        onChange={e => setStaySignedIn(e.target.checked)}
+                                        value="Stay signed in"
+                                        color="primary"
+                                    />
+                                }
+                                label="Stay signed in"
+                            />
                             <div className={"flex space_between"}>
                                 <LoadBtn loading={loading} label="Login" disabled={disabled} />
                                 <Button
@@ -195,9 +196,18 @@ export default function Login() {
                                 Sign up now
                             </Button>
                         </Link>
-                    </Box>
+                    </Card>
                 </div>
             )}
         </>
     );
 };
+
+export async function getStaticProps(context: NextPageContext) {
+    const initialEmail = context?.query?.email || "";
+    return {
+        props: {
+            initialEmail,
+        },
+    }
+}

@@ -8,6 +8,7 @@ interface IProps<T extends boolean> {
     setValue(value: T extends true ? string[] : string): void;
     users: IUser[];
     multiple: T;
+    loading?: boolean;
 }
 
 export default function MembersAutocomplete<T extends boolean>(props: IProps<T>) {
@@ -18,9 +19,10 @@ export default function MembersAutocomplete<T extends boolean>(props: IProps<T>)
             onChange={(_e, newValue) => {
                 props.setValue(!newValue ? null : newValue._id as any)
             }}
-            id="user-autocomplete"
+            id="members-autocomplete"
             options={props.users}
             fullWidth
+            loading={props.loading}
             getOptionLabel={(option: string) => {
                 const user = props.users.find(u => u._id === option);
                 return !user ? "" : getFullName(user);
