@@ -11,7 +11,6 @@ import { shades, colors } from "../../json/colors";
 //import useSocket from "../../hooks/useSocket";
 import { useTheme } from "../../context/Theme";
 import useCarouselView from "../../hooks/useCarouselView";
-import {io} from 'socket.io-client'
 import { mutate } from "swr";
 import Cookies from "js-cookie";
 
@@ -109,7 +108,6 @@ export default function Theme() {
             });
         },
         handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const socket = io();
             setTheme({ type: e.target.value });
             put("/user/settings/theme", {
                 failedMsg: "updating the theme",
@@ -118,7 +116,7 @@ export default function Theme() {
                     val: e.target.value,
                 },
                 done() {
-                    socket.emit("user message", "/theme", { type: e.target.value });
+                    //socket.emit("user message", "/theme", { type: e.target.value });
                 }
             });
         };

@@ -17,6 +17,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                     teacher_ids: [],
                 },
             });
+            done(res);
             break;
         }
         case "PUT": {

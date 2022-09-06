@@ -363,7 +363,7 @@ export default function Files(props: { files: IFile[], tags: Tags, setFiles(f: I
         },*/
         saveFilesOffline = async (files: IFile[], fn: () => void = null) => {
             setSaveLoading(true);
-            const worker = new Worker("../../workers/saveFilesOffline", { type: "module", name: "saveFilesOffline" });
+            const worker = new Worker(new URL("../../workers/saveFilesOffline", import.meta.url));
             worker.postMessage({
                 db_id: props.db_id,
                 files,

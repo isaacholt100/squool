@@ -1,18 +1,22 @@
 import Decimal from "decimal.js";
 
 function isPrime(x: string): boolean | string {
+    if (Number.isNaN(+x)) {
+        return "Not a number";
+    }
+    if (x.startsWith("-")) {
+        return "Number is not positive";
+    }
+    if (x.includes(".")) {
+        return "Number is not whole";
+    }
     if (x === "1" || x === "0") {
         return false;
     }
     if (x === "2" || x === "3") {
-        return true
+        return true;
     }
     const num = new Decimal(x);
-    if (!num.isInteger()) {
-        return "Number is not whole";
-    } else if (num.isNeg()) {
-        return "Number is not positive";
-    }
     if (+num.mod(2) === 0 || +num.mod(3) === 0) {
         return false;
     }

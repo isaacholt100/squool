@@ -1,4 +1,5 @@
 import { Button, Divider, TextField, Typography } from "@material-ui/core";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { mutate } from "swr";
 import { usePut } from "../../hooks/useRequest";

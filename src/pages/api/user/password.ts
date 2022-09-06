@@ -13,7 +13,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
     switch (req.method) {
         case "PUT": {
             const { newPassword, oldPassword } = req.body;
-            if (!isStrongPassword(newPassword)) {
+            if (!await isStrongPassword(newPassword)) {
                 throw new Error("400");
             } else {
                 const { _id } = await auth(req, res);

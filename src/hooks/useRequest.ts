@@ -65,7 +65,7 @@ function useFetch(): [({ url, setLoading: load, method, failedMsg, doneMsg, erro
                 //file: true,
                 ...obj
             }, response);
-            /*const worker = new Worker("../workers/request", { type: "module", name: "request" });
+            /*const worker = new Worker(new URL("../workers/request", import.meta.url));
             worker.postMessage(obj);
             worker.addEventListener("message", ({ data: res }) => {
                 response(res);

@@ -27,10 +27,11 @@ import Link from "next/link";
 import jwtCookies from "../lib/jwtCookies";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import { useRouter } from "next/router";
-import isEmailValid from "../lib/isEmailValid";
 import Title from "../components/Title";
 import BtnLink from "../components/BtnLink";
 import styles from "../css/form.module.css";
+import dynamic from "next/dynamic";
+import isEmailValid from "../lib/isEmailValid";
 
 interface IFields {
     firstName: string;

@@ -4,6 +4,9 @@ import Title from "../components/Title";
 import defaultTheme from "../json/defaultTheme.json";
 
 export default function LandingPage() {
+    import("wasm").then(w => {
+        
+    });
     /*const newTheme = (theme: Theme) => createMuiTheme({
         ...theme,
         palette: {

@@ -130,7 +130,7 @@ function Class() {
         syncOfflineFiles = () => {
             // Make sure files aved offline in IDB are updated when files saved in shared DB are updated.
             console.log({files});
-            const worker = new Worker("../../workers/syncOfflineFiles", { type: "module", name: "syncOfflineFiles" });
+            const worker = new Worker(new URL("../../workers/syncOfflineFiles", import.meta.url));
             worker.postMessage({
                 user_id,
                 db_id: "class_" + class_id,
