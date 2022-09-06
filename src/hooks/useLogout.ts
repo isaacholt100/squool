@@ -7,6 +7,7 @@ export default function useLogout() {
     const [, setTheme] = useTheme();
     const router = useRouter();
     return () => {
+        router.prefetch("/login");
         clearStorage();
         router.push("/login");
         mutate("/api/login", "", false);

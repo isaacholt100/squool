@@ -25,7 +25,7 @@ export default function PrimeTest() {
         },
         handleSubmit = () => {
             setLoading(true);
-            const worker = new Worker("../../workers/prime", { type: "module", name: "prime" });
+            const worker = new Worker(new URL("../../workers/prime", import.meta.url));
             worker.postMessage(number);
             worker.addEventListener("message", ({ data }) => {
                 if (typeof(data) === "boolean") {

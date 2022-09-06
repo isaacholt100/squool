@@ -5,10 +5,11 @@ import Title from "../components/Title";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import { usePut } from "../hooks/useRequest";
 import styles from "../css/form.module.css";
-import isEmailValid from "../lib/isEmailValid";
 import MarginDivider from "../components/MarginDivider";
 import BtnLink from "../components/BtnLink";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import isEmailValid from "../lib/isEmailValid";
 
 export default function ForgotPassword() {
     const

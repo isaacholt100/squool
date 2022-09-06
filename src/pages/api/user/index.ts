@@ -11,8 +11,8 @@ import jwt from "jsonwebtoken";
 import getUser from "../../../server/getUser";
 import { deleteRefreshToken, setRefreshToken } from "../../../server/cookies";
 import getSession from "../../../server/getSession";
-import isEmailValid from "../../../lib/isEmailValid";
 import passwordAuth from "../../../server/passwordAuth";
+import isEmailValid from "../../../lib/isEmailValid";
 
 export const DEFAULT_PERMISSIONS = {
     changeName: 1,
@@ -168,7 +168,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, asyn
                             setRefreshToken(res, refreshToken);
                             res.json({
                                 accessToken: jwt.sign(jwtInfo, process.env.ACCESS_TOKEN, {
-                                    expiresIn: "20s",
+                                    expiresIn: "20m",
                                 }),
                                 refreshToken,
                                 user_id: r.insertedId

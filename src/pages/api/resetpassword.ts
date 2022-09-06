@@ -8,7 +8,7 @@ import isStrongPassword from "../../lib/isStrongPassword";
 export default (req: NextApiRequest, res: NextApiResponse) => tryCatch(res, async () => {
     switch (req.method) {
         case "PUT": {
-            if (!isStrongPassword(req.body.password)) {
+            if (!await isStrongPassword(req.body.password)) {
                 throw new Error("400");
             }
             const db = await getDB();

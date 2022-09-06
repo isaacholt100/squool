@@ -11,7 +11,6 @@ import { useRouter } from "next/router";
 
 export default memo(() => {
     const
-        router = useRouter(),
         [del, loading] = useDelete(),
         logoutDone = useLogout(),
         [ConfirmDialog, confirm] = useConfirm(loading),
@@ -78,7 +77,6 @@ export default memo(() => {
             }
         },
         confirmLogout = () => {
-            router.prefetch("/login");
             confirm("logout?", logout);
         };
     useEffect(() => {
